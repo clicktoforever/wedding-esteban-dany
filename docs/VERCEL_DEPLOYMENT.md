@@ -32,12 +32,7 @@ Rama: `feature/v1-civil`
 ```
 Build Command:        npm run build
 Output Directory:     .next
-Install Command:      npm install --legacy-peer-deps
-```
-
-**⚠️ IMPORTANTE:** En "Install Command", agrega el override:
-```bash
-npm install --legacy-peer-deps
+Install Command:      npm install
 ```
 
 ### 4. Configurar Variables de Entorno
@@ -49,7 +44,6 @@ En la sección **"Environment Variables"**, agrega estas variables una por una:
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://cleeumrziseyvctsfxxx.supabase.co` | Tu archivo .env.local |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `eyJhbGciOiJIUzI1NiIsInR5c...` | Tu archivo .env.local |
 | `SUPABASE_SERVICE_ROLE_KEY` | `eyJhbGciOiJIUzI1NiIsInR5c...` | Tu archivo .env.local |
-| `NEXT_PUBLIC_BUILDER_API_KEY` | `7275fb28b3684652a493c6fd6532e314` | Tu archivo .env.local |
 
 **Opcional (si tienes problemas SSL en Vercel):**
 | Name | Value |
@@ -63,7 +57,7 @@ En la sección **"Environment Variables"**, agrega estas variables una por una:
 1. Click en **"Deploy"**
 2. Vercel comenzará a:
    - Clonar tu repositorio
-   - Instalar dependencias (con `--legacy-peer-deps`)
+   - Instalar dependencias
    - Construir tu aplicación Next.js
    - Desplegar a producción
 
