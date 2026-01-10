@@ -1,0 +1,76 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: 'Inter', sans-serif;
+  --font-playfair: 'Playfair Display', serif;
+  --wedding-rose: #F4CCCC;
+  --wedding-lavender: #D1C2D9;
+  --wedding-purple: #9579B4;
+  --wedding-beige: #F1DBD0;
+  --wedding-sage: #ADB697;
+  --wedding-forest: #4D5D53;
+}
+
+@layer base {
+  body {
+    @apply bg-white text-gray-900 antialiased;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+  
+  p {
+    @apply font-sans;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-wedding-purple text-white px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-wedding-forest hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-wedding-forest border-2 border-wedding-forest px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-wedding-forest hover:text-white;
+  }
+  
+  .section-padding {
+    @apply py-20 md:py-32;
+  }
+  
+  .container-custom {
+    @apply container mx-auto px-4 md:px-8 lg:px-16;
+  }
+  
+  .card-elegant {
+    @apply bg-white shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden;
+  }
+  
+  .heading-primary {
+    @apply text-4xl md:text-5xl lg:text-6xl font-serif text-wedding-forest leading-tight;
+  }
+  
+  .heading-secondary {
+    @apply text-3xl md:text-4xl font-serif text-wedding-forest leading-tight;
+  }
+  
+  .text-body {
+    @apply text-base md:text-lg text-gray-600 leading-relaxed;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .bg-gradient-wedding {
+    background: linear-gradient(135deg, var(--wedding-beige) 0%, var(--wedding-rose) 100%);
+  }
+  
+  .bg-gradient-soft {
+    background: linear-gradient(to bottom, #ffffff 0%, var(--wedding-beige) 100%);
+  }
+}
