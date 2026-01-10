@@ -10,11 +10,9 @@
     "generate-types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/database.types.ts"
   },
   "dependencies": {
-    "@builder.io/react": "^3.2.0",
-    "@builder.io/sdk": "^2.2.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.39.0",
-    "next": "15.1.6",
+    "next": "^16.1.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
   },
