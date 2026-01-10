@@ -13,7 +13,7 @@ interface GiftRegistryProps {
 
 export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const [gifts, setGifts] = useState<Gift[]>(initialGifts)
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
+  const [selectedCategory, setSelectedCategory] = useState<string | null>('all')
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -46,6 +46,7 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
     startTransition(async () => {
       const { error } = await supabase
         .from('gifts')
+        // @ts-ignore - Supabase type inference issue
         .update({
           is_purchased: true,
           purchased_at: new Date().toISOString(),
