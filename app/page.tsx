@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import WeddingCountdown from '@/components/builder/WeddingCountdown'
 
 // Revalidate every 60 seconds (ISR)
 export const revalidate = 60
@@ -117,10 +116,36 @@ export default async function Page() {
               PARA TU <span className="italic text-wedding-purple">DÍA DE ENSUEÑO</span>
             </h2>
           </div>
-          <WeddingCountdown 
-            targetDate="2026-06-15T18:00:00"
-            title="Faltan"
-          />
+          
+          {/* Simple Static Countdown Display */}
+          <div className="max-w-4xl mx-auto">
+            <div className="text-center mb-8">
+              <p className="text-xl tracking-wider uppercase text-wedding-forest mb-4">Faltan</p>
+            </div>
+            
+            <div className="grid grid-cols-4 gap-4 md:gap-8">
+              <div className="text-center p-6 bg-white/80 rounded-sm border border-wedding-sage/20">
+                <div className="text-4xl md:text-5xl font-serif text-wedding-forest mb-2">00</div>
+                <div className="text-sm tracking-widest uppercase text-gray-500">Días</div>
+              </div>
+              <div className="text-center p-6 bg-white/80 rounded-sm border border-wedding-sage/20">
+                <div className="text-4xl md:text-5xl font-serif text-wedding-forest mb-2">00</div>
+                <div className="text-sm tracking-widest uppercase text-gray-500">Horas</div>
+              </div>
+              <div className="text-center p-6 bg-white/80 rounded-sm border border-wedding-sage/20">
+                <div className="text-4xl md:text-5xl font-serif text-wedding-forest mb-2">00</div>
+                <div className="text-sm tracking-widest uppercase text-gray-500">Minutos</div>
+              </div>
+              <div className="text-center p-6 bg-white/80 rounded-sm border border-wedding-sage/20">
+                <div className="text-4xl md:text-5xl font-serif text-wedding-forest mb-2">00</div>
+                <div className="text-sm tracking-widest uppercase text-gray-500">Segundos</div>
+              </div>
+            </div>
+            
+            <div className="text-center mt-8">
+              <p className="text-lg text-wedding-forest font-serif">15 de Junio, 2026 • 6:00 PM</p>
+            </div>
+          </div>
         </div>
       </section>
 

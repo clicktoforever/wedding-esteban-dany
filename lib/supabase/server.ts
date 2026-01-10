@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { Database } from './database.types'
+import { Database } from '../database.types'
 
 export async function createClient() {
   const cookieStore = await cookies()
@@ -41,6 +41,7 @@ export async function createClientWithToken(token: string) {
   const supabase = await createClient()
   
   // Set the token in the session for RLS policies
+  // @ts-ignore - Supabase type inference issue
   await supabase.rpc('set_config', {
     setting: 'app.current_token',
     value: token
