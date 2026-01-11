@@ -11,11 +11,15 @@ const config: Config = {
       fontFamily: {
         sans: ['var(--font-inter)'],
         serif: ['var(--font-playfair)'],
+        montaga: ['Montaga', 'serif'],
       },
       colors: {
+        'neutral-bg': '#FCF9F7',
+        'neutral-text': '#2B1105',
         wedding: {
-          rose: '#F4CCCC',
-          lavender: '#D1C2D9',
+          primary: '#C6754D',
+          rose: '#f5cbcc',
+          lavender: '#d1c1d9',
           purple: '#9579B4',
           beige: '#F1DBD0',
           sage: '#ADB697',
