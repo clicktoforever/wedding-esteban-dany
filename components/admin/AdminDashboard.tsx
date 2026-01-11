@@ -237,11 +237,16 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                     )}
                   </div>
                   <p className="text-xs text-gray-500">
-                    {gift.purchased_at && new Date(gift.purchased_at).toLocaleDateString('es-MX', {
-                      day: 'numeric',
-                      month: 'short',
-                      year: 'numeric'
-                    })}
+                    {gift.purchased_at && (() => {
+                      const date = new Date(gift.purchased_at)
+                      // Format using UTC to ensure consistency between server and client
+                      return new Intl.DateTimeFormat('es-MX', {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                        timeZone: 'UTC'
+                      }).format(date)
+                    })()}
                   </p>
                 </div>
               ))}

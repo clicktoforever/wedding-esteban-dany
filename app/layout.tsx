@@ -15,11 +15,11 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'Boda Esteban & Dany',
-  description: 'Te invitamos a celebrar nuestra boda',
+  title: 'Esteban & Dany - 10 de Abril 2025',
+  description: 'Te invitamos a celebrar nuestra boda el 10 de Abril, 2025 en Ciudad de México',
   openGraph: {
-    title: 'Boda Esteban & Dany',
-    description: 'Te invitamos a celebrar nuestra boda',
+    title: 'Esteban & Dany - 10 de Abril 2025',
+    description: 'Te invitamos a celebrar nuestra boda el 10 de Abril, 2025 en Ciudad de México',
     type: 'website',
   },
 }
