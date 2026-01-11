@@ -2,24 +2,34 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Montaga&display=swap');
+
 :root {
   --font-inter: 'Inter', sans-serif;
   --font-playfair: 'Playfair Display', serif;
-  --wedding-rose: #F4CCCC;
-  --wedding-lavender: #D1C2D9;
+  --font-montaga: 'Montaga', serif;
+  
+  /* User's Wedding Color Palette */
+  --wedding-rose: #f5cbcc;
+  --wedding-lavender: #d1c1d9;
   --wedding-purple: #9579B4;
   --wedding-beige: #F1DBD0;
   --wedding-sage: #ADB697;
   --wedding-forest: #4D5D53;
+  
+  /* Figma Design Colors */
+  --neutral-bg: #FCF9F7;
+  --neutral-text: #2B1105;
+  --wedding-primary: #C6754D;
 }
 
 @layer base {
   body {
-    @apply bg-white text-gray-900 antialiased;
+    @apply bg-neutral-bg text-neutral-text antialiased;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif;
+    @apply font-montaga;
   }
   
   p {
@@ -28,6 +38,26 @@
 }
 
 @layer components {
+  .font-montaga {
+    font-family: var(--font-montaga);
+  }
+  
+  .nav-link {
+    @apply font-montaga text-lg md:text-xl text-neutral-text/60 hover:text-neutral-text transition-all duration-300 relative;
+  }
+  
+  .nav-link:hover {
+    opacity: 1;
+  }
+  
+  .wedding-btn-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-neutral-bg bg-wedding-primary border border-wedding-primary transition-all duration-300 hover:bg-wedding-primary/90 hover:shadow-lg;
+  }
+  
+  .wedding-btn-outline {
+    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-wedding-primary bg-neutral-bg border border-wedding-primary transition-all duration-300 hover:bg-wedding-primary hover:text-neutral-bg;
+  }
+  
   .btn-primary {
     @apply bg-wedding-purple text-white px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-wedding-forest hover:shadow-lg;
   }
@@ -49,11 +79,11 @@
   }
   
   .heading-primary {
-    @apply text-4xl md:text-5xl lg:text-6xl font-serif text-wedding-forest leading-tight;
+    @apply text-4xl md:text-5xl lg:text-6xl font-montaga text-neutral-text leading-tight;
   }
   
   .heading-secondary {
-    @apply text-3xl md:text-4xl font-serif text-wedding-forest leading-tight;
+    @apply text-3xl md:text-4xl font-montaga text-neutral-text leading-tight;
   }
   
   .text-body {
@@ -71,6 +101,50 @@
   }
   
   .bg-gradient-soft {
-    background: linear-gradient(to bottom, #ffffff 0%, var(--wedding-beige) 100%);
+    background: linear-gradient(to bottom, var(--neutral-bg) 0%, var(--wedding-beige) 100%);
+  }
+  
+  .bg-neutral-bg {
+    background-color: var(--neutral-bg);
+  }
+  
+  .text-neutral-text {
+    color: var(--neutral-text);
+  }
+  
+  .text-wedding-primary {
+    color: var(--wedding-primary);
+  }
+  
+  .bg-wedding-primary {
+    background-color: var(--wedding-primary);
+  }
+  
+  .border-wedding-primary {
+    border-color: var(--wedding-primary);
+  }
+  
+  .bg-wedding-beige {
+    background-color: var(--wedding-beige);
+  }
+  
+  .bg-wedding-rose {
+    background-color: var(--wedding-rose);
+  }
+  
+  .bg-wedding-lavender {
+    background-color: var(--wedding-lavender);
+  }
+  
+  .bg-wedding-purple {
+    background-color: var(--wedding-purple);
+  }
+  
+  .bg-wedding-sage {
+    background-color: var(--wedding-sage);
+  }
+  
+  .bg-wedding-forest {
+    background-color: var(--wedding-forest);
   }
 }
