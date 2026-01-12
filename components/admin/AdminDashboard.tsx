@@ -35,6 +35,68 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
     ? ((stats.purchased_gifts / stats.total_gifts) * 100).toFixed(1)
     : '0.0'
 
+  const exportToExcel = () => {
+    // Preparar datos para exportar
+    const rows: string[][] = []
+    
+    // Encabezados
+    rows.push([
+      'Invitado',
+      'Email',
+      'Tel\u00e9fono',
+      'Nombre Asistente',
+      'Estado',
+      'Restricciones Diet\u00e9ticas',
+      'Notas'
+    ])
+
+    // Datos de cada invitado y sus pases
+    guests.forEach(guest => {
+      guest.passes.forEach(pass => {
+        const statusMap = {
+          'confirmed': 'Confirmado',
+          'declined': 'Declinado',
+          'pending': 'Pendiente'
+        }
+        
+        rows.push([
+          guest.name,
+          guest.email || '',
+          guest.phone || '',
+          pass.attendee_name,
+          statusMap[pass.confirmation_status as keyof typeof statusMap] || pass.confirmation_status,
+          pass.dietary_restrictions || '',
+          pass.notes || ''
+        ])
+      })
+    })
+
+    // Convertir a CSV
+    const csvContent = rows.map(row => 
+      row.map(cell => {
+        // Escapar comillas dobles y envolver en comillas si contiene comas o saltos de l\u00ednea
+        const cellStr = String(cell).replace(/"/g, '""')
+        return cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"') 
+          ? `"${cellStr}"` 
+          : cellStr
+      }).join(',')
+    ).join('\n')
+
+    // Agregar BOM para que Excel reconozca UTF-8
+    const BOM = '\uFEFF'
+    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    
+    link.setAttribute('href', url)
+    link.setAttribute('download', `invitados_boda_${new Date().toISOString().split('T')[0]}.csv`)
+    link.style.visibility = 'hidden'
+    
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  }
+
   return (
     <div className="space-y-8">
       {/* Progress Overview */}
@@ -87,10 +149,19 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
 
       {/* Guests Table */}
       <div className="bg-white border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30">
+        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30 flex justify-between items-center">
           <h2 className="text-2xl font-serif text-wedding-forest">
             Lista de Invitados
           </h2>
+          <button
+            onClick={exportToExcel}
+            className="flex items-center gap-2 px-6 py-3 bg-wedding-forest text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-forest/90 transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Descargar Excel</span>
+          </button>
         </div>
         
         <div className="overflow-x-auto">
