@@ -52,24 +52,26 @@ export default function PassCard({ pass, onUpdate, disabled }: PassCardProps) {
         <button
           onClick={() => onUpdate(pass.id, 'confirmed')}
           disabled={disabled || pass.confirmation_status === 'confirmed'}
-          className={`py-3 px-4 text-sm tracking-wider uppercase font-medium transition-all duration-300 ${
+          className={`py-2 px-3 text-xs tracking-wider uppercase font-medium transition-all duration-300 flex items-center justify-start gap-2 ${
             pass.confirmation_status === 'confirmed'
-              ? 'bg-wedding-sage text-white'
-              : 'bg-white border-2 border-wedding-sage text-wedding-forest hover:bg-wedding-sage hover:text-white'
+              ? 'bg-wedding-forest text-white'
+              : 'bg-white border-2 border-gray-300 text-gray-500 hover:border-wedding-forest hover:text-wedding-forest'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {pass.confirmation_status === 'confirmed' ? '✓ Confirmado' : 'Asistiré'}
+          <span className="text-base">✓</span>
+          <span>Asistiré</span>
         </button>
         <button
           onClick={() => onUpdate(pass.id, 'declined')}
           disabled={disabled || pass.confirmation_status === 'declined'}
-          className={`py-3 px-4 text-sm tracking-wider uppercase font-medium transition-all duration-300 ${
+          className={`py-2 px-3 text-xs tracking-wider uppercase font-medium transition-all duration-300 flex items-center justify-start gap-2 ${
             pass.confirmation_status === 'declined'
               ? 'bg-gray-400 text-white'
-              : 'bg-white border-2 border-gray-300 text-gray-600 hover:bg-gray-400 hover:text-white'
+              : 'bg-white border-2 border-gray-300 text-gray-500 hover:border-gray-400 hover:text-gray-600'
           } disabled:opacity-50 disabled:cursor-not-allowed`}
         >
-          {pass.confirmation_status === 'declined' ? '✗ Declinado' : 'No asistiré'}
+          <span className="text-base">✗</span>
+          <span>No asistiré</span>
         </button>
       </div>
 
