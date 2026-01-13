@@ -87,24 +87,29 @@ export function createPayPhonePayment(config: {
 }): PayPhonePaymentRequest {
   const amountInCents = Math.round(config.amount * 100)
   
-  return {
+  const payload: PayPhonePaymentRequest = {
     amount: amountInCents,
     amountWithoutTax: amountInCents, // Assuming no tax for gifts
-    amountWithTax: 0,
-    tax: 0,
-    service: 0,
-    tip: 0,
     currency: 'USD',
     storeId: process.env.PAYPHONE_STORE_ID || '',
     clientTransactionId: config.clientTransactionId,
     reference: config.reference,
-    email: config.donorEmail,
-    lang: 'es',
-    defaultMethod: 'card',
-    timeZone: -5,
-    responseUrl: config.responseUrl,
-    cancellationUrl: config.cancellationUrl,
   }
+
+  // Add optional fields only if they have values
+  if (config.donorEmail) {
+    payload.email = config.donorEmail
+  }
+  
+  if (config.responseUrl) {
+    payload.responseUrl = config.responseUrl
+  }
+  
+  if (config.cancellationUrl) {
+    payload.cancellationUrl = config.cancellationUrl
+  }
+
+  return payload
 }
 
 /**
@@ -125,6 +130,13 @@ export async function preparePayPhonePayment(
   if (!paymentData.storeId) {
     throw new Error('PAYPHONE_STORE_ID is not configured')
   }
+
+  console.log('PayPhone API Request:', {
+    url: `${apiUrl}/api/button/Prepare`,
+    storeId: paymentData.storeId,
+    amount: paymentData.amount,
+    clientTransactionId: paymentData.clientTransactionId
+  })
   
   try {
     const response = await fetch(`${apiUrl}/api/button/Prepare`, {
@@ -136,12 +148,15 @@ export async function preparePayPhonePayment(
       body: JSON.stringify(paymentData),
     })
     
+    const responseText = await response.text()
+    console.log('PayPhone API Response Status:', response.status)
+    console.log('PayPhone API Response:', responseText.substring(0, 500))
+    
     if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`PayPhone API error: ${response.status} - ${errorText}`)
+      throw new Error(`PayPhone API error: ${response.status} - ${responseText}`)
     }
     
-    const result: PayPhonePaymentResponse = await response.json()
+    const result: PayPhonePaymentResponse = JSON.parse(responseText)
     return result
   } catch (error) {
     console.error('PayPhone API Error:', error)
