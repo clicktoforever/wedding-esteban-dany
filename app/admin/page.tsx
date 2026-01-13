@@ -27,7 +27,7 @@ export default async function AdminPage() {
   const { data: gifts } = await supabase
     .from('gifts')
     .select('*')
-    .order('is_purchased', { ascending: false })
+    .order('status', { ascending: true })
 
   const statsData = stats?.[0] || {
     total_guests: 0,
@@ -36,7 +36,9 @@ export default async function AdminPage() {
     declined_passes: 0,
     pending_passes: 0,
     total_gifts: 0,
-    purchased_gifts: 0,
+    completed_gifts: 0,
+    total_contributions: 0,
+    approved_contributions: 0,
   }
 
   return (
@@ -145,10 +147,10 @@ export default async function AdminPage() {
             
             <div className="group bg-white p-8 text-center border-2 border-wedding-purple/10 hover:border-wedding-purple/30 transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
               <div className="text-5xl font-serif text-wedding-purple mb-3 group-hover:scale-110 transition-transform">
-                {statsData.purchased_gifts}
+                {statsData.completed_gifts}
               </div>
               <div className="text-xs tracking-[0.2em] uppercase text-gray-500 font-medium">
-                Regalos
+                Regalos Completados
               </div>
             </div>
             

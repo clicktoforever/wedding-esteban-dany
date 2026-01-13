@@ -20,7 +20,9 @@ interface Stats {
   declined_passes: number
   pending_passes: number
   total_gifts: number
-  purchased_gifts: number
+  completed_gifts: number
+  total_contributions?: number
+  approved_contributions?: number
 }
 
 interface AdminDashboardProps {
@@ -54,8 +56,8 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
     ? ((stats.confirmed_passes / stats.total_passes) * 100).toFixed(1)
     : '0.0'
 
-  const giftsPurchasedRate = stats.total_gifts > 0
-    ? ((stats.purchased_gifts / stats.total_gifts) * 100).toFixed(1)
+  const giftsCompletedRate = stats.total_gifts > 0
+    ? ((stats.completed_gifts / stats.total_gifts) * 100).toFixed(1)
     : '0.0'
 
   const addPass = () => {
