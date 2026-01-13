@@ -86,10 +86,8 @@ export type Database = {
           price: number | null
           store_url: string | null
           category: string | null
-          is_purchased: boolean
-          purchased_by: string | null
-          purchased_at: string | null
           created_at: string
+          updated_at: string
           total_amount: number
           collected_amount: number
           status: 'AVAILABLE' | 'COMPLETED'
@@ -103,10 +101,8 @@ export type Database = {
           price?: number | null
           store_url?: string | null
           category?: string | null
-          is_purchased?: boolean
-          purchased_by?: string | null
-          purchased_at?: string | null
           created_at?: string
+          updated_at?: string
           total_amount?: number
           collected_amount?: number
           status?: 'AVAILABLE' | 'COMPLETED'
@@ -120,24 +116,14 @@ export type Database = {
           price?: number | null
           store_url?: string | null
           category?: string | null
-          is_purchased?: boolean
-          purchased_by?: string | null
-          purchased_at?: string | null
           created_at?: string
+          updated_at?: string
           total_amount?: number
           collected_amount?: number
           status?: 'AVAILABLE' | 'COMPLETED'
           is_crowdfunding?: boolean
         }
-        Relationships: [
-          {
-            foreignKeyName: "gifts_purchased_by_fkey"
-            columns: ["purchased_by"]
-            isOneToOne: false
-            referencedRelation: "guests"
-            referencedColumns: ["id"]
-          }
-        ]
+        Relationships: []
       }
       gift_transactions: {
         Row: {

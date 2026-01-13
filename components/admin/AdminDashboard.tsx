@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { formatCurrency } from '@/lib/payphone'
 import type { Database } from '@/lib/database.types'
 
 type Guest = Database['public']['Tables']['guests']['Row']
@@ -557,12 +558,12 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
               Regalos Disponibles
             </h3>
             <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => !g.is_purchased).length} artículos
+              {gifts.filter(g => g.status !== 'COMPLETED').length} artículos
             </p>
           </div>
           <div className="p-6 max-h-96 overflow-y-auto">
             <div className="space-y-3">
-              {gifts.filter(g => !g.is_purchased).map(gift => (
+              {gifts.filter(g => g.status !== 'COMPLETED').map(gift => (
                 <div key={gift.id} className="flex justify-between items-start pb-3 border-b border-gray-100 last:border-0">
                   <div className="flex-1">
                     <p className="text-sm font-medium text-gray-800">{gift.name}</p>
@@ -577,54 +578,45 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                   )}
                 </div>
               ))}
-              {gifts.filter(g => !g.is_purchased).length === 0 && (
+              {gifts.filter(g => g.status !== 'COMPLETED').length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-8">
-                  Todos los regalos han sido apartados
+                  Todos los regalos han sido completados
                 </p>
               )}
             </div>
           </div>
         </div>
 
-        {/* Purchased Gifts */}
+        {/* Completed Gifts */}
         <div className="bg-white border border-gray-200 overflow-hidden">
           <div className="p-6 border-b border-gray-200 bg-wedding-sage/10">
             <h3 className="text-xl font-serif text-wedding-forest">
-              Regalos Apartados
+              Regalos Completados
             </h3>
             <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => g.is_purchased).length} artículos
+              {gifts.filter(g => g.status === 'COMPLETED').length} artículos
             </p>
           </div>
           <div className="p-6 max-h-96 overflow-y-auto">
             <div className="space-y-3">
-              {gifts.filter(g => g.is_purchased).map(gift => (
+              {gifts.filter(g => g.status === 'COMPLETED').map(gift => (
                 <div key={gift.id} className="pb-3 border-b border-gray-100 last:border-0">
                   <div className="flex justify-between items-start mb-1">
                     <p className="text-sm font-medium text-gray-800">{gift.name}</p>
-                    {gift.price && (
-                      <p className="text-sm font-serif text-wedding-sage ml-4">
-                        ${gift.price.toLocaleString('es-MX')}
-                      </p>
-                    )}
+                    <p className="text-sm font-serif text-wedding-sage ml-4">
+                      {formatCurrency(gift.total_amount || gift.price || 0)}
+                    </p>
                   </div>
-                  <p className="text-xs text-gray-500">
-                    {gift.purchased_at && (() => {
-                      const date = new Date(gift.purchased_at)
-                      // Format using UTC to ensure consistency between server and client
-                      return new Intl.DateTimeFormat('es-MX', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        timeZone: 'UTC'
-                      }).format(date)
-                    })()}
-                  </p>
+                  {gift.is_crowdfunding && (
+                    <p className="text-xs text-gray-500">
+                      Recaudado: {formatCurrency(gift.collected_amount)}
+                    </p>
+                  )}
                 </div>
               ))}
-              {gifts.filter(g => g.is_purchased).length === 0 && (
+              {gifts.filter(g => g.status === 'COMPLETED').length === 0 && (
                 <p className="text-sm text-gray-400 text-center py-8">
-                  Aún no hay regalos apartados
+                  Aún no hay regalos completados
                 </p>
               )}
             </div>
