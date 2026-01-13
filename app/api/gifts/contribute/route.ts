@@ -131,6 +131,10 @@ export async function POST(request: NextRequest) {
     // El monto en PayPhone debe estar en centavos y sin decimales
     const amountInCents = Math.round(amount * 100)
 
+    // Construct redirect URL for after payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const redirectUrl = `${baseUrl}/confirm-payment`
+
     // Return data for PayPhone widget
     return NextResponse.json({
       success: true,
@@ -143,6 +147,7 @@ export async function POST(request: NextRequest) {
         currency: 'USD',
         storeId: process.env.PAYPHONE_STORE_ID || '',
         reference: `Regalo: ${gift.name} - ${donorName}`,
+        redirectUrl,
       },
       message: 'Transaction created successfully',
     })
