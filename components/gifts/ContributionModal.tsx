@@ -147,20 +147,20 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
-        onClick={onClose}
+        onClick={showPaymentWidget ? undefined : onClose}
       />
 
       {/* Modal */}
-      <div className="flex min-h-full items-center justify-center p-4">
-        <div className="relative w-full max-w-2xl bg-white shadow-2xl transform transition-all">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4">
+        <div className="relative w-full max-w-2xl bg-white shadow-2xl transform transition-all max-h-[95vh] overflow-y-auto">
           {/* Header */}
-          <div className="bg-gradient-to-br from-wedding-rose/10 to-wedding-purple/10 px-8 py-6 border-b border-gray-100">
+          <div className="bg-gradient-to-br from-wedding-rose/10 to-wedding-purple/10 px-4 sm:px-8 py-4 sm:py-6 border-b border-gray-100 sticky top-0 bg-white z-10">
             <div className="flex items-start justify-between">
               <div className="flex-1">
-                <h3 className="text-2xl font-serif text-wedding-forest mb-2 tracking-wide">
+                <h3 className="text-xl sm:text-2xl font-serif text-wedding-forest mb-2 tracking-wide">
                   Contribuir a este Regalo
                 </h3>
-                <p className="text-wedding-purple font-medium">{gift.name}</p>
+                <p className="text-sm sm:text-base text-wedding-purple font-medium">{gift.name}</p>
               </div>
               <button
                 onClick={onClose}
@@ -175,10 +175,10 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
           </div>
 
           {/* Progress Section */}
-          <div className="px-8 py-6 bg-gray-50 border-b border-gray-100">
+          <div className="px-4 sm:px-8 py-4 sm:py-6 bg-gray-50 border-b border-gray-100">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-600">Progreso del Regalo</span>
-              <span className="text-sm font-bold text-wedding-forest">
+              <span className="text-xs sm:text-sm font-medium text-gray-600">Progreso del Regalo</span>
+              <span className="text-xs sm:text-sm font-bold text-wedding-forest">
                 {progressPercentage.toFixed(0)}%
               </span>
             </div>
@@ -188,29 +188,29 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-sm text-gray-600">
+            <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
+              <span className="text-xs sm:text-sm text-gray-600">
                 Recaudado: <strong className="text-wedding-forest">{formatCurrency(giftCollected)}</strong>
               </span>
-              <span className="text-sm text-gray-600">
+              <span className="text-xs sm:text-sm text-gray-600">
                 Meta: <strong className="text-wedding-purple">{formatCurrency(giftTotal)}</strong>
               </span>
             </div>
             <div className="mt-3 text-center">
-              <p className="text-lg font-semibold text-wedding-rose">
+              <p className="text-base sm:text-lg font-semibold text-wedding-rose">
                 Restante: {formatCurrency(remainingAmount)}
               </p>
             </div>
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="px-8 py-6 space-y-6">
+          <form onSubmit={handleSubmit} className="px-4 sm:px-8 py-4 sm:py-6 space-y-4 sm:space-y-6">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 flex items-start gap-3">
+              <div className="bg-red-50 border border-red-200 text-red-800 px-3 py-2 sm:px-4 sm:py-3 flex items-start gap-2 sm:gap-3 text-sm">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
-                <p className="text-sm">{error}</p>
+                <p className="text-xs sm:text-sm">{error}</p>
               </div>
             )}
 
@@ -343,11 +343,32 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
 
             {/* PayPhone Widget Container */}
             {showPaymentWidget && (
-              <div className="mt-6 p-6 bg-gray-50 border-2 border-wedding-purple/20">
-                <h4 className="text-lg font-semibold text-wedding-forest mb-4 text-center">
-                  Completa tu Pago
-                </h4>
-                <div id="pp-button" className="flex justify-center"></div>
+              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+                <div className="relative w-full max-w-4xl bg-white shadow-2xl my-8">
+                  {/* Close button for widget */}
+                  <button
+                    onClick={onClose}
+                    className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full"
+                  >
+                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                  
+                  <div className="p-4 sm:p-8">
+                    <h4 className="text-xl sm:text-2xl font-semibold text-wedding-forest mb-6 text-center">
+                      Completa tu Pago
+                    </h4>
+                    <div 
+                      id="pp-button" 
+                      className="w-full min-h-[500px] sm:min-h-[600px] flex items-center justify-center"
+                      style={{
+                        position: 'relative',
+                        zIndex: 70
+                      }}
+                    ></div>
+                  </div>
+                </div>
               </div>
             )}
           </form>
