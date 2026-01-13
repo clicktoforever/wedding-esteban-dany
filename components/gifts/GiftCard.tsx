@@ -8,13 +8,10 @@ type Gift = Database['public']['Tables']['gifts']['Row']
 
 interface GiftCardProps {
   gift: Gift
-  onPurchase?: (giftId: string) => Promise<void>
   onContribute?: (gift: Gift) => void
-  disabled: boolean
 }
 
-export default function GiftCard({ gift, onPurchase, onContribute, disabled }: GiftCardProps) {
-  const isPurchased = gift.is_purchased
+export default function GiftCard({ gift, onContribute }: GiftCardProps) {
   const isCrowdfunding = gift.is_crowdfunding
   const isCompleted = gift.status === 'COMPLETED'
   const progressPercentage = isCrowdfunding && gift.total_amount > 0
@@ -25,7 +22,7 @@ export default function GiftCard({ gift, onPurchase, onContribute, disabled }: G
   return (
     <div
       className={`card-elegant ${
-        (isPurchased || isCompleted) ? 'opacity-50' : ''
+        isCompleted ? 'opacity-50' : ''
       }`}
     >
       {/* Image */}
@@ -36,7 +33,7 @@ export default function GiftCard({ gift, onPurchase, onContribute, disabled }: G
             alt={gift.name}
             fill
             className={`object-cover transition-transform duration-500 ${
-              (isPurchased || isCompleted) ? '' : 'group-hover:scale-110'
+              isCompleted ? '' : 'group-hover:scale-110'
             }`}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
@@ -48,15 +45,15 @@ export default function GiftCard({ gift, onPurchase, onContribute, disabled }: G
           </div>
         )}
         
-        {(isPurchased || isCompleted) && (
+        {isCompleted && (
           <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
             <div className="bg-white px-6 py-3 text-sm tracking-wider uppercase font-semibold text-gray-700">
-              {isCompleted ? '✓ Completado' : '✓ Apartado'}
+              ✓ Completado
             </div>
           </div>
         )}
 
-        {gift.category && !(isPurchased || isCompleted) && (
+        {gift.category && !isCompleted && (
           <div className="absolute top-4 left-4">
             <span className="bg-wedding-lavender/90 backdrop-blur-sm px-4 py-1 text-xs tracking-wider uppercase font-medium text-wedding-forest">
               {gift.category}
@@ -130,7 +127,7 @@ export default function GiftCard({ gift, onPurchase, onContribute, disabled }: G
         )}
 
         <div className="space-y-2">
-          {gift.store_url && !(isPurchased || isCompleted) && (
+          {gift.store_url && !isCompleted && (
             <a
               href={gift.store_url}
               target="_blank"
@@ -141,10 +138,10 @@ export default function GiftCard({ gift, onPurchase, onContribute, disabled }: G
             </a>
           )}
           
-          {/* Contribution Button - Always use PayPhone flow */}
+          {/* Contribution Button */}
           <button
             onClick={() => onContribute?.(gift)}
-            disabled={disabled || isCompleted}
+            disabled={isCompleted}
             className={`w-full py-3 px-4 text-sm tracking-wider uppercase font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
               isCompleted
                 ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
