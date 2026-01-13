@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { confirmPayPhonePayment } from '@/lib/payphone'
 
 export const dynamic = 'force-dynamic'
 
@@ -51,10 +50,43 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true, alreadyConfirmed: true })
     }
 
-    // Call PayPhone to confirm the payment
+    // Call PayPhone V2/Confirm endpoint directly
     try {
-      console.log('Calling PayPhone confirmation API...')
-      const confirmResult = await confirmPayPhonePayment(id, clientTransactionId)
+      const token = process.env.PAYPHONE_TOKEN
+      const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com'
+      
+      if (!token) {
+        throw new Error('PAYPHONE_TOKEN not configured')
+      }
+
+      // Prepare request body exactly as PayPhone expects
+      const body = {
+        id: parseInt(id),
+        clientTxId: clientTransactionId
+      }
+
+      console.log('Calling PayPhone V2/Confirm API...')
+      console.log('URL:', `${apiUrl}/api/button/V2/Confirm`)
+      console.log('Body:', JSON.stringify(body))
+
+      const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      })
+
+      console.log('PayPhone response status:', response.status)
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('PayPhone API error:', errorText.substring(0, 500))
+        throw new Error(`PayPhone API returned ${response.status}`)
+      }
+
+      const confirmResult = await response.json()
       console.log('PayPhone confirmation result:', confirmResult)
 
       if (confirmResult.transactionStatus === 'Approved') {
