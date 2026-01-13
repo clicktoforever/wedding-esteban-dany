@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import GiftCard from './GiftCard'
+import ContributionModal from './ContributionModal'
 import type { Database } from '@/lib/database.types'
 
 type Gift = Database['public']['Tables']['gifts']['Row']
@@ -16,6 +17,8 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all')
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [selectedGift, setSelectedGift] = useState<Gift | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const supabase = createClient()
 
@@ -93,8 +96,18 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
     })
   }
 
-  const availableCount = filteredGifts.filter(g => !g.is_purchased).length
-  const purchasedCount = filteredGifts.filter(g => g.is_purchased).length
+  const handleContribute = (gift: Gift) => {
+    setSelectedGift(gift)
+    setIsModalOpen(true)
+  }
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false)
+    setSelectedGift(null)
+  }
+
+  const availableCount = filteredGifts.filter(g => !g.is_purchased && g.status !== 'COMPLETED').length
+  const purchasedCount = filteredGifts.filter(g => g.is_purchased || g.status === 'COMPLETED').length
 
   return (
     <div className="space-y-12">
@@ -122,7 +135,7 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
             <div className="h-12 w-px bg-gray-200"></div>
             <div className="text-center">
               <p className="text-3xl font-serif text-gray-400">{purchasedCount}</p>
-              <p className="text-sm tracking-wider uppercase text-gray-500">Apartados</p>
+              <p className="text-sm tracking-wider uppercase text-gray-500">Completados</p>
             </div>
           </div>
           
@@ -157,10 +170,20 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
               key={gift.id}
               gift={gift}
               onPurchase={purchaseGift}
+              onContribute={handleContribute}
               disabled={isPending}
             />
           ))}
         </div>
+      )}
+
+      {/* Contribution Modal */}
+      {selectedGift && (
+        <ContributionModal
+          gift={selectedGift}
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+        />
       )}
     </div>
   )
