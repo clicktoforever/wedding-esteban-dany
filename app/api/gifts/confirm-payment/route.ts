@@ -37,60 +37,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL('/gifts?payment=error', request.url))
   }
 }
-      return new NextResponse(
-        `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Error - Pago Inválido</title>
-          <style>
-            body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 50px; background: #f9fafb; }
-            .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            h1 { color: #dc2626; margin-bottom: 20px; }
-            p { color: #4b5563; line-height: 1.6; margin-bottom: 30px; }
-            a { display: inline-block; padding: 12px 24px; background: #0f766e; color: white; text-decoration: none; border-radius: 4px; }
-            a:hover { background: #0d5c53; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>❌ Error en la Transacción</h1>
-            <p>Faltan parámetros requeridos para confirmar el pago.</p>
-            <a href="/gifts">Volver a Mesa de Regalos</a>
-          </div>
-        </body>
-        </html>
-        `,
-        { status: 400, headers: { 'Content-Type': 'text/html' } }
-      )
-    }
 
-    const supabase = await createClient()
-
-    // Get transaction record by clientTransactionId
-    const txResult = await supabase
-      .from('gift_transactions')
-      .select('*, gifts(*)')
-      .eq('payphone_client_transaction_id', clientTransactionId)
-      .single()
-
-    const transaction = txResult.data as {
-      id: string
-      gift_id: string
-      amount: number
-      donor_name: string
-      donor_email: string
-      payphone_transaction_id: string | null
-      status: 'PENDING' | 'APPROVED' | 'REJECTED'
-      created_at: string
-      gifts: any
-    } | null
-
-    if (txResult.error || !transaction) {
-      console.error('Transaction not found:', txResult.error)
-      return new NextResponse(
         `
         <!DOCTYPE html>
         <html lang="es">
