@@ -407,7 +407,7 @@ export async function GET(request: NextRequest) {
         .update({ 
           status: confirmationResponse.transactionStatus === 'Cancelled' ? 'REJECTED' : 'PENDING'
         })
-        .eq('id', txId)
+        .eq('id', transaction.id)
 
       return new NextResponse(
         `
