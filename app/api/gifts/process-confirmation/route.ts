@@ -79,8 +79,6 @@ export async function POST(request: NextRequest) {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json',
-          'User-Agent': 'Mozilla/5.0',
         },
         body: JSON.stringify(body),
       })
