@@ -153,13 +153,13 @@
   #pp-button > div {
     @apply w-full !important;
     max-width: 100% !important;
-    min-height: 500px !important;
+    min-height: 600px !important;
   }
   
   @media (max-width: 640px) {
     #pp-button iframe,
     #pp-button > div {
-      min-height: 550px !important;
+      min-height: 650px !important;
     }
   }
   

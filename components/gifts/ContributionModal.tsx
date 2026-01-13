@@ -31,12 +31,9 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
   // Initialize PayPhone widget when script loads and config is ready
   useEffect(() => {
     if (payphoneScriptLoaded && paymentConfig && showPaymentWidget) {
-      console.log('Initializing PayPhone widget with config:', paymentConfig)
-      
       // Small delay to ensure DOM is ready
       const timer = setTimeout(() => {
         const container = document.getElementById('pp-button')
-        console.log('PayPhone container found:', container)
         
         if (typeof window !== 'undefined' && (window as any).PPaymentButtonBox) {
           try {
@@ -46,13 +43,11 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
             }
             
             new (window as any).PPaymentButtonBox(paymentConfig).render('pp-button')
-            console.log('PayPhone widget rendered successfully')
           } catch (error) {
             console.error('Error rendering PayPhone widget:', error)
             setError('Error al cargar el widget de pago')
           }
         } else {
-          console.error('PPaymentButtonBox not available on window:', window)
           setError('Error: Widget de pago no disponible')
         }
       }, 300)
@@ -113,7 +108,6 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
 
       // Show PayPhone payment widget
       if (data.paymentConfig) {
-        console.log('Payment config received:', data.paymentConfig)
         setPaymentConfig(data.paymentConfig)
         setShowPaymentWidget(true)
         setIsSubmitting(false)
@@ -121,7 +115,6 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
         throw new Error('No se recibió configuración de pago')
       }
     } catch (err) {
-      console.error('Contribution error:', err)
       setError(err instanceof Error ? err.message : 'Error al procesar la contribución')
       setIsSubmitting(false)
     }
@@ -147,14 +140,8 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
         src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"
         type="module"
         strategy="afterInteractive"
-        onLoad={() => {
-          console.log('PayPhone script loaded')
-          setPayphoneScriptLoaded(true)
-        }}
-        onError={(e) => {
-          console.error('Error loading PayPhone script:', e)
-          setError('Error al cargar el sistema de pagos')
-        }}
+        onLoad={() => setPayphoneScriptLoaded(true)}
+        onError={() => setError('Error al cargar el sistema de pagos')}
       />
       <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
@@ -356,44 +343,46 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
 
             {/* PayPhone Widget Container */}
             {showPaymentWidget && (
-              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-                <div className="relative w-full max-w-4xl bg-white shadow-2xl my-8 rounded-lg">
-                  {/* Close button for widget */}
-                  <button
-                    onClick={onClose}
-                    className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full"
-                  >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                  
-                  <div className="p-6 sm:p-8">
-                    <h4 className="text-xl sm:text-2xl font-semibold text-wedding-forest mb-6 text-center">
-                      Completa tu Pago
-                    </h4>
-                    <div className="bg-blue-50 border border-blue-200 px-4 py-3 mb-6 rounded-lg">
-                      <p className="text-sm text-blue-800 text-center">
-                        <strong>Monto:</strong> {formatCurrency(parseFloat(amount) || 0)} • <strong>Donante:</strong> {donorName}
-                      </p>
-                    </div>
-                    <div 
-                      id="pp-button" 
-                      className="w-full bg-white rounded"
-                      style={{
-                        minHeight: '500px',
-                        maxWidth: '100%',
-                        margin: '0 auto'
-                      }}
+              <div className="fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm overflow-y-auto">
+                <div className="min-h-screen flex items-start sm:items-center justify-center p-4 py-8">
+                  <div className="relative w-full max-w-4xl bg-white shadow-2xl rounded-lg">
+                    {/* Close button for widget */}
+                    <button
+                      onClick={onClose}
+                      className="absolute -top-12 right-0 text-white hover:text-gray-300 transition-colors p-2 bg-black/50 rounded-full"
                     >
-                      {/* PayPhone widget will render here */}
-                      <div className="flex items-center justify-center h-full min-h-[500px]">
-                        <div className="text-center">
-                          <svg className="animate-spin h-8 w-8 mx-auto mb-4 text-wedding-purple" fill="none" viewBox="0 0 24 24">
-                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                          </svg>
-                          <p className="text-gray-600">Cargando widget de pago...</p>
+                      <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    
+                    <div className="p-6 sm:p-8">
+                      <h4 className="text-xl sm:text-2xl font-semibold text-wedding-forest mb-4 text-center">
+                        Completa tu Pago
+                      </h4>
+                      <div className="bg-blue-50 border border-blue-200 px-4 py-3 mb-6 rounded-lg">
+                        <p className="text-sm text-blue-800 text-center">
+                          <strong>Monto:</strong> {formatCurrency(parseFloat(amount) || 0)} • <strong>Donante:</strong> {donorName}
+                        </p>
+                      </div>
+                      <div 
+                        id="pp-button" 
+                        className="w-full bg-white rounded"
+                        style={{
+                          minHeight: '600px',
+                          maxWidth: '100%',
+                          margin: '0 auto'
+                        }}
+                      >
+                        {/* PayPhone widget will render here */}
+                        <div className="flex items-center justify-center h-full min-h-[600px]">
+                          <div className="text-center">
+                            <svg className="animate-spin h-8 w-8 mx-auto mb-4 text-wedding-purple" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            <p className="text-gray-600">Cargando widget de pago...</p>
+                          </div>
                         </div>
                       </div>
                     </div>
