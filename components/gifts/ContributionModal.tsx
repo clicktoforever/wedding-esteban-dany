@@ -2,6 +2,7 @@
 
 import { useState, useEffect, FormEvent } from 'react'
 import Script from 'next/script'
+import Head from 'next/head'
 import { formatCurrency } from '@/lib/payphone'
 
 interface ContributionModalProps {
@@ -122,8 +123,17 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
 
   return (
     <>
+      {/* PayPhone CSS */}
+      <link 
+        rel="stylesheet" 
+        href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css"
+      />
+      
+      {/* PayPhone JS */}
       <Script
-        src="https://pay.payphonetodoesposible.com/v1/payphone-payment-button.min.js"
+        src="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.js"
+        type="module"
+        strategy="afterInteractive"
         onLoad={() => {
           console.log('PayPhone script loaded')
           setPayphoneScriptLoaded(true)
