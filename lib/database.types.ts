@@ -90,6 +90,10 @@ export type Database = {
           purchased_by: string | null
           purchased_at: string | null
           created_at: string
+          total_amount: number
+          collected_amount: number
+          status: 'AVAILABLE' | 'COMPLETED'
+          is_crowdfunding: boolean
         }
         Insert: {
           id?: string
@@ -103,6 +107,10 @@ export type Database = {
           purchased_by?: string | null
           purchased_at?: string | null
           created_at?: string
+          total_amount?: number
+          collected_amount?: number
+          status?: 'AVAILABLE' | 'COMPLETED'
+          is_crowdfunding?: boolean
         }
         Update: {
           id?: string
@@ -116,6 +124,10 @@ export type Database = {
           purchased_by?: string | null
           purchased_at?: string | null
           created_at?: string
+          total_amount?: number
+          collected_amount?: number
+          status?: 'AVAILABLE' | 'COMPLETED'
+          is_crowdfunding?: boolean
         }
         Relationships: [
           {
@@ -123,6 +135,59 @@ export type Database = {
             columns: ["purchased_by"]
             isOneToOne: false
             referencedRelation: "guests"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      gift_transactions: {
+        Row: {
+          id: string
+          gift_id: string
+          donor_name: string
+          amount: number
+          external_transaction_id: string | null
+          status: 'PENDING' | 'APPROVED' | 'REJECTED'
+          payphone_client_transaction_id: string | null
+          payphone_transaction_id: string | null
+          payment_url: string | null
+          created_at: string
+          updated_at: string
+          approved_at: string | null
+        }
+        Insert: {
+          id?: string
+          gift_id: string
+          donor_name: string
+          amount: number
+          external_transaction_id?: string | null
+          status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+          payphone_client_transaction_id?: string | null
+          payphone_transaction_id?: string | null
+          payment_url?: string | null
+          created_at?: string
+          updated_at?: string
+          approved_at?: string | null
+        }
+        Update: {
+          id?: string
+          gift_id?: string
+          donor_name?: string
+          amount?: number
+          external_transaction_id?: string | null
+          status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+          payphone_client_transaction_id?: string | null
+          payphone_transaction_id?: string | null
+          payment_url?: string | null
+          created_at?: string
+          updated_at?: string
+          approved_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gift_transactions_gift_id_fkey"
+            columns: ["gift_id"]
+            isOneToOne: false
+            referencedRelation: "gifts"
             referencedColumns: ["id"]
           }
         ]
@@ -145,6 +210,7 @@ export type Database = {
     }
     Enums: {
       confirmation_status: 'pending' | 'confirmed' | 'declined'
+      transaction_status: 'PENDING' | 'APPROVED' | 'REJECTED'
     }
   }
 }
