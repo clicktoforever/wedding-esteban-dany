@@ -1,7 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
-import { createClient } from '@/lib/supabase/browser'
+import { useState } from 'react'
 import GiftCard from './GiftCard'
 import ContributionModal from './ContributionModal'
 import type { Database } from '@/lib/database.types'
@@ -15,12 +14,8 @@ interface GiftRegistryProps {
 export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const [gifts, setGifts] = useState<Gift[]>(initialGifts)
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all')
-  const [isPending, startTransition] = useTransition()
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
-
-  const supabase = createClient()
 
   // Extract unique categories
   const categories = ['all', ...Array.from(new Set(gifts.map(gift => gift.category).filter(Boolean)))]
@@ -29,72 +24,6 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const filteredGifts = selectedCategory === 'all' 
     ? gifts 
     : gifts.filter(gift => gift.category === selectedCategory)
-
-  const purchaseGift = async (giftId: string) => {
-    setMessage(null)
-
-    // Find the gift to update
-    const giftToPurchase = gifts.find(g => g.id === giftId)
-    if (!giftToPurchase) return
-
-    // Optimistic update
-    setGifts(prev =>
-      prev.map(gift =>
-        gift.id === giftId
-          ? { ...gift, is_purchased: true, purchased_at: new Date().toISOString() }
-          : gift
-      )
-    )
-
-    startTransition(async () => {
-      const { error } = await supabase
-        .from('gifts')
-        // @ts-ignore - Supabase type inference issue
-        .update({
-          is_purchased: true,
-          purchased_at: new Date().toISOString(),
-        })
-        .eq('id', giftId)
-        .eq('is_purchased', false) // Prevent race condition
-
-      if (error) {
-        // Rollback on error
-        setGifts(initialGifts)
-        setMessage({
-          type: 'error',
-          text: 'Este regalo ya fue apartado por otra persona. Por favor elige otro.',
-        })
-        console.error('Error purchasing gift:', error)
-        
-        // Refetch to get latest state
-        const { data } = await supabase
-          .from('gifts')
-          .select('*')
-          .order('category', { ascending: true })
-          .order('name', { ascending: true })
-        
-        if (data) {
-          setGifts(data)
-        }
-      } else {
-        setMessage({
-          type: 'success',
-          text: '¡Regalo apartado exitosamente! Gracias por tu generosidad 💝',
-        })
-        
-        // Refetch to ensure consistency
-        const { data } = await supabase
-          .from('gifts')
-          .select('*')
-          .order('category', { ascending: true })
-          .order('name', { ascending: true })
-        
-        if (data) {
-          setGifts(data)
-        }
-      }
-    })
-  }
 
   const handleContribute = (gift: Gift) => {
     setSelectedGift(gift)
@@ -106,24 +35,11 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
     setSelectedGift(null)
   }
 
-  const availableCount = filteredGifts.filter(g => !g.is_purchased && g.status !== 'COMPLETED').length
-  const purchasedCount = filteredGifts.filter(g => g.is_purchased || g.status === 'COMPLETED').length
+  const availableCount = filteredGifts.filter(g => g.status !== 'COMPLETED').length
+  const completedCount = filteredGifts.filter(g => g.status === 'COMPLETED').length
 
   return (
     <div className="space-y-12">
-      {message && (
-        <div
-          className={`p-6 border text-center ${
-            message.type === 'success'
-              ? 'bg-wedding-beige text-wedding-forest border-wedding-sage'
-              : 'bg-red-50 text-red-800 border-red-200'
-          }`}
-          role="alert"
-        >
-          <p className="font-medium">{message.text}</p>
-        </div>
-      )}
-
       {/* Stats Bar */}
       <div className="bg-white border border-gray-100 p-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
@@ -134,7 +50,7 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
             </div>
             <div className="h-12 w-px bg-gray-200"></div>
             <div className="text-center">
-              <p className="text-3xl font-serif text-gray-400">{purchasedCount}</p>
+              <p className="text-3xl font-serif text-gray-400">{completedCount}</p>
               <p className="text-sm tracking-wider uppercase text-gray-500">Completados</p>
             </div>
           </div>
@@ -169,9 +85,7 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
             <GiftCard
               key={gift.id}
               gift={gift}
-              onPurchase={purchaseGift}
               onContribute={handleContribute}
-              disabled={isPending}
             />
           ))}
         </div>
