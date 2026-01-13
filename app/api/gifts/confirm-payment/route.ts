@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
-import { confirmPayPhonePayment, formatCurrency } from '@/lib/payphone'
 
 export const dynamic = 'force-dynamic'
 
@@ -9,7 +7,7 @@ export async function GET(request: NextRequest) {
     const searchParams = request.nextUrl.searchParams
     
     // Log all params to debug
-    console.log('=== CONFIRM PAYMENT CALLBACK ===')
+    console.log('=== CONFIRM PAYMENT CALLBACK - REDIRECTING ===')
     console.log('All query params:', Object.fromEntries(searchParams.entries()))
     
     // Get params - try different variations due to possible typos from PayPhone
@@ -21,7 +19,24 @@ export async function GET(request: NextRequest) {
     console.log('Extracted params:', { clientTransactionId, id })
 
     if (!clientTransactionId || !id) {
-      console.error('Missing required params:', { clientTransactionId, id, allParams: Object.fromEntries(searchParams.entries()) })
+      console.error('Missing required params:', { clientTransactionId, id })
+      // Redirect to error page
+      return NextResponse.redirect(new URL('/gifts?payment=error', request.url))
+    }
+
+    // Redirect to the new confirmation page with the same params
+    const confirmUrl = new URL('/confirm-payment', request.url)
+    confirmUrl.searchParams.set('id', id)
+    confirmUrl.searchParams.set('clientTransactionId', clientTransactionId)
+    
+    console.log('Redirecting to:', confirmUrl.toString())
+    return NextResponse.redirect(confirmUrl)
+
+  } catch (error) {
+    console.error('Confirm payment callback error:', error)
+    return NextResponse.redirect(new URL('/gifts?payment=error', request.url))
+  }
+}
       return new NextResponse(
         `
         <!DOCTYPE html>
