@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, FormEvent } from 'react'
+import { useState, useEffect, FormEvent } from 'react'
+import Script from 'next/script'
 import { formatCurrency } from '@/lib/payphone'
 
 interface ContributionModalProps {
@@ -24,6 +25,27 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
   const [error, setError] = useState<string | null>(null)
   const [showPaymentWidget, setShowPaymentWidget] = useState(false)
   const [paymentConfig, setPaymentConfig] = useState<any>(null)
+  const [payphoneScriptLoaded, setPayphoneScriptLoaded] = useState(false)
+
+  // Initialize PayPhone widget when script loads and config is ready
+  useEffect(() => {
+    if (payphoneScriptLoaded && paymentConfig && showPaymentWidget) {
+      console.log('Initializing PayPhone widget with config:', paymentConfig)
+      
+      if (typeof window !== 'undefined' && (window as any).PPaymentButtonBox) {
+        try {
+          new (window as any).PPaymentButtonBox(paymentConfig).render('pp-button')
+          console.log('PayPhone widget rendered successfully')
+        } catch (error) {
+          console.error('Error rendering PayPhone widget:', error)
+          setError('Error al cargar el widget de pago')
+        }
+      } else {
+        console.error('PPaymentButtonBox not available')
+        setError('Error: Widget de pago no disponible')
+      }
+    }
+  }, [payphoneScriptLoaded, paymentConfig, showPaymentWidget])
 
   // Use total_amount if available, fallback to price
   const giftTotal = gift.total_amount || gift.price || 0
@@ -77,16 +99,10 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
 
       // Show PayPhone payment widget
       if (data.paymentConfig) {
+        console.log('Payment config received:', data.paymentConfig)
         setPaymentConfig(data.paymentConfig)
         setShowPaymentWidget(true)
         setIsSubmitting(false)
-        
-        // Initialize PayPhone widget after state update
-        setTimeout(() => {
-          if (typeof window !== 'undefined' && (window as any).PPaymentButtonBox) {
-            new (window as any).PPaymentButtonBox(data.paymentConfig).render('pp-button')
-          }
-        }, 100)
       } else {
         throw new Error('No se recibió configuración de pago')
       }
@@ -105,7 +121,19 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <>
+      <Script
+        src="https://pay.payphonetodoesposible.com/v1/payphone-payment-button.min.js"
+        onLoad={() => {
+          console.log('PayPhone script loaded')
+          setPayphoneScriptLoaded(true)
+        }}
+        onError={(e) => {
+          console.error('Error loading PayPhone script:', e)
+          setError('Error al cargar el sistema de pagos')
+        }}
+      />
+      <div className="fixed inset-0 z-50 overflow-y-auto">
       {/* Backdrop */}
       <div
         className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
@@ -315,6 +343,7 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

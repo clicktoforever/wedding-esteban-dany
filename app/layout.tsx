@@ -31,9 +31,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es" className={`${inter.variable} ${playfair.variable}`}>
-      <head>
-        <script src="https://pay.payphonetodoesposible.com/v1/payphone-payment-button.min.js"></script>
-      </head>
       <body className="font-sans antialiased">{children}</body>
     </html>
   )
