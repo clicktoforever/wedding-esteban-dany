@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       transactionId: transaction.id,
       paymentConfig: {
         token: process.env.PAYPHONE_TOKEN || '',
-        clientTxId: clientTransactionId,
+        clientTransactionId,
         amount: amountInCents,
         amountWithoutTax: amountInCents,
         currency: 'USD',
