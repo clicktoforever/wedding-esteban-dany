@@ -22,14 +22,11 @@ function ConfirmPaymentContent() {
     setError(null)
 
     try {
-    const response = await fetch('https://pay.payphonetodoesposible.com/api/button/V2/Confirm', {
-      method: 'POST',
-      headers: { 
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.PAYPHONE_TOKEN}`
-      },
-      body: JSON.stringify({ id, clientTxId: clientTransactionId })
-    })
+      const response = await fetch('/api/gifts/process-confirmation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, clientTransactionId })
+      })
 
       if (!response.ok) {
         throw new Error('Error al procesar la confirmación')
