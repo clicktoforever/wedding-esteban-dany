@@ -45,14 +45,26 @@ export async function GET(request: NextRequest) {
     const supabase = await createClient()
 
     // Get transaction record
-    const { data: transaction, error: txError } = await supabase
+    const txResult = await supabase
       .from('gift_transactions')
       .select('*, gifts(*)')
       .eq('id', txId)
       .single()
 
-    if (txError || !transaction) {
-      console.error('Transaction not found:', txError)
+    const transaction = txResult.data as {
+      id: string
+      gift_id: string
+      amount: number
+      donor_name: string
+      donor_email: string
+      payphone_transaction_id: string | null
+      status: 'PENDING' | 'APPROVED' | 'REJECTED'
+      created_at: string
+      gifts: any
+    } | null
+
+    if (txResult.error || !transaction) {
+      console.error('Transaction not found:', txResult.error)
       return new NextResponse(
         `
         <!DOCTYPE html>
@@ -163,6 +175,7 @@ export async function GET(request: NextRequest) {
       // Update transaction to REJECTED
       await supabase
         .from('gift_transactions')
+        // @ts-expect-error - Supabase type inference issue with joins
         .update({ status: 'REJECTED' })
         .eq('id', txId)
 
@@ -199,8 +212,19 @@ export async function GET(request: NextRequest) {
     // Check payment status
     if (confirmationResponse.transactionStatus === 'Approved') {
       // Call stored procedure to approve transaction atomically
-      const { data: approvalResult, error: approvalError } = await supabase
+      const rpcClient = await createClient()
+      const rpcResult = await rpcClient
+        // @ts-expect-error - Supabase type inference issue with RPC functions
         .rpc('approve_gift_transaction', { transaction_id: txId })
+      
+      const approvalResult = rpcResult.data as {
+        success: boolean
+        error?: string
+        new_collected_amount: number
+        total_amount: number
+        is_completed: boolean
+      } | null
+      const approvalError = rpcResult.error
 
       if (approvalError || !approvalResult || !approvalResult.success) {
         console.error('Error approving transaction:', approvalError || approvalResult)
@@ -408,6 +432,7 @@ export async function GET(request: NextRequest) {
       // Payment was not approved (Cancelled, Rejected, Pending)
       await supabase
         .from('gift_transactions')
+        // @ts-expect-error - Supabase type inference issue with joins
         .update({ 
           status: confirmationResponse.transactionStatus === 'Cancelled' ? 'REJECTED' : 'PENDING'
         })
