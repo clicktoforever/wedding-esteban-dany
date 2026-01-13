@@ -7,11 +7,12 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const txId = searchParams.get('txId') // Our transaction ID
-    const clientTxId = searchParams.get('clientTxId') // PayPhone client transaction ID
+    const clientTransactionId = searchParams.get('clientTransactionId') // PayPhone client transaction ID
     const id = searchParams.get('id') // PayPhone transaction ID (from callback)
 
-    if (!txId || !clientTxId) {
+    console.log('Confirm payment params from PayPhone callback:', { clientTransactionId, id })
+
+    if (!clientTransactionId || !id) {
       return new NextResponse(
         `
         <!DOCTYPE html>
@@ -44,11 +45,11 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient()
 
-    // Get transaction record
+    // Get transaction record by clientTransactionId
     const txResult = await supabase
       .from('gift_transactions')
       .select('*, gifts(*)')
-      .eq('id', txId)
+      .eq('payphone_client_transaction_id', clientTransactionId)
       .single()
 
     const transaction = txResult.data as {
@@ -132,43 +133,13 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Confirm payment with PayPhone
-    const payphoneTransactionId = id || transaction.payphone_transaction_id
-    if (!payphoneTransactionId) {
-      console.error('Missing PayPhone transaction ID')
-      return new NextResponse(
-        `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>Error - ID de Transacción Faltante</title>
-          <style>
-            body { font-family: system-ui, -apple-system, sans-serif; text-align: center; padding: 50px; background: #f9fafb; }
-            .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-            h1 { color: #dc2626; margin-bottom: 20px; }
-            p { color: #4b5563; line-height: 1.6; margin-bottom: 30px; }
-            a { display: inline-block; padding: 12px 24px; background: #0f766e; color: white; text-decoration: none; border-radius: 4px; }
-            a:hover { background: #0d5c53; }
-          </style>
-        </head>
-        <body>
-          <div class="container">
-            <h1>❌ Error en la Confirmación</h1>
-            <p>Falta el ID de transacción de PayPhone.</p>
-            <a href="/gifts">Volver a Mesa de Regalos</a>
-          </div>
-        </body>
-        </html>
-        `,
-        { status: 400, headers: { 'Content-Type': 'text/html' } }
-      )
-    }
+    // Confirm payment with PayPhone using the ID from callback
+    console.log('Confirming payment with PayPhone ID:', id)
 
     let confirmationResponse
     try {
-      confirmationResponse = await confirmPayPhonePayment(payphoneTransactionId, clientTxId)
+      console.log('Calling confirmPayPhonePayment with:', { id, clientTransactionId })
+      confirmationResponse = await confirmPayPhonePayment(id, clientTransactionId)
     } catch (error) {
       console.error('PayPhone confirmation error:', error)
       
@@ -177,7 +148,7 @@ export async function GET(request: NextRequest) {
         .from('gift_transactions')
         // @ts-expect-error - Supabase type inference issue with joins
         .update({ status: 'REJECTED' })
-        .eq('id', txId)
+        .eq('id', transaction.id)
 
       return new NextResponse(
         `
@@ -215,7 +186,7 @@ export async function GET(request: NextRequest) {
       const rpcClient = await createClient()
       const rpcResult = await rpcClient
         // @ts-expect-error - Supabase type inference issue with RPC functions
-        .rpc('approve_gift_transaction', { transaction_id: txId })
+        .rpc('approve_gift_transaction', { transaction_id: transaction.id })
       
       const approvalResult = rpcResult.data as {
         success: boolean
