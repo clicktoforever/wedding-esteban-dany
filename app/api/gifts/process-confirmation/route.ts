@@ -52,27 +52,24 @@ export async function POST(request: NextRequest) {
 
     // Call PayPhone V2/Confirm endpoint directly
     try {
-      const token = process.env.PAYPHONE_TOKEN
+      const token = process.env.PAYPHONE_TOKEN?.trim()
       const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com'
       
       if (!token) {
         throw new Error('PAYPHONE_TOKEN not configured')
       }
 
-      // Wait 3 seconds before confirming (PayPhone may need time to process)
-      console.log('Waiting 3 seconds before confirmation...')
-      await new Promise(resolve => setTimeout(resolve, 3000))
-
       // Prepare request body exactly as PayPhone expects
       const body = {
         id: parseInt(id),
-        clientTxId: clientTransactionId
+        clientTxId: clientTransactionId.trim()
       }
 
       console.log('Calling PayPhone V2/Confirm API...')
       console.log('URL:', `${apiUrl}/api/button/V2/Confirm`)
       console.log('Body:', JSON.stringify(body))
       console.log('Token length:', token.length)
+      console.log('Body exact string:', JSON.stringify(body))
 
       const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
         method: 'POST',
@@ -88,7 +85,7 @@ export async function POST(request: NextRequest) {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('PayPhone API error:', errorText.substring(0, 500))
+        console.error('PayPhone API error:', errorText.substring(0, 5000))
         throw new Error(`PayPhone API returned ${response.status}`)
       }
 
