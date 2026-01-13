@@ -198,27 +198,36 @@ export async function confirmPayPhonePayment(
     console.log('Token length:', token?.length)
     console.log('Token first 20 chars:', token?.substring(0, 20))
     
-    const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    })
+    // Temporarily enable TLS verification for this specific request
+    const originalTLS = process.env.NODE_TLS_REJECT_UNAUTHORIZED
+    process.env.NODE_TLS_REJECT_UNAUTHORIZED = '1'
     
-    console.log('Response status:', response.status)
-    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-    
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error('PayPhone confirmation failed:', { status: response.status, error: errorText.substring(0, 500) })
-      throw new Error(`PayPhone confirmation error: ${response.status}`)
+    try {
+      const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(body),
+      })
+      
+      console.log('Response status:', response.status)
+      console.log('Response headers:', Object.fromEntries(response.headers.entries()))
+      
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error('PayPhone confirmation failed:', { status: response.status, error: errorText.substring(0, 500) })
+        throw new Error(`PayPhone confirmation error: ${response.status}`)
+      }
+      
+      const result: PayPhoneConfirmationResponse = await response.json()
+      console.log('PayPhone confirmation result:', result)
+      return result
+    } finally {
+      // Restore original TLS setting
+      process.env.NODE_TLS_REJECT_UNAUTHORIZED = originalTLS
     }
-    
-    const result: PayPhoneConfirmationResponse = await response.json()
-    console.log('PayPhone confirmation result:', result)
-    return result
   } catch (error) {
     console.error('PayPhone Confirmation Error:', error)
     throw error
