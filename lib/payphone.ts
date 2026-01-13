@@ -174,7 +174,7 @@ export async function confirmPayPhonePayment(
   transactionId: string,
   clientTransactionId: string
 ): Promise<PayPhoneConfirmationResponse> {
-  const token = process.env.PAYPHONE_TOKEN
+  const token = process.env.PAYPHONE_TOKEN?.trim()
   const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com'
   
   if (!token) {
@@ -184,22 +184,36 @@ export async function confirmPayPhonePayment(
   try {
     console.log('Confirming PayPhone payment:', { transactionId, clientTransactionId })
     
+    // Wait 2 seconds before confirming (PayPhone may need time to process)
+    await new Promise(resolve => setTimeout(resolve, 2000))
+    
+    const body = {
+      id: parseInt(transactionId) || 0,
+      clientTxId: clientTransactionId,
+    }
+    
+    console.log('Request URL:', `${apiUrl}/api/button/V2/Confirm`)
+    console.log('Request body:', JSON.stringify(body))
+    console.log('Token present:', !!token)
+    console.log('Token length:', token?.length)
+    console.log('Token first 20 chars:', token?.substring(0, 20))
+    
     const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        id: parseInt(transactionId) || 0,
-        clientTxId: clientTransactionId,
-      }),
+      body: JSON.stringify(body),
     })
+    
+    console.log('Response status:', response.status)
+    console.log('Response headers:', Object.fromEntries(response.headers.entries()))
     
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('PayPhone confirmation failed:', { status: response.status, error: errorText })
-      throw new Error(`PayPhone confirmation error: ${response.status} - ${errorText}`)
+      console.error('PayPhone confirmation failed:', { status: response.status, error: errorText.substring(0, 500) })
+      throw new Error(`PayPhone confirmation error: ${response.status}`)
     }
     
     const result: PayPhoneConfirmationResponse = await response.json()
