@@ -32,13 +32,23 @@ export async function POST(request: NextRequest) {
     const supabase = await createClient()
 
     // Get gift with row lock to prevent race conditions
-    const { data: gift, error: giftError } = await supabase
+    const giftResult = await supabase
       .from('gifts')
       .select('*')
       .eq('id', giftId)
       .single()
 
-    if (giftError || !gift) {
+    const gift = giftResult.data as {
+      id: string
+      name: string
+      price: number | null
+      total_amount: number | null
+      collected_amount: number | null
+      is_crowdfunding: boolean | null
+      status: string
+    } | null
+    
+    if (giftResult.error || !gift) {
       return NextResponse.json(
         { error: 'Gift not found' },
         { status: 404 }
@@ -60,6 +70,7 @@ export async function POST(request: NextRequest) {
     if (!gift.is_crowdfunding && gift.price) {
       await supabase
         .from('gifts')
+        // @ts-expect-error - Supabase type inference issue
         .update({
           is_crowdfunding: true,
           total_amount: gift.price,
@@ -95,8 +106,9 @@ export async function POST(request: NextRequest) {
     const clientTransactionId = generateClientTransactionId(giftId)
 
     // Create transaction record with PENDING status
-    const { data: transaction, error: transactionError } = await supabase
+    const transactionResult = await supabase
       .from('gift_transactions')
+      // @ts-expect-error - Supabase type inference issue
       .insert({
         gift_id: giftId,
         donor_name: donorName,
@@ -107,8 +119,10 @@ export async function POST(request: NextRequest) {
       .select()
       .single()
 
-    if (transactionError || !transaction) {
-      console.error('Error creating transaction:', transactionError)
+    const transaction = transactionResult.data as { id: string } | null
+
+    if (transactionResult.error || !transaction) {
+      console.error('Error creating transaction:', transactionResult.error)
       return NextResponse.json(
         { error: 'Failed to create transaction' },
         { status: 500 }
@@ -136,6 +150,7 @@ export async function POST(request: NextRequest) {
       // Update transaction to REJECTED
       await supabase
         .from('gift_transactions')
+        // @ts-expect-error - Supabase type inference issue
         .update({ status: 'REJECTED' })
         .eq('id', transaction.id)
 
@@ -151,6 +166,7 @@ export async function POST(request: NextRequest) {
     // Update transaction with PayPhone data
     await supabase
       .from('gift_transactions')
+      // @ts-expect-error - Supabase type inference issue
       .update({
         payment_url: paymentResponse.payWithPhone,
         payphone_transaction_id: paymentResponse.transactionId,
