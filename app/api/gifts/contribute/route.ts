@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import {
-  createPayPhonePayment,
-  preparePayPhonePayment,
   generateClientTransactionId,
   formatCurrency,
 } from '@/lib/payphone'
@@ -129,58 +127,25 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prepare PayPhone payment
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin
-    const paymentRequest = createPayPhonePayment({
-      amount,
-      donorName,
-      donorEmail,
-      clientTransactionId,
-      reference: `Contribución para: ${gift.name}`,
-      responseUrl: `${baseUrl}/api/gifts/confirm-payment?txId=${transaction.id}&clientTxId=${clientTransactionId}`,
-      cancellationUrl: `${baseUrl}/gifts?cancelled=true`,
-    })
+    // Prepare PayPhone widget data
+    // El monto en PayPhone debe estar en centavos y sin decimales
+    const amountInCents = Math.round(amount * 100)
 
-    // Call PayPhone API
-    const paymentResponse = await preparePayPhonePayment(paymentRequest)
-
-    if (!paymentResponse.payWithPhone) {
-      console.error('PayPhone API error:', paymentResponse)
-      
-      // Update transaction to REJECTED
-      await supabase
-        .from('gift_transactions')
-        // @ts-expect-error - Supabase type inference issue
-        .update({ status: 'REJECTED' })
-        .eq('id', transaction.id)
-
-      return NextResponse.json(
-        { 
-          error: paymentResponse.message || 'Failed to create payment',
-          details: paymentResponse 
-        },
-        { status: 500 }
-      )
-    }
-
-    // Update transaction with PayPhone data
-    await supabase
-      .from('gift_transactions')
-      // @ts-expect-error - Supabase type inference issue
-      .update({
-        payment_url: paymentResponse.payWithPhone,
-        payphone_transaction_id: paymentResponse.transactionId,
-        external_transaction_id: paymentResponse.transactionId,
-      })
-      .eq('id', transaction.id)
-
-    // Return payment URL for redirection
+    // Return data for PayPhone widget
     return NextResponse.json({
       success: true,
       transactionId: transaction.id,
-      paymentUrl: paymentResponse.payWithPhone,
-      clientTransactionId,
-      message: 'Payment prepared successfully',
+      paymentConfig: {
+        token: process.env.PAYPHONE_TOKEN || '',
+        clientTransactionId,
+        amount: amountInCents,
+        amountWithTax: amountInCents,
+        tax: 0,
+        currency: 'USD',
+        storeId: process.env.PAYPHONE_STORE_ID || '',
+        reference: `Regalo: ${gift.name} - ${donorName}`,
+      },
+      message: 'Transaction created successfully',
     })
 
   } catch (error) {
