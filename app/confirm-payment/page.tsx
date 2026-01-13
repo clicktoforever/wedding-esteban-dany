@@ -1,9 +1,9 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useState, Suspense } from 'react'
 
-export default function ConfirmPaymentPage() {
+function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const [isProcessing, setIsProcessing] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -106,5 +106,20 @@ export default function ConfirmPaymentPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function ConfirmPaymentPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <ConfirmPaymentContent />
+    </Suspense>
   )
 }
