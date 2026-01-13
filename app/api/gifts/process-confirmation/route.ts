@@ -59,6 +59,10 @@ export async function POST(request: NextRequest) {
         throw new Error('PAYPHONE_TOKEN not configured')
       }
 
+      // Wait 3 seconds before confirming (PayPhone may need time to process)
+      console.log('Waiting 3 seconds before confirmation...')
+      await new Promise(resolve => setTimeout(resolve, 3000))
+
       // Prepare request body exactly as PayPhone expects
       const body = {
         id: parseInt(id),
@@ -68,17 +72,21 @@ export async function POST(request: NextRequest) {
       console.log('Calling PayPhone V2/Confirm API...')
       console.log('URL:', `${apiUrl}/api/button/V2/Confirm`)
       console.log('Body:', JSON.stringify(body))
+      console.log('Token length:', token.length)
 
       const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'User-Agent': 'Mozilla/5.0',
         },
         body: JSON.stringify(body),
       })
 
       console.log('PayPhone response status:', response.status)
+      console.log('PayPhone response headers:', Object.fromEntries(response.headers.entries()))
 
       if (!response.ok) {
         const errorText = await response.text()
