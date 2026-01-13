@@ -7,12 +7,21 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
-    const clientTransactionId = searchParams.get('clientTransactionId') // PayPhone client transaction ID
-    const id = searchParams.get('id') // PayPhone transaction ID (from callback)
+    
+    // Log all params to debug
+    console.log('=== CONFIRM PAYMENT CALLBACK ===')
+    console.log('All query params:', Object.fromEntries(searchParams.entries()))
+    
+    // Get params - try different variations due to possible typos from PayPhone
+    const clientTransactionId = searchParams.get('clientTransactionId') || 
+                                 searchParams.get('clientTransaciontIde') ||
+                                 searchParams.get('clientTxId')
+    const id = searchParams.get('id')
 
-    console.log('Confirm payment params from PayPhone callback:', { clientTransactionId, id })
+    console.log('Extracted params:', { clientTransactionId, id })
 
     if (!clientTransactionId || !id) {
+      console.error('Missing required params:', { clientTransactionId, id, allParams: Object.fromEntries(searchParams.entries()) })
       return new NextResponse(
         `
         <!DOCTYPE html>
