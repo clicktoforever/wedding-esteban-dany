@@ -22,6 +22,8 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
   const [donorEmail, setDonorEmail] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [showPaymentWidget, setShowPaymentWidget] = useState(false)
+  const [paymentConfig, setPaymentConfig] = useState<any>(null)
 
   // Use total_amount if available, fallback to price
   const giftTotal = gift.total_amount || gift.price || 0
@@ -73,11 +75,20 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
         throw new Error(data.error || 'Error al procesar la contribución')
       }
 
-      // Redirect to PayPhone payment page
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl
+      // Show PayPhone payment widget
+      if (data.paymentConfig) {
+        setPaymentConfig(data.paymentConfig)
+        setShowPaymentWidget(true)
+        setIsSubmitting(false)
+        
+        // Initialize PayPhone widget after state update
+        setTimeout(() => {
+          if (typeof window !== 'undefined' && (window as any).PPaymentButtonBox) {
+            new (window as any).PPaymentButtonBox(data.paymentConfig).render('pp-button')
+          }
+        }, 100)
       } else {
-        throw new Error('No se recibió URL de pago')
+        throw new Error('No se recibió configuración de pago')
       }
     } catch (err) {
       console.error('Contribution error:', err)
@@ -291,6 +302,16 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
                 <p className="text-xs">Serás redirigido a la plataforma segura de PayPhone para completar tu pago.</p>
               </div>
             </div>
+
+            {/* PayPhone Widget Container */}
+            {showPaymentWidget && (
+              <div className="mt-6 p-6 bg-gray-50 border-2 border-wedding-purple/20">
+                <h4 className="text-lg font-semibold text-wedding-forest mb-4 text-center">
+                  Completa tu Pago
+                </h4>
+                <div id="pp-button" className="flex justify-center"></div>
+              </div>
+            )}
           </form>
         </div>
       </div>
