@@ -22,7 +22,7 @@ function ConfirmPaymentContent() {
     setError(null)
 
     try {
-    const response = await fetch(`${process.env.PAYPHONE_API_URL}/api/button/V2/Confirm`, {
+    const response = await fetch('https://pay.payphonetodoesposible.com/api/button/V2/Confirm', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
