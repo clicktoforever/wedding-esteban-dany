@@ -147,4 +147,24 @@
   .bg-wedding-forest {
     background-color: var(--wedding-forest);
   }
+  
+  /* PayPhone Widget Responsive Styles */
+  #pp-button iframe,
+  #pp-button > div {
+    @apply w-full !important;
+    max-width: 100% !important;
+    min-height: 600px !important;
+  }
+  
+  @media (max-width: 640px) {
+    #pp-button iframe,
+    #pp-button > div {
+      min-height: 650px !important;
+    }
+  }
+  
+  /* Ensure PayPhone container is responsive */
+  .payphone-container {
+    @apply w-full max-w-full overflow-hidden;
+  }
 }
