@@ -182,24 +182,28 @@ export async function confirmPayPhonePayment(
   }
   
   try {
-    const response = await fetch(`${apiUrl}/api/Sale/Confirm`, {
+    console.log('Confirming PayPhone payment:', { transactionId, clientTransactionId })
+    
+    const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        id: transactionId,
+        id: parseInt(transactionId) || 0,
         clientTxId: clientTransactionId,
       }),
     })
     
     if (!response.ok) {
       const errorText = await response.text()
+      console.error('PayPhone confirmation failed:', { status: response.status, error: errorText })
       throw new Error(`PayPhone confirmation error: ${response.status} - ${errorText}`)
     }
     
     const result: PayPhoneConfirmationResponse = await response.json()
+    console.log('PayPhone confirmation result:', result)
     return result
   } catch (error) {
     console.error('PayPhone Confirmation Error:', error)
