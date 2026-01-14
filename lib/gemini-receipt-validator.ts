@@ -67,7 +67,7 @@ export class GeminiReceiptValidator {
     
     this.genAI = new GoogleGenerativeAI(key);
     this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-1.5-flash' // Modelo gratuito
+      model: 'gemini-1.5-pro' // Modelo con vision capabilities
     });
   }
 
