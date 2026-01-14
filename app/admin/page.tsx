@@ -1,11 +1,30 @@
 import { createClient } from '@/lib/supabase/server'
-import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import AdminDashboard from '@/components/admin/AdminDashboard'
+import LogoutButton from '@/components/admin/LogoutButton'
 
 export const revalidate = 10 // ISR with 10 second revalidation
 
 export default async function AdminPage() {
   const supabase = await createClient()
+
+  // Verificar autenticación
+  const { data: { session } } = await supabase.auth.getSession()
+  
+  if (!session) {
+    redirect('/admin/login')
+  }
+
+  // Verificar si es admin
+  const { data: adminUser } = await supabase
+    .from('admin_users')
+    .select('*')
+    .eq('user_id', session.user.id)
+    .single()
+
+  if (!adminUser) {
+    redirect('/')
+  }
 
   // Fetch stats using the helper function
   const { data: stats } = await supabase.rpc('get_wedding_stats')
@@ -58,12 +77,7 @@ export default async function AdminPage() {
                 <p className="text-sm text-gray-500 tracking-wider">Esteban & Dany</p>
               </div>
             </div>
-            <Link href="/" className="flex items-center space-x-2 text-sm tracking-wider uppercase text-gray-600 hover:text-wedding-forest transition-colors">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span>Volver</span>
-            </Link>
+            <LogoutButton />
           </div>
         </div>
       </nav>
