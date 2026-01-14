@@ -90,6 +90,43 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 ---
 
+### GEMINI_API_KEY
+
+**Descripción**: API Key de Google Gemini para validación automática de comprobantes de transferencia bancaria
+
+**Formato**: String alfanumérico (ejemplo: `AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q`)
+
+**Dónde obtenerla**:
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Inicia sesión con tu cuenta de Google
+3. Click en "Get API Key" o "Create API Key"
+4. Copia la clave generada
+
+**Ejemplo**:
+```env
+GEMINI_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
+```
+
+**🎁 Tier Gratuito**:
+- ✅ 15 requests/minuto GRATIS
+- ✅ 1,500 requests/día GRATIS
+- ✅ No requiere tarjeta de crédito
+- ✅ Modelo: `gemini-1.5-flash`
+
+**🚨 Seguridad**: Esta clave debe mantenerse **PRIVADA**:
+- ❌ NUNCA la expongas en código cliente
+- ❌ NUNCA uses el prefijo `NEXT_PUBLIC_`
+- ✅ Solo úsala en API Routes server-side
+
+**Usos**:
+- Validación automática de comprobantes de transferencia (EC y MX)
+- OCR y extracción de datos de imágenes
+- `/api/gifts/transfer` (endpoint de validación)
+
+**Permisos**: Acceso a Gemini API para procesamiento de imágenes
+
+---
+
 ### NEXT_PUBLIC_BUILDER_API_KEY
 
 **Descripción**: API key pública de Builder.io para visual editing
