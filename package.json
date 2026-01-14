@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/database.types.ts"
+    "generate-types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/database.types.ts",
+    "check-gemini": "node scripts/check-gemini.js"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@supabase/ssr": "^0.5.2",
     "@supabase/supabase-js": "^2.39.0",
     "next": "^16.1.1",
