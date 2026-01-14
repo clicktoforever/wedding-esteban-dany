@@ -34,9 +34,10 @@ DROP FUNCTION IF EXISTS get_wedding_stats();
 CREATE OR REPLACE FUNCTION get_wedding_stats()
 RETURNS TABLE (
     total_guests INT,
-    confirmed_guests INT,
-    declined_guests INT,
-    pending_guests INT,
+    total_passes INT,
+    confirmed_passes INT,
+    declined_passes INT,
+    pending_passes INT,
     total_gifts INT,
     completed_gifts INT,
     total_contributions INT,
@@ -46,15 +47,10 @@ BEGIN
     RETURN QUERY
     SELECT
         (SELECT COUNT(DISTINCT g.id) FROM guests g)::INT as total_guests,
-        (SELECT COUNT(DISTINCT g.id) FROM guests g 
-         JOIN passes p ON g.id = p.guest_id 
-         WHERE p.confirmation_status = 'confirmed')::INT as confirmed_guests,
-        (SELECT COUNT(DISTINCT g.id) FROM guests g 
-         JOIN passes p ON g.id = p.guest_id 
-         WHERE p.confirmation_status = 'declined')::INT as declined_guests,
-        (SELECT COUNT(DISTINCT g.id) FROM guests g 
-         JOIN passes p ON g.id = p.guest_id 
-         WHERE p.confirmation_status = 'pending')::INT as pending_guests,
+        (SELECT COUNT(*) FROM passes)::INT as total_passes,
+        (SELECT COUNT(*) FROM passes WHERE confirmation_status = 'confirmed')::INT as confirmed_passes,
+        (SELECT COUNT(*) FROM passes WHERE confirmation_status = 'declined')::INT as declined_passes,
+        (SELECT COUNT(*) FROM passes WHERE confirmation_status = 'pending')::INT as pending_passes,
         (SELECT COUNT(*) FROM gifts)::INT as total_gifts,
         (SELECT COUNT(*) FROM gifts WHERE status = 'COMPLETED')::INT as completed_gifts,
         (SELECT COUNT(*) FROM gift_transactions)::INT as total_contributions,
