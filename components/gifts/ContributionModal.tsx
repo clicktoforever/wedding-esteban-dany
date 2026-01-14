@@ -21,7 +21,7 @@ interface ContributionModalProps {
 export default function ContributionModal({ gift, isOpen, onClose }: ContributionModalProps) {
   const [donorName, setDonorName] = useState('')
   const [amount, setAmount] = useState('')
-  const [donorEmail, setDonorEmail] = useState('')
+  const [donorMessage, setDonorMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [showPaymentWidget, setShowPaymentWidget] = useState(false)
@@ -96,7 +96,7 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
           giftId: gift.id,
           donorName: donorName.trim(),
           amount: contributionAmount,
-          donorEmail: donorEmail.trim() || undefined,
+          message: donorMessage.trim() || undefined,
         }),
       })
 
@@ -231,20 +231,24 @@ export default function ContributionModal({ gift, isOpen, onClose }: Contributio
               />
             </div>
 
-            {/* Donor Email */}
+            {/* Message for the couple */}
             <div>
-              <label htmlFor="donorEmail" className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
-                Tu Correo Electrónico <span className="text-gray-400 text-xs">(Opcional)</span>
+              <label htmlFor="donorMessage" className="block text-sm font-medium text-gray-700 mb-2 tracking-wide">
+                Mensaje para los Novios <span className="text-gray-400 text-xs">(Opcional)</span>
               </label>
-              <input
-                type="email"
-                id="donorEmail"
-                value={donorEmail}
-                onChange={(e) => setDonorEmail(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 focus:border-wedding-purple focus:ring-2 focus:ring-wedding-purple/20 outline-none transition-all"
-                placeholder="tu@correo.com"
+              <textarea
+                id="donorMessage"
+                value={donorMessage}
+                onChange={(e) => setDonorMessage(e.target.value)}
+                className="w-full px-4 py-3 border border-gray-300 focus:border-wedding-purple focus:ring-2 focus:ring-wedding-purple/20 outline-none transition-all resize-none"
+                placeholder="Escribe un mensaje para Esteban y Dany..."
+                rows={3}
+                maxLength={500}
                 disabled={isSubmitting}
               />
+              <p className="mt-1 text-xs text-gray-500 text-right">
+                {donorMessage.length}/500 caracteres
+              </p>
             </div>
 
             {/* Amount Input */}
