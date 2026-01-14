@@ -136,6 +136,7 @@ export type Database = {
           payphone_client_transaction_id: string | null
           payphone_transaction_id: string | null
           payment_url: string | null
+          message: string | null
           created_at: string
           updated_at: string
           approved_at: string | null
@@ -150,6 +151,7 @@ export type Database = {
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           payment_url?: string | null
+          message?: string | null
           created_at?: string
           updated_at?: string
           approved_at?: string | null
@@ -164,6 +166,7 @@ export type Database = {
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           payment_url?: string | null
+          message?: string | null
           created_at?: string
           updated_at?: string
           approved_at?: string | null

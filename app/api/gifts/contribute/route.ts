@@ -11,13 +11,13 @@ interface ContributeRequest {
   giftId: string
   donorName: string
   amount: number
-  donorEmail?: string
+  message?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: ContributeRequest = await request.json()
-    const { giftId, donorName, amount, donorEmail } = body
+    const { giftId, donorName, amount, message } = body
 
     // Validate input
     if (!giftId || !donorName || !amount || amount <= 0) {
@@ -113,6 +113,7 @@ export async function POST(request: NextRequest) {
         amount: amount,
         status: 'PENDING',
         payphone_client_transaction_id: clientTransactionId,
+        message: message || null,
       })
       .select()
       .single()
