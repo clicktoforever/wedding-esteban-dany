@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import AdminDashboard from '@/components/admin/AdminDashboard'
+import TransactionsPanel from '@/components/admin/TransactionsPanel'
 import LogoutButton from '@/components/admin/LogoutButton'
 
 export const revalidate = 10 // ISR with 10 second revalidation
@@ -47,6 +48,12 @@ export default async function AdminPage() {
     .from('gifts')
     .select('*')
     .order('status', { ascending: true })
+
+  // Fetch gift transactions
+  const { data: transactions } = await supabase
+    .from('gift_transactions')
+    .select('*, gifts(*)')
+    .order('created_at', { ascending: false })
 
   const statsData = stats?.[0] || {
     total_guests: 0,
@@ -197,6 +204,13 @@ export default async function AdminPage() {
             guests={guests || []}
             gifts={gifts || []}
           />
+        </div>
+      </section>
+
+      {/* Transactions Section */}
+      <section className="py-16 bg-gradient-to-b from-white to-wedding-sage/5">
+        <div className="container-custom">
+          <TransactionsPanel initialTransactions={transactions || []} />
         </div>
       </section>
     </div>
