@@ -26,18 +26,18 @@ export default function HelpInstructionsModal({ isOpen, onClose }: HelpInstructi
 
   return createPortal(
     <div 
-      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
+      className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="help-instructions-title"
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full my-8 max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[calc(100vh-2rem)] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-br from-wedding-purple/10 to-wedding-rose/10 backdrop-blur-md bg-white p-6 border-b border-gray-100 rounded-t-2xl z-10">
+        <div className="sticky top-0 bg-gradient-to-br from-wedding-purple/10 to-wedding-rose/10 backdrop-blur-md bg-white p-6 border-b border-gray-100 rounded-t-2xl z-10 flex-shrink-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-wedding-purple/20 rounded-full flex items-center justify-center">
@@ -65,7 +65,7 @@ export default function HelpInstructionsModal({ isOpen, onClose }: HelpInstructi
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto flex-1">
           {/* Intro */}
           <div className="bg-wedding-sage/5 border border-wedding-sage/20 rounded-xl p-4">
             <p className="text-gray-700 text-center">
