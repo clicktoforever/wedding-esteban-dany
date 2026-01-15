@@ -287,22 +287,49 @@ async function validateReceiptAsync(
     console.error(`[${transactionId}] Error stack:`, error?.stack);
     console.error(`[${transactionId}] Full error:`, JSON.stringify(error, null, 2));
     
-    // Construir mensaje de error detallado
-    let errorMessage = 'Error al procesar con Gemini AI';
-    if (error?.message) {
-      errorMessage += `: ${error.message}`;
-    }
+    // Distinguir tipos de error
+    const errorMessage = error?.message || 'Error desconocido';
     
-    // Marcar como error de procesamiento con detalles
-    await supabase
-      .from('gift_transactions')
-      .update({
-        status: 'MANUAL_REVIEW',
-        validation_errors: [errorMessage, error?.stack || 'No stack trace']
-      })
-      .eq('id', transactionId);
+    if (errorMessage.includes('INVALID_IMAGE:')) {
+      // Imagen no es un comprobante válido - RECHAZAR inmediatamente
+      const cleanMessage = errorMessage.replace('INVALID_IMAGE:', '');
       
-    console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to error`);
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'REJECTED',
+          validation_errors: [cleanMessage]
+        })
+        .eq('id', transactionId);
+        
+      console.error(`[${transactionId}] Transaction REJECTED - Invalid image`);
+      
+    } else if (errorMessage.includes('TIMEOUT:') || errorMessage.includes('TECHNICAL_ERROR:')) {
+      // Error técnico o timeout - MANUAL_REVIEW
+      const cleanMessage = errorMessage.replace(/^(TIMEOUT:|TECHNICAL_ERROR:)/, '');
+      
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'MANUAL_REVIEW',
+          validation_errors: [cleanMessage, error?.stack || 'No stack trace']
+        })
+        .eq('id', transactionId);
+        
+      console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to technical error`);
+      
+    } else {
+      // Error desconocido - MANUAL_REVIEW por seguridad
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'MANUAL_REVIEW',
+          validation_errors: [`Error al procesar: ${errorMessage}`, error?.stack || 'No stack trace']
+        })
+        .eq('id', transactionId);
+        
+      console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to unknown error`);
+    }
   }
 }
 
