@@ -189,31 +189,31 @@ BANK_ACCOUNT_EC_ID=1726037788
 
 ### BANK_ACCOUNT_MX_NAME
 
-**Descripción**: Nombre del titular de la cuenta bancaria de México
+**Descripción**: Nombre del titular de la tarjeta bancaria de México
 
 **Formato**: String (nombre completo)
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_MX_NAME=Daniela Briones
+BANK_ACCOUNT_MX_NAME=Daniela Guadalupe Briones Chavez
 ```
 
 **Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
 
 ---
 
-### BANK_ACCOUNT_MX_CLABE
+### BANK_ACCOUNT_MX_CARD
 
-**Descripción**: CLABE interbancaria de la cuenta de México
+**Descripción**: Número de tarjeta bancaria de México (Santander)
 
-**Formato**: String numérico (18 dígitos)
+**Formato**: String numérico (16 dígitos)
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_MX_CLABE=999888777666
+BANK_ACCOUNT_MX_CARD=5579099012900331
 ```
 
-**Uso**: Validación de comprobantes de transferencia SPEI
+**Uso**: Validación de comprobantes de transferencia/depósito a tarjeta
 
 ---
 

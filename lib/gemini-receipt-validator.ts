@@ -61,8 +61,9 @@ export class GeminiReceiptValidator {
       },
       MX: {
         country: 'MX',
-        accountName: process.env.BANK_ACCOUNT_MX_NAME || 'Daniela Briones',
-        accountNumber: process.env.BANK_ACCOUNT_MX_CLABE || '999888777666',
+        accountName: process.env.BANK_ACCOUNT_MX_NAME || 'Daniela Guadalupe Briones Chavez',
+        accountNumber: process.env.BANK_ACCOUNT_MX_CARD || '5579099012900331',
+        accountType: 'Tarjeta',
         currency: 'MXN'
       }
     };

@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
         success: true,
         account: {
           country: account.country,
-          bankName: account.country === 'EC' ? 'Banco Pichincha' : 'BBVA México',
+          bankName: account.country === 'EC' ? 'Banco Pichincha' : 'Banco Santander México',
           accountName: account.accountName,
           accountNumber: account.accountNumber,
           accountType: account.accountType,
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
           currency: account.currency,
           instructions: account.country === 'EC' 
             ? 'Realiza tu transferencia a la cuenta de ahorros y envía el comprobante para validación automática.'
-            : 'Realiza tu transferencia SPEI usando la CLABE y envía el comprobante para validación automática.'
+            : 'Realiza tu depósito/transferencia a la tarjeta y envía el comprobante para validación automática.'
         }
       });
     }
@@ -47,8 +47,8 @@ export async function GET(request: NextRequest) {
         },
         MX: {
           ...allAccounts.MX,
-          bankName: 'BBVA México',
-          instructions: 'Realiza tu transferencia SPEI usando la CLABE y envía el comprobante para validación automática.'
+          bankName: 'Banco Santander México',
+          instructions: 'Realiza tu depósito/transferencia a la tarjeta y envía el comprobante para validación automática.'
         }
       }
     });
