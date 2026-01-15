@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import GiftRegistry from '@/components/gifts/GiftRegistry'
+import HelpButton from '@/components/gifts/HelpButton'
 
 export const revalidate = 0 // Deshabilitar cache para siempre obtener datos frescos
 export const dynamic = 'force-dynamic' // Forzar renderizado dinámico
@@ -32,6 +33,7 @@ export default async function GiftsPage() {
             <Link href="/" className="text-2xl font-serif tracking-[0.15em] text-wedding-forest hover:text-wedding-purple transition-colors">
               ESTEBAN <span className="text-wedding-rose">&</span> DANY
             </Link>
+            <HelpButton />
           </div>
         </div>
       </nav>
@@ -127,19 +129,34 @@ export default async function GiftsPage() {
           <div className="max-w-3xl mx-auto text-center space-y-8">
             {/* Icon */}
             <div className="w-20 h-20 bg-wedding-rose/10 rounded-full flex items-center justify-center mx-auto">
-              <svg className="w-10 h-10 text-wedding-rose" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <svg className="w-10 h-10 text-wedding-rose" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
               </svg>
             </div>
 
             {/* Content */}
             <div className="space-y-6">
-              <h3 className="text-3xl font-serif text-wedding-forest tracking-wide">
-                Otra forma de regalarnos
+              <h3 className="text-3xl md:text-4xl font-serif text-wedding-forest tracking-wide">
+                Gracias por tu Generosidad
               </h3>
+              
+              {/* Decorative line */}
+              <div className="flex items-center justify-center">
+                <div className="h-px bg-wedding-rose/30 w-12"></div>
+                <svg className="w-4 h-4 mx-3 text-wedding-rose" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+                <div className="h-px bg-wedding-rose/30 w-12"></div>
+              </div>
+              
               <p className="text-lg text-gray-700 leading-relaxed tracking-wide max-w-2xl mx-auto">
-                Si prefieres hacer un regalo monetario, también será muy apreciado 
-                y nos ayudará a comenzar nuestra nueva vida juntos.
+                Tu amor y presencia en nuestra boda son el mejor regalo que podríamos recibir.
+                Cada gesto de apoyo nos llena de alegría y nos ayuda a construir juntos 
+                el futuro que hemos soñado. ¡Gracias por ser parte de este momento tan especial!
+              </p>
+              <p className="text-base text-gray-600 italic max-w-xl mx-auto">
+                Con todo nuestro amor y gratitud,<br />
+                <span className="font-serif text-wedding-forest text-lg">Esteban & Dany</span>
               </p>
             </div>
 
