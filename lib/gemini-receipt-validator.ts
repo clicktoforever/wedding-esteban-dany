@@ -41,23 +41,7 @@ export interface ReceiptValidationResult {
 export class GeminiReceiptValidator {
   private readonly genAI: GoogleGenerativeAI;
   private readonly model: any;
-  
-  private readonly bankAccounts: Record<'EC' | 'MX', BankAccount> = {
-    EC: {
-      country: 'EC',
-      accountName: 'Carlos Maldonado',
-      accountNumber: '333444555',
-      accountType: 'Ahorros',
-      identificationNumber: '1726037788',
-      currency: 'USD'
-    },
-    MX: {
-      country: 'MX',
-      accountName: 'Daniela Briones',
-      accountNumber: '999888777666',
-      currency: 'MXN'
-    }
-  };
+  private readonly bankAccounts: Record<'EC' | 'MX', BankAccount>;
 
   constructor(apiKey?: string) {
     const key = apiKey || process.env.GEMINI_API_KEY;
@@ -65,9 +49,27 @@ export class GeminiReceiptValidator {
       throw new Error('GEMINI_API_KEY is required');
     }
     
+    // Cargar cuentas bancarias desde variables de entorno
+    this.bankAccounts = {
+      EC: {
+        country: 'EC',
+        accountName: process.env.BANK_ACCOUNT_EC_NAME || 'Carlos Maldonado',
+        accountNumber: process.env.BANK_ACCOUNT_EC_NUMBER || '333444555',
+        accountType: process.env.BANK_ACCOUNT_EC_TYPE || 'Ahorros',
+        identificationNumber: process.env.BANK_ACCOUNT_EC_ID || '1726037788',
+        currency: 'USD'
+      },
+      MX: {
+        country: 'MX',
+        accountName: process.env.BANK_ACCOUNT_MX_NAME || 'Daniela Briones',
+        accountNumber: process.env.BANK_ACCOUNT_MX_CLABE || '999888777666',
+        currency: 'MXN'
+      }
+    };
+    
     this.genAI = new GoogleGenerativeAI(key);
     this.model = this.genAI.getGenerativeModel({ 
-      model: 'gemini-3-flash-preview' // Modelo con vision capabilities
+      model: 'gemini-3-flash-preview'
     });
   }
 

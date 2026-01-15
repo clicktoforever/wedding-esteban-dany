@@ -127,6 +127,96 @@ GEMINI_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
 
 ---
 
+### BANK_ACCOUNT_EC_NAME
+
+**Descripción**: Nombre del titular de la cuenta bancaria de Ecuador
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NAME=Carlos Maldonado
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_EC_NUMBER
+
+**Descripción**: Número de cuenta bancaria de Ecuador
+
+**Formato**: String numérico
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NUMBER=333444555
+```
+
+**Uso**: Validación de comprobantes de transferencia
+
+---
+
+### BANK_ACCOUNT_EC_TYPE
+
+**Descripción**: Tipo de cuenta bancaria de Ecuador
+
+**Formato**: String (Ahorros, Corriente, etc.)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_TYPE=Ahorros
+```
+
+**Uso**: Información adicional para validación de comprobantes
+
+---
+
+### BANK_ACCOUNT_EC_ID
+
+**Descripción**: Número de cédula del titular de la cuenta de Ecuador
+
+**Formato**: String numérico (10 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_ID=1726037788
+```
+
+**Uso**: Validación adicional de identidad del titular
+
+---
+
+### BANK_ACCOUNT_MX_NAME
+
+**Descripción**: Nombre del titular de la cuenta bancaria de México
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_NAME=Daniela Briones
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_MX_CLABE
+
+**Descripción**: CLABE interbancaria de la cuenta de México
+
+**Formato**: String numérico (18 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_CLABE=999888777666
+```
+
+**Uso**: Validación de comprobantes de transferencia SPEI
+
+---
+
 ### NEXT_PUBLIC_BUILDER_API_KEY
 
 **Descripción**: API key pública de Builder.io para visual editing
