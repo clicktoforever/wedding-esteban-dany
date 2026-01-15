@@ -272,15 +272,15 @@ export default function TransferModal({
                 </h3>
                 
                 <div className="space-y-3">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-600">Banco:</span>
                     <span className="font-semibold text-gray-900">{bankAccount.bankName}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Titular:</span>
-                    <span className="font-semibold text-gray-900">{bankAccount.accountName}</span>
+                  <div className="grid grid-cols-3 gap-2 items-start">
+                    <span className="text-gray-600 col-span-1">Titular:</span>
+                    <span className="font-semibold text-gray-900 col-span-2 text-right leading-relaxed">{bankAccount.accountName}</span>
                   </div>
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-gray-600">{country === 'EC' ? 'Cuenta' : 'Tarjeta'}:</span>
                     <span className="font-mono font-bold text-lg text-wedding-forest">{bankAccount.accountNumber}</span>
                   </div>
