@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 
 interface HelpInstructionsModalProps {
   isOpen: boolean
@@ -23,7 +24,7 @@ export default function HelpInstructionsModal({ isOpen, onClose }: HelpInstructi
 
   if (!isOpen) return null
 
-  return (
+  return createPortal(
     <div 
       className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={onClose}
@@ -36,7 +37,7 @@ export default function HelpInstructionsModal({ isOpen, onClose }: HelpInstructi
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-gradient-to-br from-wedding-purple/10 to-wedding-rose/10 p-6 border-b border-gray-100 rounded-t-2xl z-10">
+        <div className="sticky top-0 bg-gradient-to-br from-wedding-purple/10 to-wedding-rose/10 backdrop-blur-md bg-white p-6 border-b border-gray-100 rounded-t-2xl z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-wedding-purple/20 rounded-full flex items-center justify-center">
@@ -188,6 +189,7 @@ export default function HelpInstructionsModal({ isOpen, onClose }: HelpInstructi
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   )
 }
