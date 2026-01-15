@@ -191,8 +191,12 @@ async function validateReceiptAsync(
   giftId: string,
   supabase: any
 ) {
+  console.log(`[${transactionId}] Starting validation - Country: ${country}, Expected: ${expectedAmount}`);
+  
   try {
+    console.log(`[${transactionId}] Initializing Gemini validator...`);
     const validator = new GeminiReceiptValidator();
+    console.log(`[${transactionId}] Validator initialized, calling validateReceipt...`);
     
     const result = await validator.validateReceipt(
       imageBuffer,
@@ -200,6 +204,14 @@ async function validateReceiptAsync(
       expectedAmount,
       transactionId
     );
+    
+    console.log(`[${transactionId}] Gemini response received:`, JSON.stringify({
+      isValid: result.validation.isValid,
+      confidence: result.validation.confidence,
+      matchesAccount: result.validation.matchesAccount,
+      matchesAmount: result.validation.matchesAmount,
+      extractedAmount: result.extractedData.amount
+    }));
 
     const needsReview = validator.needsManualReview(result.validation);
 
@@ -241,17 +253,29 @@ async function validateReceiptAsync(
     // TODO: Enviar notificación al usuario (email/SMS)
     // TODO: Si es manual_review, notificar a admin
 
-  } catch (error) {
-    console.error('Error in async validation:', error);
+  } catch (error: any) {
+    console.error(`[${transactionId}] ===== ERROR IN ASYNC VALIDATION =====`);
+    console.error(`[${transactionId}] Error type:`, error?.constructor?.name);
+    console.error(`[${transactionId}] Error message:`, error?.message);
+    console.error(`[${transactionId}] Error stack:`, error?.stack);
+    console.error(`[${transactionId}] Full error:`, JSON.stringify(error, null, 2));
     
-    // Marcar como error de procesamiento
+    // Construir mensaje de error detallado
+    let errorMessage = 'Error al procesar con Gemini AI';
+    if (error?.message) {
+      errorMessage += `: ${error.message}`;
+    }
+    
+    // Marcar como error de procesamiento con detalles
     await supabase
       .from('gift_transactions')
       .update({
         status: 'MANUAL_REVIEW',
-        validation_errors: ['Error al procesar con Gemini AI']
+        validation_errors: [errorMessage, error?.stack || 'No stack trace']
       })
       .eq('id', transactionId);
+      
+    console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to error`);
   }
 }
 

@@ -49,6 +49,8 @@ export class GeminiReceiptValidator {
       throw new Error('GEMINI_API_KEY is required');
     }
     
+    console.log('[GeminiValidator] Initializing with API key:', key.substring(0, 10) + '...');
+    
     // Cargar cuentas bancarias desde variables de entorno
     this.bankAccounts = {
       EC: {
@@ -68,10 +70,19 @@ export class GeminiReceiptValidator {
       }
     };
     
+    console.log('[GeminiValidator] Bank accounts loaded:', {
+      EC: this.bankAccounts.EC.accountNumber,
+      MX: this.bankAccounts.MX.accountNumber
+    });
+    
     this.genAI = new GoogleGenerativeAI(key);
+    console.log('[GeminiValidator] Using model: gemini-3-flash-preview');
+    
     this.model = this.genAI.getGenerativeModel({ 
       model: 'gemini-3-flash-preview'
     });
+    
+    console.log('[GeminiValidator] Initialization complete');
   }
 
   /**
@@ -83,16 +94,25 @@ export class GeminiReceiptValidator {
     expectedAmount: number,
     orderId: string
   ): Promise<ReceiptValidationResult> {
+    console.log(`[${orderId}] validateReceipt started for ${country} with expected amount ${expectedAmount}`);
+    
     try {
       // 1. Convertir imagen a base64
+      console.log(`[${orderId}] Converting buffer to base64, size: ${imageBuffer.length} bytes`);
       const imageBase64 = imageBuffer.toString('base64');
+      console.log(`[${orderId}] Base64 conversion complete, length: ${imageBase64.length}`);
       
       const targetAccount = this.bankAccounts[country];
+      console.log(`[${orderId}] Target account:`, targetAccount.accountName, targetAccount.accountNumber);
       
       // 2. Prompt optimizado para extraer y validar en una sola llamada
       const prompt = this.buildPrompt(targetAccount, expectedAmount);
+      console.log(`[${orderId}] Prompt built, calling Gemini API...`);
 
       // 3. Llamar a Gemini
+      const startTime = Date.now();
+      console.log(`[${orderId}] Sending request to Gemini at ${new Date().toISOString()}`);
+      
       const result = await this.model.generateContent([
         prompt,
         {
@@ -103,20 +123,31 @@ export class GeminiReceiptValidator {
         }
       ]);
 
+      const endTime = Date.now();
+      console.log(`[${orderId}] Gemini API responded in ${endTime - startTime}ms`);
+      
       const response = await result.response;
+      console.log(`[${orderId}] Response retrieved, extracting text...`);
+      
       const text = response.text();
+      console.log(`[${orderId}] Response text length: ${text.length}, first 200 chars:`, text.substring(0, 200));
       
       // 4. Limpiar y parsear respuesta
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
+        console.error(`[${orderId}] Failed to extract JSON from response:`, text);
         throw new Error('No se pudo extraer JSON de la respuesta de Gemini');
       }
-
+      
+      console.log(`[${orderId}] JSON extracted, parsing...`);
       const data = JSON.parse(jsonMatch[0]);
+      console.log(`[${orderId}] Parsed data:`, JSON.stringify(data, null, 2));
       
       // 5. Validaciones adicionales
       const amountDiff = Math.abs(data.extracted.amount - expectedAmount);
       const amountToleranceOk = amountDiff < 0.5; // 50 centavos de tolerancia
+      
+      console.log(`[${orderId}] Amount validation - Expected: ${expectedAmount}, Extracted: ${data.extracted.amount}, Diff: ${amountDiff}, Ok: ${amountToleranceOk}`);
       
       return {
         orderId,
@@ -132,9 +163,14 @@ export class GeminiReceiptValidator {
         processedAt: new Date()
       };
 
-    } catch (error) {
-      console.error('Error en validación Gemini:', error);
-      throw new Error('No se pudo procesar el comprobante. Por favor intenta de nuevo.');
+    } catch (error: any) {
+      console.error(`[${orderId}] ===== ERROR IN GEMINI VALIDATION =====`);
+      console.error(`[${orderId}] Error type:`, error?.constructor?.name);
+      console.error(`[${orderId}] Error message:`, error?.message);
+      console.error(`[${orderId}] Error stack:`, error?.stack);
+      console.error(`[${orderId}] Full error object:`, JSON.stringify(error, null, 2));
+      
+      throw new Error(`No se pudo procesar el comprobante: ${error?.message || 'Error desconocido'}`);
     }
   }
 
