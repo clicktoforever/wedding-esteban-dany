@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, FormEvent, ChangeEvent } from 'react'
+import { getDisplayAmount, convertToUsd } from '@/lib/currency'
 
 interface BankAccount {
   country: 'EC' | 'MX'
@@ -49,7 +50,11 @@ export default function TransferModal({
   const [success, setSuccess] = useState(false)
   const [transactionId, setTransactionId] = useState<string | null>(null)
 
-  const remainingAmount = gift.total_amount - gift.collected_amount
+  // Calcular montos con conversión de moneda
+  const remainingUSD = gift.total_amount - gift.collected_amount
+  const displayRemaining = getDisplayAmount(remainingUSD, country)
+  const displayTotal = getDisplayAmount(gift.total_amount, country)
+  const displayCollected = getDisplayAmount(gift.collected_amount, country)
 
   // Cargar datos bancarios
   useEffect(() => {
@@ -118,8 +123,9 @@ export default function TransferModal({
       return
     }
 
-    if (contributionAmount > remainingAmount) {
-      setError(`El monto excede el saldo disponible: $${remainingAmount.toFixed(2)}`)
+    // Validar contra el monto disponible en la moneda de visualización
+    if (contributionAmount > displayRemaining.amount) {
+      setError(`El monto excede el saldo disponible: ${displayRemaining.formatted}`)
       return
     }
 
@@ -131,10 +137,15 @@ export default function TransferModal({
     setIsSubmitting(true)
 
     try {
+      // Convertir el monto ingresado a USD para guardar en DB
+      const amountInUSD = convertToUsd(contributionAmount, country)
+      
       const formData = new FormData()
       formData.append('giftId', gift.id)
       formData.append('donorName', donorName.trim())
-      formData.append('amount', contributionAmount.toString())
+      formData.append('amount', amountInUSD.toString()) // Guardar en USD
+      formData.append('displayAmount', contributionAmount.toString()) // Monto original para validación
+      formData.append('displayCurrency', displayRemaining.currency)
       formData.append('country', country)
       formData.append('receipt', receiptFile)
       if (message.trim()) {
@@ -262,7 +273,7 @@ export default function TransferModal({
                     <span className="font-semibold text-gray-900">{bankAccount.accountName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">{country === 'EC' ? 'Cuenta' : 'CLABE'}:</span>
+                    <span className="text-gray-600">{country === 'EC' ? 'Cuenta' : 'Tarjeta'}:</span>
                     <span className="font-mono font-bold text-lg text-wedding-forest">{bankAccount.accountNumber}</span>
                   </div>
                   {bankAccount.accountType && (
@@ -313,7 +324,7 @@ export default function TransferModal({
                 {/* Monto */}
                 <div>
                   <label htmlFor="amount" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Monto ({bankAccount.currency}) <span className="text-red-500">*</span>
+                    Monto ({displayRemaining.currency}) <span className="text-red-500">*</span>
                   </label>
                   <div className="relative">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 font-medium">$</span>
@@ -322,7 +333,7 @@ export default function TransferModal({
                       type="number"
                       step="0.01"
                       min="0.01"
-                      max={remainingAmount}
+                      max={displayRemaining.amount}
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="0.00"
@@ -333,7 +344,10 @@ export default function TransferModal({
                     />
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
-                    Disponible: ${remainingAmount.toFixed(2)}
+                    Disponible: {displayRemaining.formatted}
+                    {country === 'MX' && (
+                      <span className="text-gray-400 ml-2">(1 USD = 20 MXN)</span>
+                    )}
                   </p>
                 </div>
 
