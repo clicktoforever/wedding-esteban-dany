@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+
 interface PaymentMethodModalProps {
   gift: {
     id: string
@@ -18,20 +20,33 @@ export default function PaymentMethodModal({
   onClose, 
   onSelectMethod 
 }: PaymentMethodModalProps) {
+  // Prevenir scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
   if (!isOpen) return null
 
   const remainingAmount = gift.total_amount - gift.collected_amount
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="payment-method-title"
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full"
+        className="bg-white rounded-2xl shadow-2xl max-w-lg w-full my-8 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -121,7 +136,7 @@ export default function PaymentMethodModal({
             </div>
             <div className="flex-1 text-left">
               <h3 className="font-semibold text-gray-900 text-lg">Transferencia Mexicana</h3>
-              <p className="text-sm text-gray-600">BBVA México - Validación con IA</p>
+              <p className="text-sm text-gray-600">Santander México - Validación con IA</p>
             </div>
             <svg className="w-6 h-6 text-gray-400 group-hover:text-wedding-sage transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
