@@ -1,8 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import GiftCard from './GiftCard'
 import ContributionModal from './ContributionModal'
+import WelcomeModal from './WelcomeModal'
+import PaymentMethodModal from './PaymentMethodModal'
+import TransferModal from './TransferModal'
 import type { Database } from '@/lib/database.types'
 
 type Gift = Database['public']['Tables']['gifts']['Row']
@@ -11,11 +14,27 @@ interface GiftRegistryProps {
   initialGifts: Gift[]
 }
 
+type PaymentMethod = 'card' | 'transfer_ec' | 'transfer_mx' | null
+
 export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const [gifts, setGifts] = useState<Gift[]>(initialGifts)
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all')
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  
+  // Modal states
+  const [showWelcomeModal, setShowWelcomeModal] = useState(false)
+  const [showPaymentMethodModal, setShowPaymentMethodModal] = useState(false)
+  const [showTransferModal, setShowTransferModal] = useState(false)
+  const [showCardModal, setShowCardModal] = useState(false)
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod>(null)
+
+  // Check if welcome modal should be shown
+  useEffect(() => {
+    const hideWelcome = localStorage.getItem('hideGiftsWelcome')
+    if (hideWelcome !== 'true') {
+      setShowWelcomeModal(true)
+    }
+  }, [])
 
   // Extract unique categories
   const categories = ['all', ...Array.from(new Set(gifts.map(gift => gift.category).filter(Boolean)))]
@@ -27,12 +46,30 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
 
   const handleContribute = (gift: Gift) => {
     setSelectedGift(gift)
-    setIsModalOpen(true)
+    setShowPaymentMethodModal(true)
   }
 
-  const handleCloseModal = () => {
-    setIsModalOpen(false)
-    setSelectedGift(null)
+  const handleSelectPaymentMethod = (method: 'card' | 'transfer_ec' | 'transfer_mx') => {
+    setSelectedPaymentMethod(method)
+    setShowPaymentMethodModal(false)
+    
+    if (method === 'card') {
+      setShowCardModal(true)
+    } else {
+      setShowTransferModal(true)
+    }
+  }
+
+  const handleCloseAllModals = () => {
+    setShowPaymentMethodModal(false)
+    setShowCardModal(false)
+    setShowTransferModal(false)
+    setSelectedPaymentMethod(null)
+  }
+
+  const handleTransferSuccess = () => {
+    // Refresh gifts data
+    globalThis.location.reload()
   }
 
   const availableCount = filteredGifts.filter(g => g.status !== 'COMPLETED').length
@@ -91,13 +128,51 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
         </div>
       )}
 
+      {/* Welcome Modal - Always available */}
+      {showWelcomeModal && (
+        <WelcomeModal onClose={() => setShowWelcomeModal(false)} />
+      )}
+
       {/* Contribution Modal */}
       {selectedGift && (
-        <ContributionModal
-          gift={selectedGift}
-          isOpen={isModalOpen}
-          onClose={handleCloseModal}
-        />
+        <>
+          {/* Payment Method Selection */}
+          <PaymentMethodModal
+            gift={selectedGift}
+            isOpen={showPaymentMethodModal}
+            onClose={() => {
+              setShowPaymentMethodModal(false)
+              setSelectedGift(null)
+            }}
+            onSelectMethod={handleSelectPaymentMethod}
+          />
+
+          {/* Card Payment Modal (Payphone) */}
+          {showCardModal && (
+            <ContributionModal
+              gift={selectedGift}
+              isOpen={showCardModal}
+              onClose={() => {
+                handleCloseAllModals()
+                setSelectedGift(null)
+              }}
+            />
+          )}
+
+          {/* Transfer Modal (EC or MX) */}
+          {showTransferModal && selectedPaymentMethod && (
+            <TransferModal
+              gift={selectedGift}
+              country={selectedPaymentMethod === 'transfer_ec' ? 'EC' : 'MX'}
+              isOpen={showTransferModal}
+              onClose={() => {
+                handleCloseAllModals()
+                setSelectedGift(null)
+              }}
+              onSuccess={handleTransferSuccess}
+            />
+          )}
+        </>
       )}
     </div>
   )

@@ -132,7 +132,7 @@ export type Database = {
           donor_name: string
           amount: number
           external_transaction_id: string | null
-          status: 'PENDING' | 'APPROVED' | 'REJECTED'
+          status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'MANUAL_REVIEW'
           payphone_client_transaction_id: string | null
           payphone_transaction_id: string | null
           payment_url: string | null
@@ -140,6 +140,20 @@ export type Database = {
           created_at: string
           updated_at: string
           approved_at: string | null
+          payment_method: 'payphone' | 'transfer_ec' | 'transfer_mx'
+          country: 'EC' | 'MX' | null
+          receipt_url: string | null
+          receipt_filename: string | null
+          extracted_recipient_name: string | null
+          extracted_account: string | null
+          extracted_amount: number | null
+          extracted_currency: string | null
+          extracted_date: string | null
+          extracted_reference: string | null
+          extracted_bank: string | null
+          validation_confidence: 'high' | 'medium' | 'low' | null
+          validation_errors: Json
+          validated_at: string | null
         }
         Insert: {
           id?: string
@@ -147,7 +161,7 @@ export type Database = {
           donor_name: string
           amount: number
           external_transaction_id?: string | null
-          status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+          status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'MANUAL_REVIEW'
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           payment_url?: string | null
@@ -155,6 +169,20 @@ export type Database = {
           created_at?: string
           updated_at?: string
           approved_at?: string | null
+          payment_method?: 'payphone' | 'transfer_ec' | 'transfer_mx'
+          country?: 'EC' | 'MX' | null
+          receipt_url?: string | null
+          receipt_filename?: string | null
+          extracted_recipient_name?: string | null
+          extracted_account?: string | null
+          extracted_amount?: number | null
+          extracted_currency?: string | null
+          extracted_date?: string | null
+          extracted_reference?: string | null
+          extracted_bank?: string | null
+          validation_confidence?: 'high' | 'medium' | 'low' | null
+          validation_errors?: Json
+          validated_at?: string | null
         }
         Update: {
           id?: string
@@ -162,7 +190,7 @@ export type Database = {
           donor_name?: string
           amount?: number
           external_transaction_id?: string | null
-          status?: 'PENDING' | 'APPROVED' | 'REJECTED'
+          status?: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'MANUAL_REVIEW'
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           payment_url?: string | null
@@ -170,6 +198,20 @@ export type Database = {
           created_at?: string
           updated_at?: string
           approved_at?: string | null
+          payment_method?: 'payphone' | 'transfer_ec' | 'transfer_mx'
+          country?: 'EC' | 'MX' | null
+          receipt_url?: string | null
+          receipt_filename?: string | null
+          extracted_recipient_name?: string | null
+          extracted_account?: string | null
+          extracted_amount?: number | null
+          extracted_currency?: string | null
+          extracted_date?: string | null
+          extracted_reference?: string | null
+          extracted_bank?: string | null
+          validation_confidence?: 'high' | 'medium' | 'low' | null
+          validation_errors?: Json
+          validated_at?: string | null
         }
         Relationships: [
           {
@@ -199,7 +241,7 @@ export type Database = {
     }
     Enums: {
       confirmation_status: 'pending' | 'confirmed' | 'declined'
-      transaction_status: 'PENDING' | 'APPROVED' | 'REJECTED'
+      transaction_status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'PROCESSING' | 'MANUAL_REVIEW'
     }
   }
 }
