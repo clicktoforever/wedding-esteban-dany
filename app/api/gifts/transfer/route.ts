@@ -146,28 +146,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 5. Validar con Gemini API (en background, no bloquear respuesta)
+    // 5. Validar con Gemini API (SÍNCRONO para que Vercel espere)
     // Pasar displayAmount para que Gemini valide contra el monto en el comprobante
-    validateReceiptAsync(
+    console.log(`[${transaction.id}] Starting SYNCHRONOUS validation`);
+    
+    await validateReceiptAsync(
       transaction.id,
       buffer,
       country,
       displayAmount, // Monto en la moneda original del comprobante
       giftId,
       supabase
-    ).catch(console.error);
+    );
+    
+    console.log(`[${transaction.id}] Validation completed, fetching updated transaction`);
 
-    // 6. Respuesta inmediata al usuario
+    // 6. Obtener el estado actualizado de la transacción
+    const { data: updatedTransaction, error: fetchError } = await supabase
+      .from('gift_transactions')
+      .select('status, validation_result')
+      .eq('id', transaction.id)
+      .single() as { 
+        data: { status: string; validation_result: any } | null; 
+        error: any 
+      };
+
+    if (fetchError) {
+      console.error(`[${transaction.id}] Error fetching updated transaction:`, fetchError);
+    }
+
+    const finalStatus = updatedTransaction?.status || 'PROCESSING';
+    console.log(`[${transaction.id}] Final status: ${finalStatus}`);
+
+    // 7. Respuesta con resultado de validación
     return NextResponse.json({
       success: true,
-      status: 'processing',
-      message: 'Tu comprobante está siendo validado. Te notificaremos pronto.',
+      status: finalStatus.toLowerCase(),
+      message: finalStatus === 'APPROVED' 
+        ? 'Tu transferencia ha sido verificada exitosamente'
+        : finalStatus === 'REJECTED'
+        ? 'Tu comprobante no pudo ser verificado. Revisa los datos.'
+        : finalStatus === 'MANUAL_REVIEW'
+        ? 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
+        : 'Tu comprobante está siendo procesado',
       transactionId: transaction.id,
       data: {
         donorName,
         amount,
         country,
-        giftName: gift.name
+        giftName: gift.name,
+        validationResult: updatedTransaction?.validation_result
       }
     });
 
