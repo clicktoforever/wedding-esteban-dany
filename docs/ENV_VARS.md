@@ -90,6 +90,133 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 ---
 
+### GEMINI_API_KEY
+
+**Descripción**: API Key de Google Gemini para validación automática de comprobantes de transferencia bancaria
+
+**Formato**: String alfanumérico (ejemplo: `AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q`)
+
+**Dónde obtenerla**:
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Inicia sesión con tu cuenta de Google
+3. Click en "Get API Key" o "Create API Key"
+4. Copia la clave generada
+
+**Ejemplo**:
+```env
+GEMINI_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
+```
+
+**🎁 Tier Gratuito**:
+- ✅ 15 requests/minuto GRATIS
+- ✅ 1,500 requests/día GRATIS
+- ✅ No requiere tarjeta de crédito
+- ✅ Modelo: `gemini-1.5-flash`
+
+**🚨 Seguridad**: Esta clave debe mantenerse **PRIVADA**:
+- ❌ NUNCA la expongas en código cliente
+- ❌ NUNCA uses el prefijo `NEXT_PUBLIC_`
+- ✅ Solo úsala en API Routes server-side
+
+**Usos**:
+- Validación automática de comprobantes de transferencia (EC y MX)
+- OCR y extracción de datos de imágenes
+- `/api/gifts/transfer` (endpoint de validación)
+
+**Permisos**: Acceso a Gemini API para procesamiento de imágenes
+
+---
+
+### BANK_ACCOUNT_EC_NAME
+
+**Descripción**: Nombre del titular de la cuenta bancaria de Ecuador
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NAME=Carlos Maldonado
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_EC_NUMBER
+
+**Descripción**: Número de cuenta bancaria de Ecuador
+
+**Formato**: String numérico
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NUMBER=333444555
+```
+
+**Uso**: Validación de comprobantes de transferencia
+
+---
+
+### BANK_ACCOUNT_EC_TYPE
+
+**Descripción**: Tipo de cuenta bancaria de Ecuador
+
+**Formato**: String (Ahorros, Corriente, etc.)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_TYPE=Ahorros
+```
+
+**Uso**: Información adicional para validación de comprobantes
+
+---
+
+### BANK_ACCOUNT_EC_ID
+
+**Descripción**: Número de cédula del titular de la cuenta de Ecuador
+
+**Formato**: String numérico (10 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_ID=1726037788
+```
+
+**Uso**: Validación adicional de identidad del titular
+
+---
+
+### BANK_ACCOUNT_MX_NAME
+
+**Descripción**: Nombre del titular de la tarjeta bancaria de México
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_NAME=Daniela Guadalupe Briones Chavez
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_MX_CARD
+
+**Descripción**: Número de tarjeta bancaria de México (Santander)
+
+**Formato**: String numérico (16 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_CARD=5579099012900331
+```
+
+**Uso**: Validación de comprobantes de transferencia/depósito a tarjeta
+
+---
+
 ### NEXT_PUBLIC_BUILDER_API_KEY
 
 **Descripción**: API key pública de Builder.io para visual editing
