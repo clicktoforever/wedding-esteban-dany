@@ -164,10 +164,10 @@ export async function POST(request: NextRequest) {
     // 6. Obtener el estado actualizado de la transacción
     const { data: updatedTransaction, error: fetchError } = await supabase
       .from('gift_transactions')
-      .select('status, validation_result')
+      .select('status')
       .eq('id', transaction.id)
       .single() as { 
-        data: { status: string; validation_result: any } | null; 
+        data: { status: string } | null; 
         error: any 
       };
 
@@ -194,8 +194,7 @@ export async function POST(request: NextRequest) {
         donorName,
         amount,
         country,
-        giftName: gift.name,
-        validationResult: updatedTransaction?.validation_result
+        giftName: gift.name
       }
     });
 
