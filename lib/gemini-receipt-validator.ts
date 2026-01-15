@@ -109,11 +109,16 @@ export class GeminiReceiptValidator {
       const prompt = this.buildPrompt(targetAccount, expectedAmount);
       console.log(`[${orderId}] Prompt built, calling Gemini API...`);
 
-      // 3. Llamar a Gemini
+      // 3. Llamar a Gemini con timeout
       const startTime = Date.now();
       console.log(`[${orderId}] Sending request to Gemini at ${new Date().toISOString()}`);
       
-      const result = await this.model.generateContent([
+      // Timeout de 45 segundos para dar tiempo antes del timeout de Vercel (60s)
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Gemini API timeout after 45 seconds')), 45000);
+      });
+      
+      const geminiPromise = this.model.generateContent([
         prompt,
         {
           inlineData: {
@@ -122,6 +127,8 @@ export class GeminiReceiptValidator {
           }
         }
       ]);
+      
+      const result = await Promise.race([geminiPromise, timeoutPromise]) as any;
 
       const endTime = Date.now();
       console.log(`[${orderId}] Gemini API responded in ${endTime - startTime}ms`);
