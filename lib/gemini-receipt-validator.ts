@@ -150,6 +150,17 @@ export class GeminiReceiptValidator {
       const data = JSON.parse(jsonMatch[0]);
       console.log(`[${orderId}] Parsed data:`, JSON.stringify(data, null, 2));
       
+      // 4.5. Verificar si la imagen es un comprobante válido
+      if (!data.validation.isValid && data.validation.errors?.some((err: string) => 
+        err.toLowerCase().includes('no es un comprobante') || 
+        err.toLowerCase().includes('not a receipt') ||
+        err.toLowerCase().includes('imagen no válida') ||
+        err.toLowerCase().includes('invalid image')
+      )) {
+        console.error(`[${orderId}] Image is not a valid receipt`);
+        throw new Error('INVALID_IMAGE: La imagen no parece ser un comprobante de transferencia bancaria válido');
+      }
+      
       // 5. Validaciones adicionales
       const amountDiff = Math.abs(data.extracted.amount - expectedAmount);
       const amountToleranceOk = amountDiff < 0.5; // 50 centavos de tolerancia
@@ -177,7 +188,18 @@ export class GeminiReceiptValidator {
       console.error(`[${orderId}] Error stack:`, error?.stack);
       console.error(`[${orderId}] Full error object:`, JSON.stringify(error, null, 2));
       
-      throw new Error(`No se pudo procesar el comprobante: ${error?.message || 'Error desconocido'}`);
+      // Distinguir entre imagen inválida y errores técnicos
+      if (error?.message?.includes('INVALID_IMAGE:')) {
+        // Error de imagen inválida - rechazar inmediatamente
+        const cleanMessage = error.message.replace('INVALID_IMAGE: ', '');
+        throw new Error(`INVALID_IMAGE:${cleanMessage}`);
+      } else if (error?.message?.includes('timeout')) {
+        // Error de timeout - marcar para revisión manual
+        throw new Error('TIMEOUT:La validación tardó demasiado. Tu comprobante será revisado manualmente.');
+      } else {
+        // Otros errores técnicos - revisión manual
+        throw new Error(`TECHNICAL_ERROR:Error al procesar el comprobante. Será revisado manualmente.`);
+      }
     }
   }
 
@@ -187,7 +209,11 @@ export class GeminiReceiptValidator {
   private buildPrompt(targetAccount: BankAccount, expectedAmount: number): string {
     const countryName = targetAccount.country === 'EC' ? 'Ecuador' : 'México';
     
-    return `Analiza este comprobante de transferencia bancaria de ${countryName}.
+    return `Analiza esta imagen y determina si es un comprobante de transferencia bancaria de ${countryName}.
+
+PRIMERO: ¿Es esto un comprobante bancario válido?
+- Si NO es un comprobante bancario (es una foto random, meme, documento diferente, etc.), responde con isValid: false y un error descriptivo.
+- Si SÍ parece un comprobante bancario, procede con la validación.
 
 DATOS ESPERADOS:
 - Cuenta destino: ${targetAccount.accountNumber}

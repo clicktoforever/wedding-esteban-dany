@@ -30,11 +30,21 @@ function ConfirmPaymentContent() {
   const getMessage = () => {
     if (type === 'transfer') {
       if (isApproved) return 'Tu comprobante ha sido validado exitosamente'
-      if (isRejected) return 'Tu comprobante no pudo ser verificado. Por favor verifica los datos e intenta nuevamente.'
-      if (isManualReview) return 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
+      if (isRejected) return 'La imagen no es un comprobante válido'
+      if (isManualReview) return 'Tu comprobante requiere revisión manual'
       return 'Tu comprobante está siendo validado'
     }
     return 'Tu aporte está siendo procesado'
+  }
+  
+  const getDetailedMessage = () => {
+    if (type === 'transfer') {
+      if (isApproved) return 'Tu aporte ya está reflejado en la mesa de regalos. ¡Muchas gracias!'
+      if (isRejected) return 'Por favor verifica que hayas subido la imagen correcta del comprobante de transferencia bancaria y que los datos coincidan con la cuenta destino.'
+      if (isManualReview) return 'Nuestro equipo revisará tu comprobante manualmente. Te notificaremos cuando sea aprobado. Esto puede deberse a errores técnicos o información poco clara en el comprobante.'
+      return 'Validaremos tu comprobante y te notificaremos cuando tu aporte sea aprobado.'
+    }
+    return 'Recibirás una confirmación por correo electrónico cuando tu transacción sea aprobada.'
   }
 
   const getIconColor = () => {
@@ -89,14 +99,7 @@ function ConfirmPaymentContent() {
         </p>
 
         <p className="text-gray-500 mb-6">
-          {type === 'transfer'
-            ? isApproved 
-              ? 'Tu aporte ya está reflejado en la mesa de regalos. ¡Muchas gracias!'
-              : isRejected
-              ? 'Verifica que los datos del comprobante coincidan con la cuenta destino.'
-              : 'Validaremos tu comprobante y te notificaremos cuando tu aporte sea aprobado.'
-            : 'Recibirás una confirmación por correo electrónico cuando tu transacción sea aprobada.'
-          }
+          {getDetailedMessage()}
         </p>
 
         {/* Detalles de la contribución */}
