@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { GeminiReceiptValidator } from '@/lib/gemini-receipt-validator';
 import type { Database } from '@/lib/database.types';
+import { usdToMxn } from '@/lib/currency';
 
 type Gift = Database['public']['Tables']['gifts']['Row'];
 type GiftTransaction = Database['public']['Tables']['gift_transactions']['Row'];
@@ -19,13 +20,15 @@ export async function POST(request: NextRequest) {
     
     const giftId = formData.get('giftId') as string;
     const donorName = formData.get('donorName') as string;
-    const amount = Number.parseFloat(formData.get('amount') as string);
+    const amount = Number.parseFloat(formData.get('amount') as string); // En USD
+    const displayAmount = Number.parseFloat(formData.get('displayAmount') as string); // En moneda original
+    const displayCurrency = formData.get('displayCurrency') as 'USD' | 'MXN';
     const country = formData.get('country') as 'EC' | 'MX';
     const message = formData.get('message') as string | null;
     const receiptFile = formData.get('receipt') as File;
 
     // Validaciones
-    if (!giftId || !donorName || !amount || !country || !receiptFile) {
+    if (!giftId || !donorName || !amount || !displayAmount || !country || !receiptFile) {
       return NextResponse.json(
         { success: false, error: 'Datos incompletos' },
         { status: 400 }
@@ -80,8 +83,11 @@ export async function POST(request: NextRequest) {
     const remainingAmount = gift.total_amount - gift.collected_amount;
     
     if (amount > remainingAmount) {
+      // Convertir remaining a la moneda de visualización para el error
+      const displayRemaining = country === 'MX' ? usdToMxn(remainingAmount) : remainingAmount;
+      const currencyLabel = country === 'MX' ? 'MXN' : 'USD';
       return NextResponse.json(
-        { success: false, error: `El monto excede el saldo disponible: $${remainingAmount.toFixed(2)}` },
+        { success: false, error: `El monto excede el saldo disponible: $${displayRemaining.toFixed(2)} ${currencyLabel}` },
         { status: 400 }
       );
     }
@@ -141,11 +147,12 @@ export async function POST(request: NextRequest) {
     }
 
     // 5. Validar con Gemini API (en background, no bloquear respuesta)
+    // Pasar displayAmount para que Gemini valide contra el monto en el comprobante
     validateReceiptAsync(
       transaction.id,
       buffer,
       country,
-      amount,
+      displayAmount, // Monto en la moneda original del comprobante
       giftId,
       supabase
     ).catch(console.error);
