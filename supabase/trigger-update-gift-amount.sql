@@ -43,6 +43,7 @@ BEGIN
         WHEN v_new_collected >= total_amount THEN 'COMPLETED'
         ELSE 'AVAILABLE'
       END,
+      is_crowdfunding = true, -- Marcar como crowdfunding si recibe transacciones
       updated_at = NOW()
     WHERE id = NEW.gift_id;
     
