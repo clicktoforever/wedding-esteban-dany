@@ -26,14 +26,14 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
 
   return (
     <div 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
       aria-labelledby="welcome-modal-title"
     >
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header con decoración */}
@@ -105,7 +105,7 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
                 </div>
                 <div className="flex-1">
                   <h4 className="font-semibold text-gray-900">Transferencia Mexicana</h4>
-                  <p className="text-sm text-gray-600">BBVA México - Validación automática con IA</p>
+                  <p className="text-sm text-gray-600">Santander México - Validación automática con IA</p>
                 </div>
               </div>
             </div>
