@@ -160,7 +160,10 @@ export default function TransferModal({
       const data = await response.json()
 
       if (data.success) {
-        // Redirigir a página de confirmación con los datos
+        // Verificar el estado de validación
+        const status = data.status // 'approved', 'rejected', 'manual_review', 'processing'
+        
+        // Redirigir a página de confirmación con los datos y el estado
         const params = new URLSearchParams({
           clientTransactionId: data.transactionId,
           type: 'transfer',
@@ -169,7 +172,8 @@ export default function TransferModal({
             ? `${contributionAmount.toFixed(2)} MXN`
             : `${contributionAmount.toFixed(2)} USD`,
           donorName: donorName.trim(),
-          giftName: gift.name
+          giftName: gift.name,
+          status: status // Agregar estado para mostrar mensaje apropiado
         })
         window.location.href = `/confirm-payment?${params.toString()}`
       } else {

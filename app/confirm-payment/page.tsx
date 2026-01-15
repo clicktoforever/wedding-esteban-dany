@@ -7,11 +7,49 @@ function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const clientTransactionId = searchParams.get('clientTransactionId')
   const type = searchParams.get('type') // 'payphone' o 'transfer'
+  const status = searchParams.get('status') // 'approved', 'rejected', 'manual_review', 'processing'
   const country = searchParams.get('country')
   const amount = searchParams.get('amount')
   const donorName = searchParams.get('donorName')
   const giftName = searchParams.get('giftName')
   const [countdown, setCountdown] = useState(5)
+
+  // Determinar mensajes según el estado
+  const isApproved = status === 'approved'
+  const isRejected = status === 'rejected'
+  const isManualReview = status === 'manual_review'
+  const isProcessing = !status || status === 'processing'
+
+  const getTitle = () => {
+    if (isApproved) return '¡Gracias por tu Contribución! 🎉'
+    if (isRejected) return 'Comprobante No Válido ❌'
+    if (isManualReview) return 'En Revisión Manual 🔍'
+    return '¡Gracias por tu Contribución! 🎉'
+  }
+
+  const getMessage = () => {
+    if (type === 'transfer') {
+      if (isApproved) return 'Tu comprobante ha sido validado exitosamente'
+      if (isRejected) return 'Tu comprobante no pudo ser verificado. Por favor verifica los datos e intenta nuevamente.'
+      if (isManualReview) return 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
+      return 'Tu comprobante está siendo validado'
+    }
+    return 'Tu aporte está siendo procesado'
+  }
+
+  const getIconColor = () => {
+    if (isApproved) return 'from-green-400 to-green-600'
+    if (isRejected) return 'from-red-400 to-red-600'
+    if (isManualReview) return 'from-yellow-400 to-yellow-600'
+    return 'from-green-400 to-green-600'
+  }
+
+  const getIcon = () => {
+    if (isApproved) return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+    if (isRejected) return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+    if (isManualReview) return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    return <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+  }
 
   useEffect(() => {
     // Countdown timer
@@ -32,30 +70,31 @@ function ConfirmPaymentContent() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-rose-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8 text-center">
-        {/* Icono de éxito animado */}
+        {/* Icono animado */}
         <div className="mb-6">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center animate-bounce">
+          <div className={`mx-auto w-20 h-20 bg-gradient-to-br ${getIconColor()} rounded-full flex items-center justify-center animate-bounce`}>
             <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+              {getIcon()}
             </svg>
           </div>
         </div>
 
         {/* Mensaje principal */}
         <h1 className="text-3xl font-bold text-gray-900 mb-3">
-          ¡Gracias por tu Contribución! 🎉
+          {getTitle()}
         </h1>
         
         <p className="text-lg text-gray-600 mb-6">
-          {type === 'transfer' 
-            ? 'Tu comprobante está siendo validado'
-            : 'Tu aporte está siendo procesado'
-          }
+          {getMessage()}
         </p>
 
         <p className="text-gray-500 mb-6">
           {type === 'transfer'
-            ? 'Validaremos tu comprobante y te notificaremos cuando tu aporte sea aprobado.'
+            ? isApproved 
+              ? 'Tu aporte ya está reflejado en la mesa de regalos. ¡Muchas gracias!'
+              : isRejected
+              ? 'Verifica que los datos del comprobante coincidan con la cuenta destino.'
+              : 'Validaremos tu comprobante y te notificaremos cuando tu aporte sea aprobado.'
             : 'Recibirás una confirmación por correo electrónico cuando tu transacción sea aprobada.'
           }
         </p>
