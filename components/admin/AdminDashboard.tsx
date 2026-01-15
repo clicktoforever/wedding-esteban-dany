@@ -45,6 +45,9 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const [passes, setPasses] = useState<Array<{ id?: string, attendee_name: string }>>([{ attendee_name: '' }])
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [emailError, setEmailError] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined'>('all')
+  const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
 
   const validateEmail = (email: string): boolean => {
     if (!email) return true // Email is optional
@@ -59,6 +62,71 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const giftsCompletedRate = stats.total_gifts > 0
     ? ((stats.completed_gifts / stats.total_gifts) * 100).toFixed(1)
     : '0.0'
+
+  // Función para generar el mensaje de WhatsApp inicial
+  const generateWhatsAppMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
+    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    
+    return `¡Hola ${guest.name}! 💐✨
+
+Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
+
+🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
+
+${confirmationUrl}
+
+¡Esperamos contar con tu presencia! 💕`
+  }
+
+  // Función para generar el mensaje de recordatorio
+  const generateReminderMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
+    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    
+    return `¡Hola ${guest.name}! 💌
+
+Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
+
+Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
+
+${confirmationUrl}
+
+¡Tu presencia es muy importante para nosotros! 💕✨`
+  }
+
+  // Función para abrir WhatsApp
+  const openWhatsApp = (guest: GuestWithPasses, isReminder: boolean = false) => {
+    if (!guest.phone) return
+    
+    const phoneNumber = guest.phone.replace(/[^0-9]/g, '')
+    const message = isReminder ? generateReminderMessage(guest) : generateWhatsAppMessage(guest)
+    const encodedMessage = encodeURIComponent(message)
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`
+    
+    window.open(whatsappUrl, '_blank')
+    
+    // Marcar como enviado
+    if (!isReminder) {
+      setSentMessages(prev => new Set([...prev, guest.id]))
+    }
+  }
+
+  // Filtrar invitados según búsqueda y estado
+  const filteredGuests = guests.filter(guest => {
+    // Filtro por búsqueda
+    const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    if (!matchesSearch) return false
+
+    // Filtro por estado
+    if (statusFilter === 'all') return true
+    
+    return guest.passes.some(pass => pass.confirmation_status === statusFilter)
+  })
 
   const addPass = () => {
     setPasses([...passes, { attendee_name: '' }])
@@ -414,58 +482,100 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
 
       {/* Guests Table */}
       <div className="bg-white border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30 flex justify-between items-center flex-wrap gap-4">
-          <h2 className="text-2xl font-serif text-wedding-forest">
-            Lista de Invitados
-          </h2>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-rose text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-rose/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30 space-y-4">
+          <div className="flex justify-between items-center flex-wrap gap-4">
+            <h2 className="text-2xl font-serif text-wedding-forest">
+              Lista de Invitados
+            </h2>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-6 py-3 bg-wedding-rose text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-rose/90 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Agregar Invitado</span>
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="flex items-center gap-2 px-6 py-3 bg-wedding-forest text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-forest/90 transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Descargar Excel</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Barra de búsqueda y filtros */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            {/* Buscador */}
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Buscar por nombre..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm"
+              />
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
-              <span>Agregar Invitado</span>
-            </button>
-            <button
-              onClick={exportToExcel}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-forest text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-forest/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Descargar Excel</span>
-            </button>
+            </div>
+
+            {/* Filtro por estado */}
+            <div className="sm:w-64">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as any)}
+                className="w-full px-4 py-2 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all bg-white text-sm"
+              >
+                <option value="all">Todos los estados</option>
+                <option value="confirmed">Confirmados</option>
+                <option value="pending">Pendientes</option>
+                <option value="declined">Declinados</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Contador de resultados */}
+          <div className="text-sm text-gray-600">
+            Mostrando {filteredGuests.length} de {guests.length} invitados
           </div>
         </div>
         
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto max-h-[600px] overflow-y-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
                   Invitado Principal
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
                   Acompañantes
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
                   Estado
                 </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
                   Contacto
                 </th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
+                  WhatsApp
+                </th>
+                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider bg-gray-50">
                   Acciones
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {guests.map(guest => {
+              {filteredGuests.map(guest => {
                 const confirmedCount = guest.passes.filter(p => p.confirmation_status === 'confirmed').length
                 const declinedCount = guest.passes.filter(p => p.confirmation_status === 'declined').length
                 const pendingCount = guest.passes.filter(p => p.confirmation_status === 'pending').length
+                const hasPhone = !!guest.phone
 
                 return (
                   <tr key={guest.id} className="hover:bg-wedding-beige/20 transition-colors">
@@ -513,6 +623,59 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                       </div>
                     </td>
                     <td className="px-6 py-4">
+                      {hasPhone ? (
+                        <div className="flex flex-col items-center gap-3">
+                          {/* Botón de invitación inicial */}
+                          <div className="flex flex-col items-center gap-2">
+                            <button
+                              onClick={() => openWhatsApp(guest, false)}
+                              disabled={!hasPhone}
+                              className="flex items-center gap-2 px-3 py-2 bg-[#25D366] text-white hover:bg-[#20BA5A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs font-medium"
+                              title="Enviar invitación por WhatsApp"
+                            >
+                              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                              </svg>
+                              <span>Invitación</span>
+                            </button>
+                            <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={sentMessages.has(guest.id)}
+                                onChange={(e) => {
+                                  const newSent = new Set(sentMessages)
+                                  if (e.target.checked) {
+                                    newSent.add(guest.id)
+                                  } else {
+                                    newSent.delete(guest.id)
+                                  }
+                                  setSentMessages(newSent)
+                                }}
+                                className="w-4 h-4 text-wedding-forest focus:ring-wedding-forest"
+                              />
+                              <span>Enviado</span>
+                            </label>
+                          </div>
+
+                          {/* Botón de recordatorio */}
+                          <button
+                            onClick={() => openWhatsApp(guest, true)}
+                            disabled={!hasPhone}
+                            className="flex items-center gap-2 px-3 py-2 bg-amber-500 text-white hover:bg-amber-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded text-xs font-medium"
+                            title="Enviar recordatorio (fecha límite: 10 de marzo)"
+                          >
+                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                              <path d="M12 2C6.486 2 2 6.486 2 12s4.486 10 10 10 10-4.486 10-10S17.514 2 12 2zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
+                              <path d="M13 7h-2v5.414l3.293 3.293 1.414-1.414L13 11.586z"/>
+                            </svg>
+                            <span>Recordatorio</span>
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400 italic">Sin teléfono</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
                         <button
                           onClick={() => openEditModal(guest)}
@@ -544,9 +707,16 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
           </table>
         </div>
         
-        {guests.length === 0 && (
+        {filteredGuests.length === 0 && (
           <div className="text-center py-12 text-gray-500">
-            <p className="text-lg font-serif">No hay invitados registrados aún</p>
+            {guests.length === 0 ? (
+              <p className="text-lg font-serif">No hay invitados registrados aún</p>
+            ) : (
+              <div>
+                <p className="text-lg font-serif">No se encontraron invitados</p>
+                <p className="text-sm mt-2">Intenta ajustar los filtros de búsqueda</p>
+              </div>
+            )}
           </div>
         )}
       </div>
