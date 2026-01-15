@@ -160,14 +160,18 @@ export default function TransferModal({
       const data = await response.json()
 
       if (data.success) {
-        setSuccess(true)
-        setTransactionId(data.transactionId)
-        
-        // Esperar 2 segundos antes de cerrar
-        setTimeout(() => {
-          onSuccess?.()
-          handleClose()
-        }, 3000)
+        // Redirigir a página de confirmación con los datos
+        const params = new URLSearchParams({
+          clientTransactionId: data.transactionId,
+          type: 'transfer',
+          country: country,
+          amount: displayRemaining.currency === 'MXN' 
+            ? `${contributionAmount.toFixed(2)} MXN`
+            : `${contributionAmount.toFixed(2)} USD`,
+          donorName: donorName.trim(),
+          giftName: gift.name
+        })
+        window.location.href = `/confirm-payment?${params.toString()}`
       } else {
         setError(data.error || 'Error al procesar la transferencia')
       }
