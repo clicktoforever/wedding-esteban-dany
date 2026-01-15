@@ -202,31 +202,15 @@ async function validateReceiptAsync(
       validationStatus = 'MANUAL_REVIEW';
     } else if (result.validation.isValid) {
       validationStatus = 'APPROVED';
-      
-      // Actualizar collected_amount del regalo
-      const { data: gift } = await supabase
-        .from('gifts')
-        .select('collected_amount, total_amount')
-        .eq('id', giftId)
-        .single();
-
-      if (gift) {
-        const newCollected = gift.collected_amount + expectedAmount;
-        const newStatus = newCollected >= gift.total_amount ? 'COMPLETED' : 'AVAILABLE';
-        
-        await supabase
-          .from('gifts')
-          .update({
-            collected_amount: newCollected,
-            status: newStatus
-          })
-          .eq('id', giftId);
-      }
+      // Nota: El trigger trigger_update_gift_collected_amount se encargará
+      // automáticamente de actualizar gifts.collected_amount cuando
+      // el status cambie a APPROVED
     } else {
       validationStatus = 'REJECTED';
     }
 
     // Actualizar transacción con resultados de validación
+    // El trigger se activará automáticamente si status = 'APPROVED'
     await supabase
       .from('gift_transactions')
       .update({
