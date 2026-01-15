@@ -79,6 +79,7 @@ export default function TransactionsPanel({ initialTransactions = [] }: Transact
     try {
       const { error } = await supabase
         .from('gift_transactions')
+        // @ts-expect-error - Supabase generated types issue with status enum
         .update({ status: 'APPROVED' })
         .eq('id', transactionId)
 
@@ -105,6 +106,7 @@ export default function TransactionsPanel({ initialTransactions = [] }: Transact
     try {
       const { error } = await supabase
         .from('gift_transactions')
+        // @ts-expect-error - Supabase generated types issue with status enum
         .update({ status: 'REJECTED' })
         .eq('id', transactionId)
 

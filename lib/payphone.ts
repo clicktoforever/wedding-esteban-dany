@@ -249,12 +249,18 @@ export function centsToDollars(cents: number): number {
 }
 
 /**
- * Formats currency for display
+ * Formats currency for display based on country
  */
-export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('es-EC', {
+export function formatCurrency(amount: number, country?: string | null): string {
+  const locale = country === 'MX' ? 'es-MX' : 'es-EC'
+  const currency = country === 'MX' ? 'MXN' : 'USD'
+  
+  // Convert USD to MXN if needed (1 USD = 20 MXN)
+  const displayAmount = country === 'MX' ? amount * 20 : amount
+  
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
-    currency: 'USD',
+    currency: currency,
     minimumFractionDigits: 2,
-  }).format(amount)
+  }).format(displayAmount)
 }
