@@ -2,7 +2,8 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import GiftRegistry from '@/components/gifts/GiftRegistry'
 
-export const revalidate = 10 // ISR with 10 second revalidation
+export const revalidate = 0 // Deshabilitar cache para siempre obtener datos frescos
+export const dynamic = 'force-dynamic' // Forzar renderizado dinámico
 
 export default async function GiftsPage() {
   const supabase = await createClient()

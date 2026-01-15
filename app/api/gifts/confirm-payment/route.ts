@@ -25,6 +25,13 @@ export async function GET(request: NextRequest) {
     // Update transaction with PayPhone ID (this will trigger the Edge Function)
     const supabase = await createClient()
     
+    // Obtener información de la transacción para mostrar en la página de confirmación
+    const { data: transaction } = await supabase
+      .from('gift_transactions')
+      .select('donor_name, amount, gift_id')
+      .eq('payphone_client_transaction_id', clientTransactionId)
+      .single() as { data: { donor_name: string; amount: number; gift_id: string } | null }
+    
     const { error: updateError } = await supabase
       .from('gift_transactions')
       // @ts-expect-error - Supabase type inference issue
@@ -40,9 +47,30 @@ export async function GET(request: NextRequest) {
       console.log('Transaction updated with PayPhone ID:', id)
     }
 
+    // Obtener nombre del regalo
+    let giftName = ''
+    if (transaction?.gift_id) {
+      const { data: gift } = await supabase
+        .from('gifts')
+        .select('name')
+        .eq('id', transaction.gift_id)
+        .single() as { data: { name: string } | null }
+      giftName = gift?.name || ''
+    }
+
     // Redirect to thank you page
     const redirectUrl = new URL('/confirm-payment', request.url)
     redirectUrl.searchParams.set('clientTransactionId', clientTransactionId)
+    redirectUrl.searchParams.set('type', 'payphone')
+    if (transaction?.donor_name) {
+      redirectUrl.searchParams.set('donorName', transaction.donor_name)
+    }
+    if (transaction?.amount) {
+      redirectUrl.searchParams.set('amount', `${transaction.amount.toFixed(2)} USD`)
+    }
+    if (giftName) {
+      redirectUrl.searchParams.set('giftName', giftName)
+    }
     
     console.log('Redirecting to:', redirectUrl.toString())
     return NextResponse.redirect(redirectUrl)

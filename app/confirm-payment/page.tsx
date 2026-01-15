@@ -6,6 +6,11 @@ import { useState, useEffect, Suspense } from 'react'
 function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const clientTransactionId = searchParams.get('clientTransactionId')
+  const type = searchParams.get('type') // 'payphone' o 'transfer'
+  const country = searchParams.get('country')
+  const amount = searchParams.get('amount')
+  const donorName = searchParams.get('donorName')
+  const giftName = searchParams.get('giftName')
   const [countdown, setCountdown] = useState(5)
 
   useEffect(() => {
@@ -13,7 +18,8 @@ function ConfirmPaymentContent() {
     const timer = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
-          window.location.href = '/gifts?payment=success'
+          // Redirigir con timestamp para forzar recarga
+          window.location.href = `/gifts?t=${Date.now()}`
           return 0
         }
         return prev - 1
@@ -41,12 +47,49 @@ function ConfirmPaymentContent() {
         </h1>
         
         <p className="text-lg text-gray-600 mb-6">
-          Tu aporte está siendo procesado
+          {type === 'transfer' 
+            ? 'Tu comprobante está siendo validado'
+            : 'Tu aporte está siendo procesado'
+          }
         </p>
 
         <p className="text-gray-500 mb-6">
-          Recibirás una confirmación por correo electrónico cuando tu transacción sea aprobada.
+          {type === 'transfer'
+            ? 'Validaremos tu comprobante y te notificaremos cuando tu aporte sea aprobado.'
+            : 'Recibirás una confirmación por correo electrónico cuando tu transacción sea aprobada.'
+          }
         </p>
+
+        {/* Detalles de la contribución */}
+        {(donorName || amount || giftName) && (
+          <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-xl p-5 mb-6 text-left">
+            <h3 className="font-semibold text-teal-900 mb-3 text-center">Detalles de tu Aporte</h3>
+            {donorName && (
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">Nombre:</span>
+                <span className="font-medium text-gray-900">{donorName}</span>
+              </div>
+            )}
+            {giftName && (
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">Regalo:</span>
+                <span className="font-medium text-gray-900">{giftName}</span>
+              </div>
+            )}
+            {amount && (
+              <div className="flex justify-between mb-2">
+                <span className="text-gray-600">Monto:</span>
+                <span className="font-bold text-teal-700 text-lg">${amount}</span>
+              </div>
+            )}
+            {country && type === 'transfer' && (
+              <div className="flex justify-between">
+                <span className="text-gray-600">País:</span>
+                <span className="font-medium text-gray-900">{country === 'EC' ? 'Ecuador 🇪🇨' : 'México 🇲🇽'}</span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Info de transacción */}
         {clientTransactionId && (
@@ -73,7 +116,7 @@ function ConfirmPaymentContent() {
 
         {/* Botón manual */}
         <a
-          href="/gifts"
+          href={`/gifts?t=${Date.now()}`}
           className="inline-block w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
         >
           Volver a Mesa de Regalos Ahora
