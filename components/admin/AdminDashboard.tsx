@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import { formatCurrency } from '@/lib/payphone'
 import type { Database } from '@/lib/database.types'
@@ -31,6 +31,74 @@ interface AdminDashboardProps {
   readonly gifts: Gift[]
 }
 
+// Mock data for UI prototyping; real data from props overrides it
+const GUESTS: GuestWithPasses[] = [
+  {
+    id: 'g1',
+    name: 'María Fernanda López',
+    email: 'maria.lopez@example.com',
+    phone: '+593987654321',
+    access_token: 'token-maria',
+    created_at: '',
+    updated_at: '',
+    passes: [
+      { id: 'p1', guest_id: 'g1', attendee_name: 'María Fernanda López', confirmation_status: 'confirmed', dietary_restrictions: 'Vegetariana', notes: null, updated_at: '' },
+      { id: 'p2', guest_id: 'g1', attendee_name: 'Carlos Díaz', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
+    ],
+  },
+  {
+    id: 'g2',
+    name: 'Juan Pérez',
+    email: null,
+    phone: '+529991112233',
+    access_token: 'token-juan',
+    created_at: '',
+    updated_at: '',
+    passes: [
+      { id: 'p3', guest_id: 'g2', attendee_name: 'Juan Pérez', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
+    ],
+  },
+  {
+    id: 'g3',
+    name: 'Ana Lucía Torres',
+    email: 'ana.torres@example.com',
+    phone: '+573145556677',
+    access_token: 'token-ana',
+    created_at: '',
+    updated_at: '',
+    passes: [
+      { id: 'p4', guest_id: 'g3', attendee_name: 'Ana Lucía Torres', confirmation_status: 'declined', dietary_restrictions: null, notes: 'No puede asistir', updated_at: '' },
+      { id: 'p5', guest_id: 'g3', attendee_name: 'Marco Ruiz', confirmation_status: 'declined', dietary_restrictions: null, notes: null, updated_at: '' },
+    ],
+  },
+  {
+    id: 'g4',
+    name: 'Sofía Martínez',
+    email: 'sofia.mtz@example.com',
+    phone: '+593998887766',
+    access_token: 'token-sofia',
+    created_at: '',
+    updated_at: '',
+    passes: [
+      { id: 'p6', guest_id: 'g4', attendee_name: 'Sofía Martínez', confirmation_status: 'confirmed', dietary_restrictions: 'Sin gluten', notes: null, updated_at: '' },
+      { id: 'p7', guest_id: 'g4', attendee_name: 'Laura Chávez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
+      { id: 'p8', guest_id: 'g4', attendee_name: 'Pedro Álvarez', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
+    ],
+  },
+  {
+    id: 'g5',
+    name: 'Luis Ramírez',
+    email: 'lramirez@example.com',
+    phone: '+529998887755',
+    access_token: 'token-luis',
+    created_at: '',
+    updated_at: '',
+    passes: [
+      { id: 'p9', guest_id: 'g5', attendee_name: 'Luis Ramírez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
+    ],
+  },
+]
+
 export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isEditMode, setIsEditMode] = useState(false)
@@ -45,11 +113,43 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const [passes, setPasses] = useState<Array<{ id?: string, attendee_name: string }>>([{ attendee_name: '' }])
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [emailError, setEmailError] = useState<string>('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined'>('all')
+  const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
+  const [guestList, setGuestList] = useState<GuestWithPasses[]>(guests.length ? guests : GUESTS)
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null)
+
+  // Mantener la lista en sync con datos reales si llegan desde servidor
+  useEffect(() => {
+    if (guests.length) {
+      setGuestList(guests)
+    }
+  }, [guests])
 
   const validateEmail = (email: string): boolean => {
     if (!email) return true // Email is optional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
+  }
+
+  const getOverallStatus = (guest: GuestWithPasses): 'confirmed' | 'pending' | 'declined' => {
+    const statuses = guest.passes.map(p => p.confirmation_status)
+    if (statuses.every(s => s === 'confirmed')) return 'confirmed'
+    if (statuses.every(s => s === 'declined')) return 'declined'
+    return 'pending'
+  }
+
+  const statusStyles: Record<'confirmed' | 'pending' | 'declined', { label: string; classes: string }> = {
+    confirmed: { label: 'Confirmado', classes: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
+    pending: { label: 'Pendiente', classes: 'bg-amber-100 text-amber-800 border border-amber-200' },
+    declined: { label: 'Declinado', classes: 'bg-rose-100 text-rose-800 border border-rose-200' },
+  }
+
+  const getCompanionBadge = (guest: GuestWithPasses) => {
+    const count = Math.max(guest.passes.length - 1, 0)
+    if (count === 0) return null
+    const names = guest.passes.slice(1).map(c => c.attendee_name).join(', ')
+    return { count, tooltip: names }
   }
 
   const confirmationRate = stats.total_passes > 0 
@@ -59,6 +159,62 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const giftsCompletedRate = stats.total_gifts > 0
     ? ((stats.completed_gifts / stats.total_gifts) * 100).toFixed(1)
     : '0.0'
+
+  // Función para generar el mensaje de WhatsApp inicial
+  const generateWhatsAppMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
+    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    
+    return `¡Hola ${guest.name}! 💐✨
+
+Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
+
+🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
+
+${confirmationUrl}
+
+¡Esperamos contar con tu presencia! 💕`
+  }
+
+  // Función para generar el mensaje de recordatorio
+  const generateReminderMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
+    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    
+    return `¡Hola ${guest.name}! 💌
+
+Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
+
+Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
+
+${confirmationUrl}
+
+¡Tu presencia es muy importante para nosotros! 💕✨`
+  }
+
+  const getWhatsAppLink = (guest: GuestWithPasses, type: 'invite' | 'reminder') => {
+    if (!guest.phone) return '#'
+    const phoneNumber = guest.phone.replace(/[^0-9]/g, '')
+    const message = type === 'reminder' ? generateReminderMessage(guest) : generateWhatsAppMessage(guest)
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+  }
+
+  // Filtrar invitados según búsqueda y estado
+  const filteredGuests = guestList.filter(guest => {
+    // Filtro por búsqueda
+    const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    
+    if (!matchesSearch) return false
+
+    // Filtro por estado
+    if (statusFilter === 'all') return true
+    
+    return guest.passes.some(pass => pass.confirmation_status === statusFilter)
+  })
+
 
   const addPass = () => {
     setPasses([...passes, { attendee_name: '' }])
@@ -144,10 +300,8 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
         throw new Error('Error al eliminar invitado')
       }
 
+      setGuestList(prev => prev.filter(g => g.id !== guestToDelete))
       setMessage({ type: 'success', text: 'Invitado eliminado exitosamente' })
-      setTimeout(() => {
-        globalThis.location.reload()
-      }, 1500)
     } catch (error) {
       console.error('Error al eliminar invitado:', error)
       setMessage({ type: 'error', text: 'Error al eliminar invitado. Intenta nuevamente.' })
@@ -364,6 +518,12 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
 
   return (
     <div className="space-y-8">
+      {/* Safelist Tailwind colors for status dots to ensure rendering */}
+      <div className="hidden">
+        <span className="bg-emerald-500"></span>
+        <span className="bg-amber-400"></span>
+        <span className="bg-gray-400"></span>
+      </div>
       {/* Progress Overview */}
       <div className="bg-white border border-gray-200 p-8">
         <h2 className="text-2xl font-serif text-wedding-forest mb-8">
@@ -412,143 +572,418 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
         </div>
       </div>
 
-      {/* Guests Table */}
-      <div className="bg-white border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30 flex justify-between items-center flex-wrap gap-4">
-          <h2 className="text-2xl font-serif text-wedding-forest">
-            Lista de Invitados
-          </h2>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-rose text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-rose/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Agregar Invitado</span>
-            </button>
-            <button
-              onClick={exportToExcel}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-forest text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-forest/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Descargar Excel</span>
-            </button>
+      {/* Guests List */}
+      <div className="bg-white border border-gray-200 overflow-hidden flex flex-col">
+        <div className="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-gray-200">
+          <div className="p-6 pb-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-serif text-wedding-forest">Lista de Invitados</h2>
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-wedding-rose text-white tracking-wider uppercase text-xs font-medium hover:bg-wedding-rose/90 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                </svg>
+                <span>Agregar</span>
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="flex items-center gap-2 px-4 py-2 bg-wedding-forest text-white tracking-wider uppercase text-xs font-medium hover:bg-wedding-forest/90 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Excel</span>
+              </button>
+            </div>
           </div>
-        </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Invitado Principal
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Acompañantes
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Contacto
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {guests.map(guest => {
-                const confirmedCount = guest.passes.filter(p => p.confirmation_status === 'confirmed').length
-                const declinedCount = guest.passes.filter(p => p.confirmation_status === 'declined').length
-                const pendingCount = guest.passes.filter(p => p.confirmation_status === 'pending').length
 
-                return (
-                  <tr key={guest.id} className="hover:bg-wedding-beige/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-serif text-wedding-forest">
-                        {guest.name}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        {guest.passes.map(pass => (
-                          <div key={pass.id} className="text-sm text-gray-600">
-                            {pass.attendee_name}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-2">
-                        {confirmedCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-wedding-sage/20 text-wedding-forest uppercase tracking-wider w-fit">
-                            ✓ {confirmedCount} confirmado{confirmedCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {pendingCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-amber-100 text-amber-700 uppercase tracking-wider w-fit">
-                            ⏳ {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {declinedCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 uppercase tracking-wider w-fit">
-                            ✗ {declinedCount} declinado{declinedCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 space-y-1">
-                        {guest.email && <div className="truncate max-w-xs">{guest.email}</div>}
-                        {guest.phone && <div>{guest.phone}</div>}
-                        {!guest.email && !guest.phone && <span className="text-gray-400">-</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => openEditModal(guest)}
-                          className="p-2 text-wedding-forest hover:bg-wedding-forest/10 transition-colors rounded"
-                          title="Editar invitado"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setGuestToDelete(guest.id)
-                            setShowDeleteConfirm(true)
-                          }}
-                          className="p-2 text-red-500 hover:bg-red-50 transition-colors rounded"
-                          title="Eliminar invitado"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        
-        {guests.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg font-serif">No hay invitados registrados aún</p>
+          {/* Barra sticky de búsqueda y filtros */}
+            <div className="px-6 pb-4 flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Buscar por nombre o acompañante"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm"
+              />
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {/* Mobile: Combobox */}
+            <div className="md:hidden">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'confirmed' | 'pending' | 'declined')}
+                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20"
+              >
+                <option value="all">Todos</option>
+                <option value="confirmed">Confirmados</option>
+                <option value="pending">Pendientes</option>
+                <option value="declined">Declinados</option>
+              </select>
+            </div>
+            <div></div>
+            {/* Desktop: Tabs */}
+            <div className="hidden md:flex gap-2 text-xs font-medium">
+              {[
+                { key: 'all', label: 'Todos' },
+                { key: 'confirmed', label: 'Confirmados' },
+                { key: 'pending', label: 'Pendientes' },
+                { key: 'declined', label: 'Declinados' },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setStatusFilter(tab.key as 'all' | 'confirmed' | 'pending' | 'declined')}
+                  className={`px-3 py-2 rounded-full border transition-colors ${statusFilter === tab.key ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
           </div>
-        )}
+
+          {/* Resumen removido por solicitud */}
+        </div>
+
+        <div className="p-4 pt-2 flex-1">
+          <div className="text-sm text-gray-600 mb-3">Mostrando {filteredGuests.length} de {guestList.length} invitados</div>
+
+          {/* Desktop Table */}
+          <div className="hidden md:block border border-gray-200">
+            <div className="overflow-auto max-h-[640px]">
+              <table className="min-w-full text-sm">
+                <thead className="bg-white sticky top-0 z-10 backdrop-blur border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Invitado</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Acompañantes</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Contacto</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Estado</th>
+                    <th className="px-4 py-3 text-center font-semibold text-gray-700">WhatsApp</th>
+                    <th className="px-4 py-3 text-right font-semibold text-gray-700">Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredGuests.map((guest, idx) => {
+                    const badge = getCompanionBadge(guest)
+                    const statusKey = getOverallStatus(guest)
+                    const { classes, label } = statusStyles[statusKey]
+                    const hasPhone = Boolean(guest.phone)
+                    const isSent = sentMessages.has(guest.id)
+                    const inviteHref = getWhatsAppLink(guest, 'invite')
+                    const reminderHref = getWhatsAppLink(guest, 'reminder')
+                    return (
+                      <tr key={guest.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-wedding-beige/30 transition-colors`}>
+                        <td className="px-4 py-3 align-top">
+                          <div className="font-serif text-wedding-forest text-sm">{guest.name}</div>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                            <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
+                            {badge && (
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-wedding-sage/20 text-wedding-forest border border-wedding-sage/30"
+                                title={badge.tooltip}
+                              >
+                                +{badge.count}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          <div className="space-y-1 text-xs text-gray-700">
+                            {guest.passes.slice(1).map(pass => (
+                              <div key={pass.id} className="flex items-center gap-2">
+                                <span
+                                  className={`inline-block h-3 w-3 rounded-full flex-shrink-0 ${
+                                    pass.confirmation_status === 'confirmed'
+                                      ? 'bg-emerald-500'
+                                      : pass.confirmation_status === 'pending'
+                                      ? 'bg-amber-400'
+                                      : 'bg-gray-400'
+                                  }`}
+                                ></span>
+                                <span>{pass.attendee_name}</span>
+                              </div>
+                            ))}
+                            {guest.passes.length <= 1 && (
+                              <span className="text-gray-400">Sin acompañantes</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top text-gray-600">
+                          <div className="space-y-1 text-xs">
+                            {guest.email && <div className="truncate max-w-xs">{guest.email}</div>}
+                            {guest.phone && <div>{guest.phone}</div>}
+                            {!guest.email && !guest.phone && <span className="text-gray-400">Sin contacto</span>}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold ${classes}`}>
+                            {label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          {hasPhone ? (
+                            <div className="flex items-center justify-center gap-3 text-gray-600">
+                              <label className="flex items-center gap-2 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={isSent}
+                                  onChange={(e) => {
+                                    const next = new Set(sentMessages)
+                                    if (e.target.checked) next.add(guest.id)
+                                    else next.delete(guest.id)
+                                    setSentMessages(next)
+                                  }}
+                                  className="w-4 h-4 accent-wedding-forest"
+                                />
+                                <span>Enviado</span>
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={inviteHref}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => {
+                                    if (isSent) {
+                                      e.preventDefault()
+                                      return
+                                    }
+                                    setSentMessages(prev => new Set([...prev, guest.id]))
+                                  }}
+                                  className={`p-2 rounded hover:bg-wedding-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                                  title="Enviar invitación"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 11 13" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 15 22 11 13 2 9z" />
+                                  </svg>
+                                </a>
+                                <a
+                                  href={reminderHref}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="p-2 rounded hover:bg-wedding-sage/20 transition"
+                                  title="Enviar recordatorio"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A3.8 3.8 0 0118 13V9c0-3.1-1.6-5.3-4-5.9V2a2 2 0 10-4 0v1.1C7.6 3.7 6 5.9 6 9v4c0 1-.4 2-1.6 2.6L3 17h5" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21a2 2 0 004 0" />
+                                  </svg>
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">Sin teléfono</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 align-top text-right">
+                          <div className="flex justify-end gap-2 text-gray-600">
+                            <button
+                              onClick={() => openEditModal(guest)}
+                              className="p-2 rounded hover:bg-wedding-sage/20 transition"
+                              title="Editar invitado"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M15.5 3.5l5 5" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setGuestToDelete(guest.id)
+                                setShowDeleteConfirm(true)
+                              }}
+                              className="p-2 rounded hover:bg-red-50 text-red-600 transition"
+                              title="Eliminar invitado"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a1 1 0 011-1h6a1 1 0 011 1v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {filteredGuests.map(guest => {
+              const statusKey = getOverallStatus(guest)
+              const { classes, label } = statusStyles[statusKey]
+              const badge = getCompanionBadge(guest)
+              const hasPhone = Boolean(guest.phone)
+              const isSent = sentMessages.has(guest.id)
+              const isOpen = expandedCardId === guest.id
+              const inviteHref = getWhatsAppLink(guest, 'invite')
+              const reminderHref = getWhatsAppLink(guest, 'reminder')
+              return (
+                <div key={guest.id} className="border border-gray-200 bg-white shadow-sm">
+                  <button
+                    onClick={() => setExpandedCardId(isOpen ? null : guest.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="text-left flex-1 min-w-0">
+                      <div className="font-serif text-wedding-forest truncate">{guest.name}</div>
+                      <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                        <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
+                        {badge && (
+                          <span
+                            className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-wedding-sage/20 text-wedding-forest border border-wedding-sage/30"
+                            title={badge.tooltip}
+                          >
+                            +{badge.count}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span 
+                      className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold flex-shrink-0"
+                      style={{
+                        backgroundColor: statusKey === 'confirmed' ? '#d1fae5' : statusKey === 'pending' ? '#fef3c7' : '#fee2e2',
+                        color: statusKey === 'confirmed' ? '#065f46' : statusKey === 'pending' ? '#92400e' : '#991b1b',
+                        border: statusKey === 'confirmed' ? '1px solid #a7f3d0' : statusKey === 'pending' ? '1px solid #fde68a' : '1px solid #fecaca'
+                      }}
+                    >
+                      {label}
+                    </span>
+                  </button>
+
+                  {isOpen && (
+                    <div className="border-t border-gray-100 px-4 py-3 space-y-3">
+                      <div className="text-xs text-gray-600 space-y-1">
+                        {guest.email && <div className="truncate">{guest.email}</div>}
+                        {guest.phone && <div>{guest.phone}</div>}
+                        {!guest.email && !guest.phone && <span className="text-gray-400">Sin contacto</span>}
+                      </div>
+
+                      <div className="text-xs text-gray-700">
+                        <div className="font-semibold mb-1">Acompañantes</div>
+                        <div className="space-y-1">
+                          {guest.passes.slice(1).map(pass => {
+                            const dotColor = pass.confirmation_status === 'confirmed'
+                              ? '#10b981'
+                              : pass.confirmation_status === 'pending'
+                              ? '#f59e0b'
+                              : '#6b7280'
+                            return (
+                              <div key={pass.id} className="flex items-center gap-2">
+                                <span 
+                                  className="inline-block h-3 w-3 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: dotColor }}
+                                ></span>
+                                <span>{pass.attendee_name}</span>
+                              </div>
+                            )
+                          })}
+                          {guest.passes.length <= 1 && (
+                            <span className="text-xs text-gray-400">Sin acompañantes</span>
+                          )}
+                        </div>
+                      </div>
+
+                      {hasPhone ? (
+                        <div className="flex items-center gap-2 text-xs">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isSent}
+                              onChange={(e) => {
+                                const next = new Set(sentMessages)
+                                if (e.target.checked) next.add(guest.id)
+                                else next.delete(guest.id)
+                                setSentMessages(next)
+                              }}
+                              className="w-4 h-4 accent-wedding-forest"
+                            />
+                            <span>Enviado</span>
+                          </label>
+                          <div className="flex-1 flex justify-end gap-2">
+                            <a
+                              href={inviteHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => {
+                                if (isSent) {
+                                  e.preventDefault()
+                                  return
+                                }
+                                setSentMessages(prev => new Set([...prev, guest.id]))
+                              }}
+                              className={`h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                              title="Enviar invitación"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 11 13" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 15 22 11 13 2 9z" />
+                              </svg>
+                            </a>
+                            <a
+                              href={reminderHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition"
+                              title="Enviar recordatorio"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A3.8 3.8 0 0118 13V9c0-3.1-1.6-5.3-4-5.9V2a2 2 0 10-4 0v1.1C7.6 3.7 6 5.9 6 9v4c0 1-.4 2-1.6 2.6L3 17h5" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21a2 2 0 004 0" />
+                              </svg>
+                            </a>
+                            <button
+                              onClick={() => openEditModal(guest)}
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition"
+                              title="Editar"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M15.5 3.5l5 5" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setGuestToDelete(guest.id)
+                                setShowDeleteConfirm(true)
+                              }}
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-red-50 text-red-600 transition"
+                              title="Eliminar"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a1 1 0 011-1h6a1 1 0 011 1v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Sin teléfono</span>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+
+          {filteredGuests.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              {guestList.length === 0 ? (
+                <p className="text-lg font-serif">No hay invitados registrados aún</p>
+              ) : (
+                <div>
+                  <p className="text-lg font-serif">No se encontraron invitados</p>
+                  <p className="text-sm mt-2">Ajusta la búsqueda o el filtro de estado</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Gifts Tables */}
