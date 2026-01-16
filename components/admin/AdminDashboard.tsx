@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
-import { formatCurrency } from '@/lib/payphone'
 import type { Database } from '@/lib/database.types'
+import AdminStats from '@/components/admin/AdminStats'
+import GiftProgressCard from '@/components/admin/GiftProgressCard'
 
 type Guest = Database['public']['Tables']['guests']['Row']
 type Pass = Database['public']['Tables']['passes']['Row']
@@ -118,6 +119,10 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
   const [guestList, setGuestList] = useState<GuestWithPasses[]>(guests.length ? guests : GUESTS)
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null)
+  const [giftsTab, setGiftsTab] = useState<'pending' | 'completed'>('pending')
+
+  // New components
+  // Lazy imports at top of file
 
   // Mantener la lista en sync con datos reales si llegan desde servidor
   useEffect(() => {
@@ -524,52 +529,14 @@ ${confirmationUrl}
         <span className="bg-amber-400"></span>
         <span className="bg-gray-400"></span>
       </div>
-      {/* Progress Overview */}
-      <div className="bg-white border border-gray-200 p-8">
-        <h2 className="text-2xl font-serif text-wedding-forest mb-8">
-          Estado de Confirmaciones
-        </h2>
-        
-        <div className="space-y-6">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Confirmados</span>
-              <span className="text-sm font-medium text-wedding-forest">{stats.confirmed_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-wedding-sage transition-all duration-500"
-                style={{ width: `${confirmationRate}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Pendientes</span>
-              <span className="text-sm font-medium text-amber-600">{stats.pending_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-amber-400 transition-all duration-500"
-                style={{ width: `${(stats.pending_passes / stats.total_passes * 100) || 0}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Declinados</span>
-              <span className="text-sm font-medium text-gray-500">{stats.declined_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-gray-400 transition-all duration-500"
-                style={{ width: `${(stats.declined_passes / stats.total_passes * 100) || 0}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
+      {/* Admin Stats Panel */}
+      <div className="bg-white border border-gray-200 p-5 md:p-8">
+        <AdminStats
+          totalGuests={stats.total_guests}
+          confirmedPasses={stats.confirmed_passes}
+          totalPasses={stats.total_passes}
+          gifts={gifts.map(g => ({ collected_amount: g.collected_amount }))}
+        />
       </div>
 
       {/* Guests List */}
@@ -986,77 +953,43 @@ ${confirmationUrl}
         </div>
       </div>
 
-      {/* Gifts Tables */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Available Gifts */}
-        <div className="bg-white border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200 bg-wedding-rose/20">
-            <h3 className="text-xl font-serif text-wedding-forest">
-              Regalos Disponibles
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => g.status !== 'COMPLETED').length} artículos
-            </p>
-          </div>
-          <div className="p-6 max-h-96 overflow-y-auto">
-            <div className="space-y-3">
-              {gifts.filter(g => g.status !== 'COMPLETED').map(gift => (
-                <div key={gift.id} className="flex justify-between items-start pb-3 border-b border-gray-100 last:border-0">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{gift.name}</p>
-                    {gift.category && (
-                      <p className="text-xs text-gray-500 mt-1">{gift.category}</p>
-                    )}
-                  </div>
-                  {gift.price && (
-                    <p className="text-sm font-serif text-wedding-purple ml-4">
-                      ${gift.price.toLocaleString('es-MX')}
-                    </p>
-                  )}
-                </div>
-              ))}
-              {gifts.filter(g => g.status !== 'COMPLETED').length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  Todos los regalos han sido completados
-                </p>
-              )}
-            </div>
+      {/* Gift Tracker with Tabs */}
+      <div className="bg-white border border-gray-200">
+        <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 className="text-xl font-serif text-wedding-forest">Gestión de Regalos</h3>
+          <div className="flex gap-2 text-xs font-medium">
+            <button
+              onClick={() => setGiftsTab('pending')}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'pending' ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+            >Pendientes</button>
+            <button
+              onClick={() => setGiftsTab('completed')}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'completed' ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+            >Completados</button>
           </div>
         </div>
-
-        {/* Completed Gifts */}
-        <div className="bg-white border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200 bg-wedding-sage/10">
-            <h3 className="text-xl font-serif text-wedding-forest">
-              Regalos Completados
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => g.status === 'COMPLETED').length} artículos
-            </p>
-          </div>
-          <div className="p-6 max-h-96 overflow-y-auto">
-            <div className="space-y-3">
-              {gifts.filter(g => g.status === 'COMPLETED').map(gift => (
-                <div key={gift.id} className="pb-3 border-b border-gray-100 last:border-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-sm font-medium text-gray-800">{gift.name}</p>
-                    <p className="text-sm font-serif text-wedding-sage ml-4">
-                      {formatCurrency(gift.total_amount || gift.price || 0)}
-                    </p>
-                  </div>
-                  {gift.is_crowdfunding && (
-                    <p className="text-xs text-gray-500">
-                      Recaudado: {formatCurrency(gift.collected_amount)}
-                    </p>
-                  )}
-                </div>
-              ))}
-              {gifts.filter(g => g.status === 'COMPLETED').length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  Aún no hay regalos completados
-                </p>
-              )}
-            </div>
+        <div className="px-4 md:px-6 py-4 max-h-[28rem] overflow-y-auto">
+          <div className="space-y-3">
+            {(giftsTab === 'pending' ? gifts.filter(g => g.status !== 'COMPLETED') : gifts.filter(g => g.status === 'COMPLETED')).map(gift => (
+              <GiftProgressCard
+                key={gift.id}
+                id={gift.id}
+                name={gift.name}
+                category={gift.category}
+                target_amount={Number(gift.total_amount ?? gift.price ?? 0)}
+                current_amount={Number(gift.collected_amount ?? 0)}
+                onEdit={(id) => {
+                  // Placeholder: open edit flow for gift
+                  console.log('Editar regalo', id)
+                }}
+                onViewContributions={(id) => {
+                  console.log('Ver aportaciones', id)
+                }}
+              />
+            ))}
+            {(giftsTab === 'pending' ? gifts.filter(g => g.status !== 'COMPLETED').length === 0 : gifts.filter(g => g.status === 'COMPLETED').length === 0) && (
+              <p className="text-sm text-gray-400 text-center py-8">{giftsTab === 'pending' ? 'Todos los regalos han sido completados' : 'Aún no hay regalos completados'}</p>
+            )}
           </div>
         </div>
       </div>
