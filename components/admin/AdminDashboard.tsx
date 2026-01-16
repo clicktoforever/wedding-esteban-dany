@@ -157,14 +157,6 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
     return { count, tooltip: names }
   }
 
-  const confirmationRate = stats.total_passes > 0 
-    ? ((stats.confirmed_passes / stats.total_passes) * 100).toFixed(1)
-    : '0.0'
-
-  const giftsCompletedRate = stats.total_gifts > 0
-    ? ((stats.completed_gifts / stats.total_gifts) * 100).toFixed(1)
-    : '0.0'
-
   // Función para generar el mensaje de WhatsApp inicial
   const generateWhatsAppMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
