@@ -12,7 +12,7 @@ function ConfirmPaymentContent() {
   const amount = searchParams.get('amount')
   const donorName = searchParams.get('donorName')
   const giftName = searchParams.get('giftName')
-  const [countdown, setCountdown] = useState(10)
+  const [countdown, setCountdown] = useState(45)
 
   // Determinar mensajes según el estado
   const isApproved = status === 'approved'
@@ -151,7 +151,7 @@ function ConfirmPaymentContent() {
           <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
             <div 
               className="bg-teal-600 h-full transition-all duration-1000 ease-linear"
-              style={{ width: `${(10 - countdown) * 10}%` }}
+              style={{ width: `${(45 - countdown) * 2.22}%` }}
             ></div>
           </div>
         </div>

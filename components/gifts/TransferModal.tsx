@@ -353,9 +353,6 @@ export default function TransferModal({
                   </div>
                   <p className="text-xs text-gray-500 mt-1">
                     Disponible: {displayRemaining.formatted}
-                    {country === 'MX' && (
-                      <span className="text-gray-400 ml-2">(1 USD = 20 MXN)</span>
-                    )}
                   </p>
                 </div>
 
