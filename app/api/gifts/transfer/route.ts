@@ -121,6 +121,54 @@ export async function POST(request: NextRequest) {
       .from('wedding-assets')
       .getPublicUrl(filePath);
 
+    // 3.5. Validar si el comprobante ya existe (detectar duplicados)
+    const receiptHash = Buffer.from(buffer).toString('base64').substring(0, 50); // Hash simple del archivo
+    
+    const { data: existingTransactions } = await supabase
+      .from('gift_transactions')
+      .select('id, status')
+      .eq('receipt_url', publicUrl)
+      .limit(1);
+
+    if (existingTransactions && existingTransactions.length > 0) {
+      // Comprobante duplicado encontrado - pasar a revisión manual
+      const { data: duplicateTransaction, error: dupError } = await supabase
+        .from('gift_transactions')
+        .insert({
+          gift_id: giftId,
+          donor_name: donorName.trim(),
+          message: message?.trim() || null,
+          amount,
+          payment_method: country === 'EC' ? ('transfer_ec' as const) : ('transfer_mx' as const),
+          country,
+          receipt_url: publicUrl,
+          receipt_filename: fileName,
+          status: 'MANUAL_REVIEW' as const // Pasar a revisión manual por duplicado
+        } as any)
+        .select()
+        .single<GiftTransaction>();
+
+      if (dupError) {
+        return NextResponse.json(
+          { success: false, error: 'Error al procesar la transacción' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        status: 'manual_review',
+        message: 'Este comprobante parece ser una copia. Se requiere revisión manual para validarlo.',
+        transactionId: duplicateTransaction.id,
+        data: {
+          donorName,
+          amount,
+          country,
+          giftName: gift.name
+        }
+      });
+    }
+
     // 4. Crear registro inicial de transacción
     const { data: transaction, error: transactionError } = await supabase
       .from('gift_transactions')
