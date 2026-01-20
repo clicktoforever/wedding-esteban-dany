@@ -12,8 +12,18 @@ const config: Config = {
         sans: ['var(--font-inter)'],
         serif: ['var(--font-playfair)'],
         montaga: ['Montaga', 'serif'],
+        display: ["Playfair Display", "serif"],
+        body: ["Lato", "sans-serif"],
       },
       colors: {
+        primary: "#355E3B", // Hunter Green
+        secondary: "#9E7BB5", // Lavender accent (darker for text/icons) - usado en confirmaciones
+        accent: "#E6E6FA", // Light Lavender - para backgrounds suaves
+        "background-light": "#FDFCF8", // Cream actualizado para confirmaciones
+        "background-dark": "#1a1a1a",
+        "text-light": "#2D3748",
+        "text-dark": "#FDFBF7",
+        "accent-light": "#967bb6",
         'neutral-bg': '#FCF9F7',
         'neutral-text': '#2B1105',
         wedding: {
@@ -24,19 +34,6 @@ const config: Config = {
           beige: '#F1DBD0',
           sage: '#ADB697',
           forest: '#4D5D53',
-        },
-        primary: {
-          DEFAULT: '#9579B4',
-          50: '#F1DBD0',
-          100: '#D1C2D9',
-          200: '#F4CCCC',
-          300: '#9579B4',
-          400: '#9579B4',
-          500: '#9579B4',
-          600: '#4D5D53',
-          700: '#4D5D53',
-          800: '#3d4a42',
-          900: '#2d3731',
         },
       },
     },
