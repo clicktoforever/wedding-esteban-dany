@@ -28,9 +28,33 @@ export async function GET(request: NextRequest) {
     // Obtener información de la transacción para mostrar en la página de confirmación
     const { data: transaction } = await supabase
       .from('gift_transactions')
-      .select('donor_name, amount, gift_id')
+      .select(`
+        id,
+        donor_name,
+        amount,
+        status,
+        gift_id,
+        gift:gifts (
+          name,
+          image_url,
+          category
+        )
+      `)
       .eq('payphone_client_transaction_id', clientTransactionId)
-      .single() as { data: { donor_name: string; amount: number; gift_id: string } | null }
+      .single() as { 
+        data: { 
+          id: string;
+          donor_name: string;
+          amount: number;
+          status: string;
+          gift_id: string;
+          gift: {
+            name: string;
+            image_url: string | null;
+            category: string | null;
+          } | null;
+        } | null 
+      }
     
     const { error: updateError } = await supabase
       .from('gift_transactions')
@@ -47,29 +71,32 @@ export async function GET(request: NextRequest) {
       console.log('Transaction updated with PayPhone ID:', id)
     }
 
-    // Obtener nombre del regalo
-    let giftName = ''
-    if (transaction?.gift_id) {
-      const { data: gift } = await supabase
-        .from('gifts')
-        .select('name')
-        .eq('id', transaction.gift_id)
-        .single() as { data: { name: string } | null }
-      giftName = gift?.name || ''
-    }
-
-    // Redirect to thank you page
+    // Redirect to confirmation page with all details
     const redirectUrl = new URL('/confirm-payment', request.url)
     redirectUrl.searchParams.set('clientTransactionId', clientTransactionId)
     redirectUrl.searchParams.set('type', 'payphone')
+    redirectUrl.searchParams.set('transactionId', transaction?.id || '')
+    
     if (transaction?.donor_name) {
       redirectUrl.searchParams.set('donorName', transaction.donor_name)
     }
     if (transaction?.amount) {
-      redirectUrl.searchParams.set('amount', `${transaction.amount.toFixed(2)} USD`)
+      redirectUrl.searchParams.set('amount', `$${transaction.amount.toFixed(2)} USD`)
     }
-    if (giftName) {
-      redirectUrl.searchParams.set('giftName', giftName)
+    if (transaction?.gift?.name) {
+      redirectUrl.searchParams.set('giftName', transaction.gift.name)
+    }
+    if (transaction?.gift?.image_url) {
+      redirectUrl.searchParams.set('giftImage', transaction.gift.image_url)
+    }
+    
+    // Status will be determined by the transaction-status endpoint or default to pending
+    if (transaction?.status === 'APPROVED') {
+      redirectUrl.searchParams.set('status', 'approved')
+    } else if (transaction?.status === 'REJECTED') {
+      redirectUrl.searchParams.set('status', 'error')
+    } else {
+      redirectUrl.searchParams.set('status', 'review')
     }
     
     console.log('Redirecting to:', redirectUrl.toString())
