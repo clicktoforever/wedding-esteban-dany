@@ -109,30 +109,39 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
         )}
 
         {/* Progress Section */}
-        {!isCompleted && (
+        {!isCompleted && isCrowdfunding && (
           <div className="mb-5 space-y-2.5">
-            {hasContributions && isCrowdfunding ? (
-              <>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">
-                    Recaudado: <span className="font-semibold text-primary">{formatCurrency(gift.collected_amount)}</span>
-                  </span>
-                  <span className="text-gray-600">
-                    Faltan: <span className="font-semibold text-[#d3c3db]">{formatCurrency(remainingAmount)}</span>
-                  </span>
-                </div>
-                <div className="w-full bg-[#d3c3db]/30 h-2 rounded-full overflow-hidden">
-                  <div
-                    className="bg-[#d3c3db] h-full transition-all duration-500 rounded-full"
-                    style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-                  />
-                </div>
-              </>
-            ) : !hasContributions ? (
-              <div className="bg-primary/5 border border-primary/20 rounded-lg py-3 px-4 text-center">
-                <p className="text-sm text-primary font-medium">✨ Sé el primero en colaborar</p>
+            {/* Always show collected and remaining amounts */}
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-gray-600">
+                Recaudado: <span className="font-semibold text-primary">{formatCurrency(gift.collected_amount)}</span>
+              </span>
+              <span className="text-gray-600">
+                Faltan: <span className="font-semibold text-[#d3c3db]">{formatCurrency(remainingAmount)}</span>
+              </span>
+            </div>
+            
+            {/* Show "be the first" message only when there are no contributions */}
+            {!hasContributions && (
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                  </svg>
+                  Sé el primero en colaborar
+                </span>
               </div>
-            ) : null}
+            )}
+            
+            {/* Show progress bar only when there are contributions */}
+            {hasContributions && (
+              <div className="w-full bg-[#d3c3db]/30 h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#d3c3db] h-full transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                />
+              </div>
+            )}
           </div>
         )}
 
