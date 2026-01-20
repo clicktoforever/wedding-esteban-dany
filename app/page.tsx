@@ -1,6 +1,8 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Suspense } from 'react'
 import CountdownTimer from '@/components/CountdownTimer'
+import RSVPButton from '@/components/RSVPButton'
 
 export const revalidate = 60
 
@@ -180,15 +182,16 @@ export default async function Page() {
 
         {/* Fixed RSVP Button */}
         <div className="fixed bottom-6 right-6 lg:bottom-8 lg:right-8 xl:bottom-10 xl:right-10 z-50">
-          <Link
-            href="/confirm/tu-codigo"
-            className="bg-primary hover:bg-opacity-90 text-white font-bold py-4 lg:py-5 xl:py-6 px-8 lg:px-10 xl:px-12 rounded-full shadow-xl hover:shadow-2xl flex items-center gap-2 lg:gap-3 transform transition-all duration-300 hover:scale-105 active:scale-95 text-sm lg:text-base xl:text-lg"
-          >
-            <svg className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Confirmar Asistencia
-          </Link>
+          <Suspense fallback={
+            <div className="bg-primary text-white font-bold py-4 lg:py-5 xl:py-6 px-8 lg:px-10 xl:px-12 rounded-full shadow-xl flex items-center gap-2 lg:gap-3 text-sm lg:text-base xl:text-lg">
+              <svg className="w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Confirmar Asistencia
+            </div>
+          }>
+            <RSVPButton />
+          </Suspense>
         </div>
       </div>
     </div>
