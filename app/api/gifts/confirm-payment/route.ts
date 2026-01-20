@@ -61,6 +61,7 @@ export async function GET(request: NextRequest) {
       // @ts-expect-error - Supabase type inference issue
       .update({ 
         payphone_transaction_id: id,
+        status: 'APPROVED' // Payphone solo redirige aquí si el pago fue exitoso
       })
       .eq('payphone_client_transaction_id', clientTransactionId)
       .eq('status', 'PENDING')
@@ -68,7 +69,7 @@ export async function GET(request: NextRequest) {
     if (updateError) {
       console.error('Error updating transaction:', updateError)
     } else {
-      console.log('Transaction updated with PayPhone ID:', id)
+      console.log('Transaction updated with PayPhone ID:', id, '- Status: APPROVED')
     }
 
     // Redirect to confirmation page with all details
@@ -76,6 +77,7 @@ export async function GET(request: NextRequest) {
     redirectUrl.searchParams.set('clientTransactionId', clientTransactionId)
     redirectUrl.searchParams.set('type', 'payphone')
     redirectUrl.searchParams.set('transactionId', transaction?.id || '')
+    redirectUrl.searchParams.set('status', 'approved') // Payphone exitoso = aprobado
     
     if (transaction?.donor_name) {
       redirectUrl.searchParams.set('donorName', transaction.donor_name)
@@ -88,15 +90,6 @@ export async function GET(request: NextRequest) {
     }
     if (transaction?.gift?.image_url) {
       redirectUrl.searchParams.set('giftImage', transaction.gift.image_url)
-    }
-    
-    // Status will be determined by the transaction-status endpoint or default to pending
-    if (transaction?.status === 'APPROVED') {
-      redirectUrl.searchParams.set('status', 'approved')
-    } else if (transaction?.status === 'REJECTED') {
-      redirectUrl.searchParams.set('status', 'error')
-    } else {
-      redirectUrl.searchParams.set('status', 'review')
     }
     
     console.log('Redirecting to:', redirectUrl.toString())
