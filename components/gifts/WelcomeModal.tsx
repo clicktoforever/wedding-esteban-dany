@@ -1,153 +1,194 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 interface WelcomeModalProps {
   onClose: () => void
 }
 
 export default function WelcomeModal({ onClose }: WelcomeModalProps) {
-  const [dontShowAgain, setDontShowAgain] = useState(false)
+  const modalRef = useRef<HTMLDivElement>(null)
+  
+  // Drag state for swipe to dismiss
+  const [dragStartY, setDragStartY] = useState<number | null>(null)
+  const [dragCurrentY, setDragCurrentY] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleClose = () => {
-    if (dontShowAgain) {
-      localStorage.setItem('hideGiftsWelcome', 'true')
-    }
     onClose()
   }
 
-  // Prevenir scroll del body cuando el modal está abierto
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    document.body.style.position = 'fixed'
+    document.body.style.width = '100%'
     return () => {
       document.body.style.overflow = 'unset'
+      document.body.style.position = 'unset'
+      document.body.style.width = 'auto'
     }
   }, [])
 
+  // Drag handlers for swipe to dismiss
+  const handleDragStart = (clientY: number) => {
+    setDragStartY(clientY)
+    setIsDragging(true)
+  }
+
+  const handleDragMove = (clientY: number) => {
+    if (dragStartY === null) return
+    
+    const diff = clientY - dragStartY
+    // Only allow dragging down
+    if (diff > 0) {
+      setDragCurrentY(clientY)
+      if (modalRef.current) {
+        modalRef.current.style.transform = `translateY(${diff}px)`
+      }
+    }
+  }
+
+  const handleDragEnd = () => {
+    if (dragStartY === null || dragCurrentY === null) {
+      setIsDragging(false)
+      setDragStartY(null)
+      setDragCurrentY(null)
+      return
+    }
+
+    const diff = dragCurrentY - dragStartY
+    
+    // Reset modal position
+    if (modalRef.current) {
+      modalRef.current.style.transform = ''
+    }
+
+    // If dragged down more than 180px, close the modal
+    if (diff > 180) {
+      handleClose()
+    }
+
+    setIsDragging(false)
+    setDragStartY(null)
+    setDragCurrentY(null)
+  }
+
   return (
-    <div 
-      className="fixed inset-0 z-[100] flex items-start justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
-      onClick={handleClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="welcome-modal-title"
-    >
+    <div className="fixed inset-0 z-[100] flex items-start justify-center pt-12 overflow-y-auto">
       <div 
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full my-8"
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-0 bg-stone-900/60 backdrop-blur-md"
+        onClick={handleClose}
+      ></div>
+
+      <div 
+        ref={modalRef}
+        className="relative z-10 w-full max-w-md bg-background-light rounded-t-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom duration-500"
+        style={{ transition: isDragging ? 'none' : 'transform 0.5s ease-in-out' }}
       >
-        {/* Header con decoración */}
-        <div className="bg-gradient-to-br from-wedding-rose/10 via-wedding-purple/10 to-wedding-sage/10 p-8 text-center border-b border-gray-100">
-          <div className="flex items-center justify-center mb-4">
-            <svg className="w-16 h-16 text-wedding-rose" viewBox="0 0 100 100" fill="currentColor">
-              <path d="M50 20 L60 40 L80 45 L65 60 L68 80 L50 70 L32 80 L35 60 L20 45 L40 40 Z"/>
-            </svg>
-          </div>
-          <h2 
-            id="welcome-modal-title"
-            className="text-3xl md:text-4xl font-serif text-wedding-forest mb-2"
-          >
-            Bienvenidos a Nuestra Mesa de Regalos
-          </h2>
-          <div className="flex items-center justify-center mt-4">
-            <div className="h-px bg-wedding-forest/20 w-16"></div>
-            <div className="mx-4 w-3 h-3 bg-wedding-rose rounded-full"></div>
-            <div className="h-px bg-wedding-forest/20 w-16"></div>
-          </div>
+        {/* Handle Bar */}
+        <div 
+          className="flex flex-col items-center pt-4 pb-2 shrink-0 cursor-grab active:cursor-grabbing"
+          onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
+          onTouchMove={(e) => handleDragMove(e.touches[0].clientY)}
+          onTouchEnd={handleDragEnd}
+          onMouseDown={(e) => handleDragStart(e.clientY)}
+          onMouseMove={(e) => isDragging && handleDragMove(e.clientY)}
+          onMouseUp={handleDragEnd}
+          onMouseLeave={handleDragEnd}
+        >
+          <div className="h-1.5 w-16 rounded-full bg-gray-300" />
         </div>
 
-        {/* Contenido */}
-        <div className="p-8 space-y-6">
-          <p className="text-lg text-gray-700 leading-relaxed text-center">
-            Como empezamos una nueva vida juntos, su aporte nos ayudará mucho a construir nuestro hogar 
-            y crear hermosos recuerdos. Cada contribución, sin importar el monto, es muy especial para nosotros.
-          </p>
+        <button
+          onClick={handleClose}
+          aria-label="Close"
+          className="absolute top-5 right-5 z-20 p-2 rounded-full text-gray-500 hover:bg-black/5 transition-colors"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
 
-          {/* Métodos de pago */}
-          <div className="bg-gray-50 rounded-xl p-6 space-y-4">
-            <h3 className="text-xl font-serif text-wedding-forest text-center mb-4">
-              Opciones de Pago Disponibles
-            </h3>
-            
-            <div className="space-y-3">
-              {/* Tarjeta */}
-              <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div className="flex-shrink-0 w-10 h-10 bg-wedding-purple/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-wedding-purple" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="overflow-y-auto overscroll-contain pb-safe">
+          <div className="flex flex-col items-center pt-8 px-8 pb-6 text-center">
+            <div className="mb-6 h-14 w-14 rounded-full bg-accent/20 flex items-center justify-center">
+              <svg className="w-8 h-8 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
+              </svg>
+            </div>
+
+            <h1 className="font-display text-[28px] lg:text-3xl xl:text-4xl leading-[1.15] text-primary font-medium mb-5 transition-all duration-300">
+              Bienvenido a nuestra <br/>
+              <span className="italic text-primary font-display">Mesa de Regalos</span>
+            </h1>
+
+            <p className="text-gray-600 text-[15px] lg:text-base xl:text-lg leading-relaxed max-w-xs lg:max-w-sm xl:max-w-md mx-auto font-medium transition-all duration-300">
+              Para facilitar su comodidad, hemos optado por una mesa de regalos tipo <span className="text-primary/80 font-bold">'crowdfunding'</span>. Pueden contribuir con el monto que deseen hacia los regalos que hemos seleccionado para nuestra nueva vida juntos.
+            </p>
+          </div>
+
+          <div className="px-6 py-2 w-full">
+            <div className="flex items-center gap-4 mb-5 opacity-60">
+              <div className="h-px bg-accent/50 flex-1"></div>
+              <h4 className="text-gray-500 text-xs font-bold uppercase tracking-[0.15em]">Métodos de Pago</h4>
+              <div className="h-px bg-accent/50 flex-1"></div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-3 lg:gap-4 xl:gap-5">
+              <div className="group flex flex-col items-center justify-center gap-3 p-3 pt-4 lg:p-4 lg:pt-5 rounded-2xl bg-white border border-accent/20 shadow-sm hover:border-accent/50 transition-colors cursor-pointer">
+                <div className="text-primary transition-transform group-hover:scale-110">
+                  <svg className="w-7 h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">Pago con Tarjeta</h4>
-                  <p className="text-sm text-gray-600">Débito o crédito (Payphone)</p>
+                <div className="text-center">
+                  <h3 className="text-xs lg:text-sm font-bold text-primary">Payphone</h3>
+                  <p className="text-[10px] lg:text-xs text-gray-500 mt-0.5">Tarjetas</p>
                 </div>
               </div>
 
-              {/* Transferencia Ecuador */}
-              <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div className="flex-shrink-0 w-10 h-10 bg-wedding-rose/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-wedding-rose" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+              <div className="group flex flex-col items-center justify-center gap-3 p-3 pt-4 lg:p-4 lg:pt-5 rounded-2xl bg-white border border-accent/20 shadow-sm hover:border-accent/50 transition-colors cursor-pointer">
+                <div className="text-primary transition-transform group-hover:scale-110">
+                  <svg className="w-7 h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">Transferencia Ecuatoriana</h4>
-                  <p className="text-sm text-gray-600">Banco Pichincha - Validación automática con IA</p>
+                <div className="text-center">
+                  <h3 className="text-xs lg:text-sm font-bold text-primary">Ecuador</h3>
+                  <p className="text-[10px] lg:text-xs text-gray-500 mt-0.5">Transferencia</p>
                 </div>
               </div>
 
-              {/* Transferencia México */}
-              <div className="flex items-start space-x-3 p-3 bg-white rounded-lg border border-gray-200">
-                <div className="flex-shrink-0 w-10 h-10 bg-wedding-sage/10 rounded-full flex items-center justify-center">
-                  <svg className="w-5 h-5 text-wedding-sage" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="group flex flex-col items-center justify-center gap-3 p-3 pt-4 lg:p-4 lg:pt-5 rounded-2xl bg-white border border-accent/20 shadow-sm hover:border-accent/50 transition-colors cursor-pointer">
+                <div className="text-primary transition-transform group-hover:scale-110">
+                  <svg className="w-7 h-7 lg:w-8 lg:h-8 xl:w-9 xl:h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
                 </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-gray-900">Transferencia Mexicana</h4>
-                  <p className="text-sm text-gray-600">Santander México - Validación automática con IA</p>
+                <div className="text-center">
+                  <h3 className="text-xs lg:text-sm font-bold text-primary">México</h3>
+                  <p className="text-[10px] lg:text-xs text-gray-500 mt-0.5">Transferencia</p>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Nota importante */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-            <div className="flex items-start space-x-3">
-              <svg className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+          <div className="p-8 pt-6 pb-10 lg:pb-12 flex flex-col items-center gap-6 transition-all duration-300">
+            <p className="font-display italic text-gray-500 text-sm lg:text-base xl:text-lg text-center opacity-80 transition-all duration-300">
+              "Gracias por ser parte de nuestra historia"<br/>
+              <span className="text-xs lg:text-sm font-body not-italic font-bold tracking-widest mt-1 block text-accent uppercase">— Esteban &amp; Dany —</span>
+            </p>
+
+            <button
+              onClick={handleClose}
+              className="w-full bg-primary hover:bg-[#2C4F32] active:scale-[0.98] transition-all text-white font-bold h-14 lg:h-16 rounded-xl text-base lg:text-lg shadow-xl shadow-primary/20 flex items-center justify-center gap-3 group"
+            >
+              <span>Comenzar a Regalar</span>
+              <svg className="w-5 h-5 lg:w-6 lg:h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
-              <p className="text-sm text-blue-800">
-                <strong>Validación Automática:</strong> Al pagar por transferencia, solo sube tu comprobante 
-                y nuestra IA lo validará automáticamente en segundos.
-              </p>
-            </div>
+            </button>
           </div>
-
-          {/* Checkbox - No mostrar de nuevo */}
-          <div className="flex items-center justify-center pt-4">
-            <label className="flex items-center space-x-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={dontShowAgain}
-                onChange={(e) => setDontShowAgain(e.target.checked)}
-                className="w-4 h-4 text-wedding-purple border-gray-300 rounded focus:ring-wedding-purple focus:ring-2"
-              />
-              <span className="text-sm text-gray-600">No mostrar este mensaje de nuevo</span>
-            </label>
-          </div>
-        </div>
-
-        {/* Footer con botón */}
-        <div className="px-8 pb-8">
-          <button
-            onClick={handleClose}
-            className="w-full bg-gradient-to-r from-wedding-rose to-wedding-purple text-white px-8 py-4 rounded-full 
-                     font-semibold text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 
-                     transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-wedding-purple/30"
-          >
-            Entendido
-          </button>
         </div>
       </div>
     </div>

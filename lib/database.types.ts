@@ -92,6 +92,7 @@ export type Database = {
           collected_amount: number
           status: 'AVAILABLE' | 'COMPLETED'
           is_crowdfunding: boolean
+          contributor_count: number | null
         }
         Insert: {
           id?: string
@@ -107,6 +108,7 @@ export type Database = {
           collected_amount?: number
           status?: 'AVAILABLE' | 'COMPLETED'
           is_crowdfunding?: boolean
+          contributor_count?: number
         }
         Update: {
           id?: string
@@ -122,6 +124,7 @@ export type Database = {
           collected_amount?: number
           status?: 'AVAILABLE' | 'COMPLETED'
           is_crowdfunding?: boolean
+          contributor_count?: number
         }
         Relationships: []
       }

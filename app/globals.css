@@ -1,5 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Montaga&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lato:wght@300;400;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -44,6 +46,49 @@
   
   .nav-link {
     @apply font-montaga text-lg md:text-xl text-neutral-text/60 hover:text-neutral-text transition-all duration-300 relative;
+  }
+  
+  /* Fluid Design Utilities */
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Heartbeat animation for validation */
+  @keyframes heartbeat {
+    0% {
+      transform: scale(1);
+    }
+    14% {
+      transform: scale(1.15);
+    }
+    28% {
+      transform: scale(1);
+    }
+    42% {
+      transform: scale(1.15);
+    }
+    56% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+  
+  /* Smooth transitions for all interactive elements */
+  .transition-fluid {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .nav-link:hover {
@@ -166,5 +211,16 @@
   /* Ensure PayPhone container is responsive */
   .payphone-container {
     @apply w-full max-w-full overflow-hidden;
+  }
+
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
   }
 }
