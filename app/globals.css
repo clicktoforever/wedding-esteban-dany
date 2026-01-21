@@ -37,6 +37,31 @@
   p {
     @apply font-sans;
   }
+  
+  /* Prevent mobile zoom on input focus */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="password"],
+  input[type="search"],
+  textarea,
+  select {
+    font-size: 16px;
+  }
+  
+  @media (min-width: 640px) {
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    input[type="password"],
+    input[type="search"],
+    textarea,
+    select {
+      font-size: inherit;
+    }
+  }
 }
 
 @layer components {
