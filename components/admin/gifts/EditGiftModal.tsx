@@ -62,8 +62,8 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
     try {
       const supabase = createClient()
       
-      const { error } = await supabase
-        .from('gifts')
+      const { error } = await (supabase
+        .from('gifts') as any)
         .update({
           name: formData.name,
           description: formData.description || null,

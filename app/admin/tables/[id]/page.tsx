@@ -76,11 +76,12 @@ export default function TableDetailPage({ params }: { params: Promise<{ id: stri
 
     try {
       const supabase = createClient()
-      const { error } = await supabase
+      const result = await (supabase
         .from('guests')
-        .update({ table_id: null })
+        .update as any)({ table_id: null })
         .eq('id', guestId)
-
+      
+      const { error } = result
       if (error) throw error
       loadTableDetail()
     } catch (error) {

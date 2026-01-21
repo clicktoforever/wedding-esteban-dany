@@ -48,7 +48,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
     try {
       const supabase = createClient()
       
-      const { error } = await supabase.from('gifts').insert({
+      const { error } = await (supabase.from('gifts') as any).insert({
         name: formData.name,
         description: formData.description || null,
         image_url: formData.image_url || null,

@@ -21,8 +21,8 @@ export default function NewTableModal({ isOpen, onClose, onSuccess }: NewTableMo
     setIsLoading(true)
     try {
       const supabase = createClient()
-      const { error } = await supabase
-        .from('tables')
+      const { error } = await (supabase
+        .from('tables') as any)
         .insert({ name: name.trim(), capacity })
 
       if (error) throw error

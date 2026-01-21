@@ -18,6 +18,7 @@ export type Database = {
           access_token: string
           created_at: string
           updated_at: string
+          table_id: string | null
         }
         Insert: {
           id?: string
@@ -27,6 +28,7 @@ export type Database = {
           access_token?: string
           created_at?: string
           updated_at?: string
+          table_id?: string | null
         }
         Update: {
           id?: string
@@ -36,6 +38,36 @@ export type Database = {
           access_token?: string
           created_at?: string
           updated_at?: string
+          table_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guests_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      tables: {
+        Row: {
+          id: string
+          name: string
+          capacity: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          capacity?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          capacity?: number
+          created_at?: string
         }
         Relationships: []
       }

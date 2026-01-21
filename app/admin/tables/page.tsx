@@ -29,8 +29,8 @@ export default function TablesPage() {
       const supabase = createClient()
 
       // Get all tables with occupancy count
-      const { data: tablesData, error: tablesError } = await supabase
-        .from('tables')
+      const { data: tablesData, error: tablesError } = await (supabase
+        .from('tables') as any)
         .select('*')
         .order('created_at', { ascending: true })
 
@@ -38,7 +38,7 @@ export default function TablesPage() {
 
       // Get occupancy for each table
       const tablesWithOccupancy = await Promise.all(
-        (tablesData || []).map(async (table) => {
+        (tablesData || []).map(async (table: any) => {
           const { count } = await supabase
             .from('guests')
             .select('*', { count: 'exact', head: true })
@@ -65,7 +65,7 @@ export default function TablesPage() {
         .select('guest_id')
         .eq('confirmation_status', 'confirmed')
 
-      const uniqueConfirmedGuests = new Set(confirmedPasses?.map(p => p.guest_id) || [])
+      const uniqueConfirmedGuests = new Set((confirmedPasses as any)?.map((p: any) => p.guest_id) || [])
       
       setUnassignedCount(unassignedConfirmed || 0)
       setTotalConfirmed(uniqueConfirmedGuests.size)
