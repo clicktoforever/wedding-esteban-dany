@@ -42,6 +42,7 @@ const GUESTS: GuestWithPasses[] = [
     access_token: 'token-maria',
     created_at: '',
     updated_at: '',
+    table_id: null,
     passes: [
       { id: 'p1', guest_id: 'g1', attendee_name: 'María Fernanda López', confirmation_status: 'confirmed', dietary_restrictions: 'Vegetariana', notes: null, updated_at: '' },
       { id: 'p2', guest_id: 'g1', attendee_name: 'Carlos Díaz', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
@@ -55,6 +56,7 @@ const GUESTS: GuestWithPasses[] = [
     access_token: 'token-juan',
     created_at: '',
     updated_at: '',
+    table_id: null,
     passes: [
       { id: 'p3', guest_id: 'g2', attendee_name: 'Juan Pérez', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
     ],
@@ -67,6 +69,7 @@ const GUESTS: GuestWithPasses[] = [
     access_token: 'token-ana',
     created_at: '',
     updated_at: '',
+    table_id: null,
     passes: [
       { id: 'p4', guest_id: 'g3', attendee_name: 'Ana Lucía Torres', confirmation_status: 'declined', dietary_restrictions: null, notes: 'No puede asistir', updated_at: '' },
       { id: 'p5', guest_id: 'g3', attendee_name: 'Marco Ruiz', confirmation_status: 'declined', dietary_restrictions: null, notes: null, updated_at: '' },
@@ -80,6 +83,7 @@ const GUESTS: GuestWithPasses[] = [
     access_token: 'token-sofia',
     created_at: '',
     updated_at: '',
+    table_id: null,
     passes: [
       { id: 'p6', guest_id: 'g4', attendee_name: 'Sofía Martínez', confirmation_status: 'confirmed', dietary_restrictions: 'Sin gluten', notes: null, updated_at: '' },
       { id: 'p7', guest_id: 'g4', attendee_name: 'Laura Chávez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
@@ -94,6 +98,7 @@ const GUESTS: GuestWithPasses[] = [
     access_token: 'token-luis',
     created_at: '',
     updated_at: '',
+    table_id: null,
     passes: [
       { id: 'p9', guest_id: 'g5', attendee_name: 'Luis Ramírez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
     ],
