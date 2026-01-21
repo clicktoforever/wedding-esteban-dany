@@ -108,7 +108,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+      <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
         {/* Backdrop */}
         <div
           className="absolute inset-0 bg-stone-900/10 backdrop-blur-md transition-opacity"
@@ -116,7 +116,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
         />
 
         {/* Modal */}
-        <div className="relative w-full max-w-[480px] bg-[#fbf8f0] flex flex-col h-screen sm:h-auto sm:max-h-[90vh] sm:rounded-[2rem] overflow-hidden shadow-2xl">
+        <div className="relative w-full max-w-[480px] bg-[#fbf8f0] flex flex-col rounded-[2rem] overflow-hidden shadow-2xl max-h-[90dvh]">
           {/* Header */}
           <header className="flex items-center justify-between px-6 pt-8 pb-4 shrink-0 z-20">
             <div className="size-8"></div>
@@ -134,7 +134,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
           </header>
 
           {/* Scrollable Content */}
-          <main className="flex-1 overflow-y-auto no-scrollbar px-6 pb-48">
+          <main className="flex-1 overflow-y-auto no-scrollbar px-6 pb-6">
             {/* Image Card */}
             <div className="mt-2 mb-8 relative group w-full aspect-[4/3] rounded-xl overflow-hidden shadow-soft bg-[#eceae5]">
               {imagePreview ? (
@@ -262,7 +262,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
           </main>
 
           {/* Footer Actions */}
-          <footer className="absolute bottom-0 left-0 right-0 bg-[#fbf8f0]/95 backdrop-blur-md px-6 pb-8 pt-4 border-t border-[#4a5951]/5 z-20 flex flex-col gap-5">
+          <footer className="shrink-0 px-6 py-6 bg-[#fbf8f0] border-t border-[#4a5951]/5 z-20 flex flex-col gap-3">
             <button
               onClick={handleSubmit}
               disabled={isLoading}
