@@ -12,6 +12,11 @@ const nextConfig = {
         hostname: 'api.builder.io',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cleeumrziseyvctsfxxx.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
     ],
     dangerouslyAllowSVG: true,
     contentDispositionType: 'attachment',

@@ -84,7 +84,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center sm:p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-stone-900/10 backdrop-blur-md transition-opacity"
@@ -92,7 +92,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
       />
 
       {/* Modal */}
-      <div className="relative w-full max-w-md transform overflow-hidden rounded-t-[2rem] sm:rounded-[2rem] bg-[#fbf8f0] shadow-soft transition-all h-[92vh] sm:h-auto sm:max-h-[90vh] flex flex-col">
+      <div className="relative w-full max-w-md transform overflow-hidden rounded-[2rem] bg-[#fbf8f0] shadow-soft transition-all max-h-[90dvh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-2 shrink-0">
           <h2 className="text-xl font-bold tracking-tight text-[#131514]">Nuevo Regalo</h2>

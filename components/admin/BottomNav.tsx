@@ -15,7 +15,7 @@ export default function BottomNav() {
     },
     {
       href: '/admin/guests',
-      icon: 'people',
+      icon: 'group',
       label: 'Invitados',
       match: '/admin/guests'
     },
@@ -27,13 +27,13 @@ export default function BottomNav() {
     },
     {
       href: '/admin/gifts',
-      icon: 'card_giftcard',
+      icon: 'featured_seasonal_and_gifts',
       label: 'Regalos',
       match: '/admin/gifts'
     },
     {
       href: '/admin/transactions',
-      icon: 'attach_money',
+      icon: 'receipt_long',
       label: 'Transacciones',
       match: '/admin/transactions'
     }
@@ -61,8 +61,8 @@ export default function BottomNav() {
                   : 'text-stone-400 hover:text-stone-600'
               }`}
             >
-              <span className="material-icons-round text-2xl">{item.icon}</span>
-              <span className="text-[10px] font-medium mt-1">{item.label}</span>
+              <span className="material-symbols-outlined text-2xl">{item.icon}</span>
+              <span className="text-[9px] font-bold uppercase tracking-tight mt-1">{item.label}</span>
             </Link>
           )
         })}
