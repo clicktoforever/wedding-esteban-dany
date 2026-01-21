@@ -29,8 +29,8 @@ export default function EditTableModal({ isOpen, onClose, table, onSuccess, onDe
     setIsLoading(true)
     try {
       const supabase = createClient()
-      const { error } = await supabase
-        .from('tables')
+      const { error } = await (supabase
+        .from('tables') as any)
         .update({ name: name.trim(), capacity })
         .eq('id', table.id)
 
@@ -50,14 +50,14 @@ export default function EditTableModal({ isOpen, onClose, table, onSuccess, onDe
       const supabase = createClient()
       
       // First, unassign all guests from this table
-      await supabase
+      await (supabase
         .from('guests')
-        .update({ table_id: null })
+        .update as any)({ table_id: null })
         .eq('table_id', table.id)
 
       // Then delete the table
-      const { error } = await supabase
-        .from('tables')
+      const { error } = await (supabase
+        .from('tables') as any)
         .delete()
         .eq('id', table.id)
 

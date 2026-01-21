@@ -63,7 +63,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
 
       // For each guest, check if they have at least one confirmed pass
       const guestsWithConfirmation = await Promise.all(
-        (guestsData || []).map(async (guest) => {
+        (guestsData || []).map(async (guest: any) => {
           const { data: passes } = await supabase
             .from('passes')
             .select('confirmation_status')
@@ -108,9 +108,9 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
 
       // Update all selected guests
       const updates = Array.from(selectedGuests).map(guestId =>
-        supabase
+        (supabase
           .from('guests')
-          .update({ table_id: tableId })
+          .update as any)({ table_id: tableId })
           .eq('id', guestId)
       )
 
