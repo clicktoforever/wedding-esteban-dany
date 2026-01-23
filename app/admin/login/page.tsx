@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -119,9 +120,11 @@ export default function AdminLoginPage() {
           <div className="text-center space-y-6">
             {/* Logo */}
             <div className="mx-auto w-20 h-20 rounded-full border border-primary/20 flex items-center justify-center bg-white shadow-[0_4px_20px_-4px_rgba(53,94,59,0.1)]">
-              <img 
+              <Image 
                 src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4" 
                 alt="Logo E&D" 
+                width={64}
+                height={64}
                 className="w-16 h-16 object-contain"
               />
             </div>
