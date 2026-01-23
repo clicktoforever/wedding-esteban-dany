@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const remainingAmount = gift.total_amount - gift.collected_amount;
+    const remainingAmount = (gift.total_amount ?? 0) - (gift.collected_amount ?? 0);
     
     if (amount > remainingAmount) {
       // Convertir remaining a la moneda de visualización para el error

@@ -58,7 +58,6 @@ export async function GET(request: NextRequest) {
     
     const { error: updateError } = await supabase
       .from('gift_transactions')
-      // @ts-expect-error - Supabase type inference issue
       .update({ 
         payphone_transaction_id: id,
         status: 'APPROVED' // Payphone solo redirige aquí si el pago fue exitoso

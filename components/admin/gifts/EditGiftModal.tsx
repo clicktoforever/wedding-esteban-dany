@@ -2,24 +2,15 @@
 
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { Database } from '@/lib/database.types'
 import Image from 'next/image'
 import DeleteConfirmationModal from './DeleteConfirmationModal'
 
-interface Gift {
-  id: string
-  name: string
-  description: string | null
-  image_url: string | null
-  category: string | null
-  total_amount: number
-  collected_amount: number
-  status: 'AVAILABLE' | 'COMPLETED'
-  is_crowdfunding: boolean
-}
+type Gift = Database['public']['Tables']['gifts']['Row']
 
 interface EditGiftModalProps {
   isOpen: boolean
-  gift: Gift
+  gift: Gift | null
   onClose: () => void
   onSuccess: () => void
 }
@@ -34,12 +25,15 @@ const CATEGORIES = [
 ]
 
 export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: EditGiftModalProps) {
+  // Early return if gift is null
+  if (!gift) return null
+
   const [formData, setFormData] = useState({
     name: gift.name,
     description: gift.description || '',
     image_url: gift.image_url || '',
     category: gift.category || '',
-    total_amount: gift.total_amount.toString(),
+    total_amount: (gift.total_amount || 0).toString(),
   })
   const [isLoading, setIsLoading] = useState(false)
   const [imagePreview, setImagePreview] = useState<string | null>(gift.image_url)

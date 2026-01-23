@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { Database } from '@/lib/database.types'
 import { useRouter } from 'next/navigation'
 import EditTableModal from '@/components/admin/tables/EditTableModal'
 import AssignGuestModal from '@/components/admin/tables/AssignGuestModal'
@@ -13,12 +14,7 @@ interface Guest {
   phone: string | null
 }
 
-interface TableDetail {
-  id: string
-  name: string
-  capacity: number
-  created_at: string
-}
+type TableDetail = Database['public']['Tables']['tables']['Row']
 
 export default function TableDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter()

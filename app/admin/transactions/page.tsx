@@ -2,21 +2,12 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { Database } from '@/lib/database.types'
 import Image from 'next/image'
 import BottomNav from '@/components/admin/BottomNav'
 import TransactionDetailSheet from '@/components/admin/transactions/TransactionDetailSheet'
 
-interface Transaction {
-  id: string
-  gift_id: string
-  donor_name: string
-  amount: number
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW'
-  payment_method: 'payphone' | 'transfer_ec' | 'transfer_mx'
-  country: 'EC' | 'MX' | null
-  receipt_url: string | null
-  message: string | null
-  created_at: string
+type Transaction = Database['public']['Tables']['gift_transactions']['Row'] & {
   gift?: {
     name: string
     image_url: string | null
