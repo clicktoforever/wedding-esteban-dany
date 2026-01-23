@@ -34,6 +34,15 @@ VALUES (
 )
 ON CONFLICT (key) DO NOTHING;
 
+-- Insertar la configuración de fecha de la boda (11 de abril 2026 a las 18:00)
+INSERT INTO public.configurations (key, value, description)
+VALUES (
+  'wedding_date',
+  '2026-04-11T18:00:00',
+  'Fecha y hora del evento de la boda'
+)
+ON CONFLICT (key) DO NOTHING;
+
 -- Políticas de seguridad RLS
 ALTER TABLE public.configurations ENABLE ROW LEVEL SECURITY;
 

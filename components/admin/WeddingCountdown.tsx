@@ -2,17 +2,27 @@
 
 import { useState, useEffect } from 'react'
 
-export default function WeddingCountdown() {
+interface WeddingCountdownProps {
+  targetDate: string
+}
+
+export default function WeddingCountdown({ targetDate }: WeddingCountdownProps) {
   const [timeLeft, setTimeLeft] = useState({
     days: 0,
     hours: 0,
     minutes: 0,
   })
 
+  // Format the wedding date for display
+  const formattedDate = new Date(targetDate).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Fecha de la boda: 11 de abril de 2026
-      const weddingDate = new Date('2026-04-11T00:00:00').getTime()
+      const weddingDate = new Date(targetDate).getTime()
       const now = new Date().getTime()
       const difference = weddingDate - now
 
@@ -34,7 +44,7 @@ export default function WeddingCountdown() {
     const timer = setInterval(calculateTimeLeft, 60000)
 
     return () => clearInterval(timer)
-  }, [])
+  }, [targetDate])
 
   return (
     <section className="mb-8 flex flex-col items-center justify-center py-4">
@@ -57,7 +67,7 @@ export default function WeddingCountdown() {
           <span className="block text-[10px] font-sans text-stone-400 font-medium">MIN</span>
         </div>
       </div>
-      <p className="text-[10px] text-stone-400 mt-2">11 de Abril, 2026</p>
+      <p className="text-[10px] text-stone-400 mt-2 capitalize">{formattedDate}</p>
     </section>
   )
 }
