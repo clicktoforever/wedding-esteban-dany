@@ -9,7 +9,6 @@ const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey)
 
 interface AttendeeInput {
   name: string
-  dietaryRestrictions?: string
 }
 
 interface GuestInput {
@@ -40,7 +39,6 @@ async function generateInvite(guestInput: GuestInput) {
     const passesData = guestInput.attendees.map(attendee => ({
       guest_id: guest.id,
       attendee_name: attendee.name,
-      dietary_restrictions: attendee.dietaryRestrictions,
     }))
 
     const { error: passesError } = await supabase

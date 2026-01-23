@@ -68,7 +68,6 @@ export async function POST(request: NextRequest) {
     if (!gift.is_crowdfunding && gift.price) {
       await supabase
         .from('gifts')
-        // @ts-expect-error - Supabase type inference issue
         .update({
           is_crowdfunding: true,
           total_amount: gift.price,
@@ -106,7 +105,6 @@ export async function POST(request: NextRequest) {
     // Create transaction record with PENDING status
     const transactionResult = await supabase
       .from('gift_transactions')
-      // @ts-expect-error - Supabase type inference issue
       .insert({
         gift_id: giftId,
         donor_name: donorName,

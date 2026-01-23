@@ -2,19 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { Database } from '@/lib/database.types'
 import Image from 'next/image'
 
-interface Transaction {
-  id: string
-  gift_id: string
-  donor_name: string
-  amount: number
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | 'MANUAL_REVIEW'
-  payment_method: 'payphone' | 'transfer_ec' | 'transfer_mx'
-  country: 'EC' | 'MX' | null
-  receipt_url: string | null
-  message: string | null
-  created_at: string
+type Transaction = Database['public']['Tables']['gift_transactions']['Row'] & {
   gift?: {
     name: string
     image_url: string | null
@@ -64,7 +55,6 @@ export default function TransactionDetailSheet({
       // Update transaction status and amount
       const { error: updateError } = await supabase
         .from('gift_transactions')
-        // @ts-ignore - Supabase types are not properly generated
         .update({
           status: 'APPROVED',
           amount: amount,
@@ -89,7 +79,6 @@ export default function TransactionDetailSheet({
 
       const { error: giftUpdateError } = await supabase
         .from('gifts')
-        // @ts-ignore - Supabase types are not properly generated
         .update({
           collected_amount: newCollected,
           status: newStatus,
@@ -117,7 +106,6 @@ export default function TransactionDetailSheet({
     try {
       const { error } = await supabase
         .from('gift_transactions')
-        // @ts-ignore - Supabase types are not properly generated
         .update({ status: 'REJECTED' })
         .eq('id', transaction.id)
 
@@ -154,7 +142,6 @@ export default function TransactionDetailSheet({
 
         const { error: giftUpdateError } = await supabase
           .from('gifts')
-          // @ts-ignore - Supabase types are not properly generated
           .update({
             collected_amount: newCollected,
             status: newStatus,
@@ -182,14 +169,14 @@ export default function TransactionDetailSheet({
     }
   }
 
-  function getCountryLabel(country: string | null, paymentMethod: string) {
+  function getCountryLabel(country: string | null, paymentMethod: string | null) {
     if (paymentMethod === 'payphone') return 'Ecuador (USD)'
     if (country === 'MX') return 'México (MXN)'
     if (country === 'EC') return 'Ecuador (USD)'
     return 'Ecuador (USD)'
   }
 
-  function getPaymentMethodLabel(paymentMethod: string) {
+  function getPaymentMethodLabel(paymentMethod: string | null) {
     switch (paymentMethod) {
       case 'payphone':
         return 'PayPhone'

@@ -90,6 +90,41 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 
 ---
 
+### SUPABASE_PROJECT_ID
+
+**Descripción**: ID del proyecto Supabase usado para generar types TypeScript desde el schema
+
+**Formato**: String de 20 caracteres (ejemplo: `abcdefghijklmnopqrst`)
+
+**Dónde obtenerlo**:
+1. Ve a [supabase.com/dashboard](https://supabase.com/dashboard)
+2. Selecciona tu proyecto
+3. El ID está en la URL: `https://supabase.com/dashboard/project/[PROJECT_ID]`
+4. O en Settings → General → Reference ID
+
+**Ejemplo**:
+```env
+SUPABASE_PROJECT_ID=cleeumrziseyvctsfxxx
+```
+
+**⚠️ Seguridad**: 
+- ❌ NO incluir en `package.json` hardcodeado
+- ✅ Usar variable de entorno en `.env.local`
+- ✅ Está excluido de Git (en `.env.local`)
+
+**Usos**:
+- Script `npm run generate-types` (regenera `lib/database.types.ts`)
+- **NO** se usa en la app Next.js en runtime
+
+**Comando**:
+```bash
+npm run generate-types
+```
+
+Este comando ejecuta `scripts/generate-types.sh` que lee el `SUPABASE_PROJECT_ID` de `.env.local` y genera los types actualizados.
+
+---
+
 ### GEMINI_API_KEY
 
 **Descripción**: API Key de Google Gemini para validación automática de comprobantes de transferencia bancaria

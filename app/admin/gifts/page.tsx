@@ -2,23 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
+import { Database } from '@/lib/database.types'
 import Image from 'next/image'
 import NewGiftModal from '@/components/admin/gifts/NewGiftModal'
 import EditGiftModal from '@/components/admin/gifts/EditGiftModal'
 import BottomNav from '@/components/admin/BottomNav'
 
-interface Gift {
-  id: string
-  name: string
-  description: string | null
-  image_url: string | null
-  category: string | null
-  price: number | null
-  total_amount: number
-  collected_amount: number
-  status: 'AVAILABLE' | 'COMPLETED'
-  is_crowdfunding: boolean
-}
+type Gift = Database['public']['Tables']['gifts']['Row']
 
 const CATEGORIES = [
   { id: 'all', label: 'Todo' },
@@ -89,9 +79,9 @@ export default function GiftsAdminPage() {
     setFilteredGifts(filtered)
   }
 
-  const getProgressPercentage = (collected: number, total: number) => {
-    if (total === 0) return 0
-    return Math.min((collected / total) * 100, 100)
+  const getProgressPercentage = (collected: number | null, total: number | null) => {
+    if (!total || total === 0) return 0
+    return Math.min(((collected || 0) / total) * 100, 100)
   }
 
   return (
@@ -259,11 +249,11 @@ export default function GiftsAdminPage() {
                         <p className="text-[#807d7c]">
                           Recaudado:{' '}
                           <span className="font-bold text-[#4a5951]">
-                            ${gift.collected_amount.toLocaleString()}
+                            ${(gift.collected_amount || 0).toLocaleString()}
                           </span>
                         </p>
                         <p className="text-[#807d7c]/70">
-                          Meta: ${gift.total_amount.toLocaleString()}
+                          Meta: ${(gift.total_amount || 0).toLocaleString()}
                         </p>
                       </div>
                     </div>

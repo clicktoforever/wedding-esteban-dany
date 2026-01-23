@@ -27,8 +27,6 @@ Documentación completa de todas las pantallas, datos y estructura para rediseñ
   guest_id: string              // FK a guests.id
   attendee_name: string         // Nombre del acompañante
   confirmation_status: 'pending' | 'confirmed' | 'declined'
-  dietary_restrictions: string | null  // Ej: "Vegetariano", "Sin gluten"
-  notes: string | null          // Notas adicionales
   updated_at: string           // ISO timestamp
 }
 ```
@@ -161,17 +159,13 @@ const guest = await supabase
       id: "uuid",
       guest_id: "uuid",
       attendee_name: "Carlos Malo",
-      confirmation_status: "pending",
-      dietary_restrictions: null,
-      notes: null
+      confirmation_status: "pending"
     },
     {
       id: "uuid",
       guest_id: "uuid",
       attendee_name: "Acompañante de Carlos",
-      confirmation_status: "pending",
-      dietary_restrictions: null,
-      notes: null
+      confirmation_status: "pending"
     }
   ]
 }
@@ -195,8 +189,6 @@ const guest = await supabase
 │  │ ┌─────────┐  ┌──────────┐        │  │
 │  │ │Confirmar│  │ Declinar │        │  │
 │  │ └─────────┘  └──────────┘        │  │
-│  │ [Input] Restricciones dietéticas  │  │
-│  │ [Textarea] Notas adicionales      │  │
 │  └───────────────────────────────────┘  │
 │  ┌───────────────────────────────────┐  │
 │  │ PASS CARD 2                       │  │
@@ -213,11 +205,9 @@ const guest = await supabase
 1. **Estado Inicial:** Todos los passes en "pending"
 2. **Acción Confirmar:**
    - Cambiar badge a "confirmed" (verde)
-   - Habilitar inputs de restricciones/notas
    - Guardar en Supabase con `useTransition`
 3. **Acción Declinar:**
    - Cambiar badge a "declined" (rojo)
-   - Deshabilitar inputs
    - Guardar en Supabase
 4. **Feedback:**
    - Loading states durante guardado
@@ -231,8 +221,6 @@ await supabase
   .from('passes')
   .update({
     confirmation_status: 'confirmed' | 'declined',
-    dietary_restrictions: string,
-    notes: string,
     updated_at: new Date().toISOString()
   })
   .eq('id', passId)
