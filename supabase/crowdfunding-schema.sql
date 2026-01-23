@@ -34,11 +34,9 @@ CREATE TABLE gift_transactions (
     gift_id UUID NOT NULL REFERENCES gifts(id) ON DELETE CASCADE,
     donor_name TEXT NOT NULL,
     amount NUMERIC(10,2) NOT NULL CHECK (amount > 0),
-    external_transaction_id TEXT,
     status transaction_status NOT NULL DEFAULT 'PENDING',
     payphone_client_transaction_id TEXT UNIQUE,
     payphone_transaction_id TEXT,
-    payment_url TEXT,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     approved_at TIMESTAMPTZ,
@@ -53,7 +51,6 @@ CREATE TABLE gift_transactions (
 
 CREATE INDEX idx_gift_transactions_gift ON gift_transactions(gift_id);
 CREATE INDEX idx_gift_transactions_status ON gift_transactions(status);
-CREATE INDEX idx_gift_transactions_external_id ON gift_transactions(external_transaction_id);
 CREATE INDEX idx_gift_transactions_payphone_client_id ON gift_transactions(payphone_client_transaction_id);
 CREATE INDEX idx_gifts_crowdfunding ON gifts(is_crowdfunding);
 CREATE INDEX idx_gifts_status ON gifts(status);
