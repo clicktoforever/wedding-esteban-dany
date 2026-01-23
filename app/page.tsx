@@ -3,10 +3,30 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import CountdownTimer from '@/components/CountdownTimer'
 import RSVPButton from '@/components/RSVPButton'
+import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 60
 
 export default async function Page() {
+  const supabase = await createClient()
+
+  // Fetch wedding date from configurations
+  const { data: weddingDateConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'wedding_date')
+    .single()
+
+  const weddingDate = weddingDateConfig?.value || '2026-04-11T18:00:00'
+  const weddingDateObj = new Date(weddingDate)
+
+  // Format date for display
+  const formattedDate = weddingDateObj.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  })
+
   return (
     <div className="bg-background-light text-text-light font-body antialiased transition-colors duration-300">
       <div className="max-w-md lg:max-w-none mx-auto relative min-h-screen lg:shadow-none shadow-2xl overflow-hidden bg-background-light pb-0">
@@ -42,11 +62,11 @@ export default async function Page() {
             <div className="w-16 lg:w-24 xl:w-32 h-0.5 bg-secondary rounded-full my-4 lg:my-6 shadow-sm transition-all duration-300"></div>
 
             <div className="text-white font-light tracking-widest uppercase text-sm lg:text-base xl:text-lg drop-shadow-md space-y-1 lg:space-y-2">
-              <p>11 de Abril, 2026</p>
+              <p className="capitalize">{formattedDate}</p>
               <p className="font-bold">Quito, Ecuador</p>
             </div>
 
-            <CountdownTimer targetDate="2026-04-11T00:00:00" />
+            <CountdownTimer targetDate={weddingDate} />
           </div>
 
           <div className="absolute bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-10 text-primary">

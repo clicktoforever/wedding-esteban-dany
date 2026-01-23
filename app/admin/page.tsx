@@ -66,6 +66,15 @@ export default async function AdminPage() {
     gifts: Database['public']['Tables']['gifts']['Row'] | null
   }
 
+  // Fetch wedding date from configurations
+  const { data: weddingDateConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'wedding_date')
+    .single()
+
+  const weddingDate = weddingDateConfig?.value || '2026-04-11T18:00:00'
+
   const statsData = stats?.[0] || {
     total_guests: 0,
     total_passes: 0,
@@ -109,7 +118,7 @@ export default async function AdminPage() {
       {/* Main Content */}
       <main className="pt-24 px-6 pb-24 max-w-md mx-auto md:max-w-4xl">
         {/* Countdown Section */}
-        <WeddingCountdown />
+        <WeddingCountdown targetDate={weddingDate} />
 
         {/* Acciones Urgentes */}
         <section className="space-y-3 mb-8">
