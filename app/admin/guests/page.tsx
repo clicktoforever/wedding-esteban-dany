@@ -8,9 +8,9 @@ export default async function GuestsPage() {
   const supabase = await createClient()
 
   // Verificar autenticación
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
   
-  if (!session) {
+  if (authError || !user) {
     redirect('/admin/login')
   }
 
@@ -18,7 +18,7 @@ export default async function GuestsPage() {
   const { data: adminUser } = await supabase
     .from('admin_users')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .single()
 
   if (!adminUser) {
