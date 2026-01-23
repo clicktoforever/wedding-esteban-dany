@@ -15,9 +15,10 @@ interface GuestWithPasses extends Guest {
 interface GuestConfirmationProps {
   guest: GuestWithPasses
   token: string
+  deadline: Date | null
 }
 
-export default function GuestConfirmation({ guest, token }: GuestConfirmationProps) {
+export default function GuestConfirmation({ guest, token, deadline }: GuestConfirmationProps) {
   const [passes, setPasses] = useState<Pass[]>(guest.passes)
   const [isPending, startTransition] = useTransition()
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -69,6 +70,14 @@ export default function GuestConfirmation({ guest, token }: GuestConfirmationPro
     return name.substring(0, 2).toUpperCase()
   }
 
+  // Format deadline date
+  const formattedDeadline = deadline ? deadline.toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'America/Guayaquil'
+  }) : null
+
   return (
     <>
       {/* Progress Bar */}
@@ -93,6 +102,16 @@ export default function GuestConfirmation({ guest, token }: GuestConfirmationPro
         <p className="text-gray-600 font-light leading-relaxed text-base lg:text-lg">
           Estamos muy felices de celebrar con ustedes. Por favor confirma quiénes podrán acompañarnos.
         </p>
+        {formattedDeadline && (
+          <div className="mt-4 inline-flex items-center gap-2 bg-secondary/10 border border-secondary/20 rounded-full px-4 py-2">
+            <svg className="w-4 h-4 text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p className="text-sm font-medium text-gray-700">
+              Plazo máximo: <span className="text-secondary capitalize font-semibold">{formattedDeadline}</span>
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Success/Error Message */}

@@ -35,6 +35,33 @@ export type Database = {
         }
         Relationships: []
       }
+      configurations: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          value: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
       gift_transactions: {
         Row: {
           amount: number
@@ -42,7 +69,6 @@ export type Database = {
           country: string | null
           created_at: string
           donor_name: string
-          external_transaction_id: string | null
           extracted_account: string | null
           extracted_amount: number | null
           extracted_bank: string | null
@@ -54,7 +80,6 @@ export type Database = {
           id: string
           message: string | null
           payment_method: string | null
-          payment_url: string | null
           payphone_client_transaction_id: string | null
           payphone_transaction_id: string | null
           receipt_filename: string | null
@@ -71,7 +96,6 @@ export type Database = {
           country?: string | null
           created_at?: string
           donor_name: string
-          external_transaction_id?: string | null
           extracted_account?: string | null
           extracted_amount?: number | null
           extracted_bank?: string | null
@@ -83,7 +107,6 @@ export type Database = {
           id?: string
           message?: string | null
           payment_method?: string | null
-          payment_url?: string | null
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           receipt_filename?: string | null
@@ -100,7 +123,6 @@ export type Database = {
           country?: string | null
           created_at?: string
           donor_name?: string
-          external_transaction_id?: string | null
           extracted_account?: string | null
           extracted_amount?: number | null
           extracted_bank?: string | null
@@ -112,7 +134,6 @@ export type Database = {
           id?: string
           message?: string | null
           payment_method?: string | null
-          payment_url?: string | null
           payphone_client_transaction_id?: string | null
           payphone_transaction_id?: string | null
           receipt_filename?: string | null
