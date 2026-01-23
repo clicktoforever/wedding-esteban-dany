@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
+import Image from 'next/image'
 
 interface InstructionsModalProps {
   isOpen: boolean
@@ -104,7 +105,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
               <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fef239701b75245adb5a422193d961fb8" alt="Paso 1" className="w-full h-full object-contain" />
+                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fef239701b75245adb5a422193d961fb8" alt="Paso 1" width={80} height={80} className="w-full h-full object-contain" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">Explora nuestros sueños</h2>
                 <p className="text-xs text-gray-500 leading-relaxed max-w-[240px] font-sans font-normal">
@@ -118,7 +119,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
               <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F39c2bf773bca4113ad8ac0fc88bc2afc" alt="Paso 2" className="w-full h-full object-contain" />
+                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F39c2bf773bca4113ad8ac0fc88bc2afc" alt="Paso 2" width={80} height={80} className="w-full h-full object-contain" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">Suma tu granito de arena</h2>
                 <p className="text-xs text-gray-500 leading-relaxed max-w-[260px] font-sans font-normal">
@@ -132,14 +133,14 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
               <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-5 flex flex-col items-center justify-start text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 <div className="mt-2 mb-3 w-16 h-16 flex items-center justify-center shrink-0">
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb4effad617be42a0b7cf1833ab88c15f" alt="Paso 3" className="w-full h-full object-contain" />
+                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb4effad617be42a0b7cf1833ab88c15f" alt="Paso 3" width={64} height={64} className="w-full h-full object-contain" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4 italic shrink-0 font-display">Métodos Seguros</h2>
                 <div className="w-full flex flex-col gap-3 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d3c3db transparent' }}>
                   {/* Ecuador */}
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-background-light/50 border border-gray-100 hover:border-primary/30 transition-colors">
                     <div className="shadow-sm rounded-sm overflow-hidden h-6 w-8 flex items-center justify-center shrink-0">
-                      <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F64df22a18b8b43a4a5595d6d361c5a67" alt="Ecuador" className="w-full h-full object-contain" />
+                      <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F64df22a18b8b43a4a5595d6d361c5a67" alt="Ecuador" width={32} height={24} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col items-start text-left">
                       <span className="text-xs font-bold text-gray-800 uppercase tracking-wider font-sans">Ecuador ($ USD)</span>
@@ -149,7 +150,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
                   {/* Mexico */}
                   <div className="flex items-start gap-3 p-3 rounded-xl bg-background-light/50 border border-gray-100 hover:border-primary/30 transition-colors">
                     <div className="shadow-sm rounded-sm overflow-hidden h-6 w-8 flex items-center justify-center shrink-0">
-                      <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F1d9b808429724787af7bc584d9961030" alt="México" className="w-full h-full object-contain" />
+                      <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F1d9b808429724787af7bc584d9961030" alt="México" width={32} height={24} className="w-full h-full object-contain" />
                     </div>
                     <div className="flex flex-col items-start text-left">
                       <span className="text-xs font-bold text-gray-800 uppercase tracking-wider font-sans">México ($ MXN)</span>
@@ -165,7 +166,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
               <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
                 <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F6b3ed7ebe67147e1ad06d3edc78458c0" alt="Paso 4" className="w-full h-full object-contain" />
+                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F6b3ed7ebe67147e1ad06d3edc78458c0" alt="Paso 4" width={80} height={80} className="w-full h-full object-contain" />
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">¡Celebremos!</h2>
                 <p className="text-xs text-gray-500 leading-relaxed max-w-[260px] font-sans font-normal">
