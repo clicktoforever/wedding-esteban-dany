@@ -226,7 +226,7 @@ export default function NewGuestModal({
                       className="block w-full rounded-xl border-0 py-4 pl-4 pr-10 text-stone-900 shadow-soft ring-1 ring-inset ring-stone-200 placeholder:text-stone-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-base sm:leading-6 bg-white transition-all duration-200"
                       id="name"
                       name="name"
-                      placeholder="Ej. Sofia Rossi"
+                      placeholder="Ej. Danielita Briones"
                       type="text"
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}

@@ -19,6 +19,7 @@ CREATE TABLE guests (
     email TEXT,
     phone TEXT,
     access_token TEXT UNIQUE NOT NULL DEFAULT encode(gen_random_bytes(16), 'hex'),
+    notified_whatsapp BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -29,8 +30,6 @@ CREATE TABLE passes (
     guest_id UUID NOT NULL REFERENCES guests(id) ON DELETE CASCADE,
     attendee_name TEXT NOT NULL,
     confirmation_status confirmation_status NOT NULL DEFAULT 'pending',
-    dietary_restrictions TEXT,
-    notes TEXT,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

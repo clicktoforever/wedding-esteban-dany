@@ -5,17 +5,9 @@ import Image from 'next/image'
 import Script from 'next/script'
 import { formatCurrency } from '@/lib/payphone'
 import { getDisplayAmount, convertToUsd } from '@/lib/currency'
+import type { Database } from '@/lib/database.types'
 
-interface Gift {
-  id: string
-  name: string
-  description?: string | null
-  image_url?: string | null
-  total_amount: number
-  collected_amount: number
-  status: string
-  category?: string | null
-}
+type Gift = Database['public']['Tables']['gifts']['Row']
 
 interface BankAccount {
   country: 'EC' | 'MX'
@@ -80,10 +72,12 @@ export default function UnifiedContributionModal({
   const [dragCurrentY, setDragCurrentY] = useState<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
-  // Amounts
-  const remainingUSD = gift.total_amount - gift.collected_amount
-  const progressPercentage = gift.total_amount > 0 
-    ? (gift.collected_amount / gift.total_amount) * 100 
+  // Amounts - handle potential null values
+  const totalAmount = gift.total_amount ?? 0
+  const collectedAmount = gift.collected_amount ?? 0
+  const remainingUSD = totalAmount - collectedAmount
+  const progressPercentage = totalAmount > 0 
+    ? (collectedAmount / totalAmount) * 100 
     : 0
 
   // Quick amount buttons based on currency

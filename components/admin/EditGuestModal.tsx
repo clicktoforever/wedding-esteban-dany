@@ -16,6 +16,7 @@ interface Guest {
   id: string
   name: string
   email?: string | null
+  access_token: string
   phone?: string | null
   passes: Pass[]
 }

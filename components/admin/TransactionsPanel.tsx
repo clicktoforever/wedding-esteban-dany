@@ -75,7 +75,6 @@ export default function TransactionsPanel({ initialTransactions = [] }: Transact
 
       const { error } = await supabase
         .from('gift_transactions')
-        // @ts-ignore - Supabase types inference issue
         .update(updateData)
         .eq('id', transactionId)
 
@@ -102,7 +101,6 @@ export default function TransactionsPanel({ initialTransactions = [] }: Transact
 
       const { error } = await supabase
         .from('gift_transactions')
-        // @ts-ignore - Supabase types inference issue
         .update(updateData)
         .eq('id', transactionId)
 

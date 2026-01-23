@@ -74,22 +74,6 @@ export default function PassCard({ pass, onUpdate, disabled }: PassCardProps) {
           <span>No asistiré</span>
         </button>
       </div>
-
-      {pass.dietary_restrictions && (
-        <div className="mt-4 pt-4 border-t border-gray-100">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-wedding-forest">Restricciones dietéticas:</span> {pass.dietary_restrictions}
-          </p>
-        </div>
-      )}
-      
-      {pass.notes && (
-        <div className="mt-3">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-wedding-forest">Notas:</span> {pass.notes}
-          </p>
-        </div>
-      )}
     </div>
   )
 }
