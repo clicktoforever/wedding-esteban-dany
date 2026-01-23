@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 import BottomNav from '@/components/admin/BottomNav'
 import WeddingCountdown from '@/components/admin/WeddingCountdown'
 import type { Database } from '@/lib/database.types'
@@ -10,9 +11,9 @@ export default async function AdminPage() {
   const supabase = await createClient()
 
   // Verificar autenticación
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
   
-  if (!session) {
+  if (authError || !user) {
     redirect('/admin/login')
   }
 
@@ -20,7 +21,7 @@ export default async function AdminPage() {
   const { data: adminUser } = await supabase
     .from('admin_users')
     .select('*')
-    .eq('user_id', session.user.id)
+    .eq('user_id', user.id)
     .single()
 
   if (!adminUser) {
@@ -133,7 +134,7 @@ export default async function AdminPage() {
           <div className="bg-primary/5 p-1 rounded-2xl border border-primary/10">
             <div className="space-y-3 p-2">
               {/* Comprobantes por Revisar */}
-              <button className="w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform">
+              <Link href="/admin/transactions" className="block w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform">
                 <div className="flex items-center space-x-4">
                   <div className="bg-highlight-lavender/30 h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 text-stone-700">
                     <span className="material-symbols-outlined text-xl">fact_check</span>
@@ -155,12 +156,12 @@ export default async function AdminPage() {
                     chevron_right
                   </span>
                 </div>
-              </button>
+              </Link>
 
               {/* Invitados sin Enviar */}
-              <button 
-                onClick={() => window.location.href = '/admin/guests'}
-                className="w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform"
+              <Link 
+                href="/admin/guests"
+                className="block w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform"
               >
                 <div className="flex items-center space-x-4">
                   <div className="bg-highlight-lavender/30 h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 text-stone-700">
@@ -183,7 +184,7 @@ export default async function AdminPage() {
                     chevron_right
                   </span>
                 </div>
-              </button>
+              </Link>
             </div>
           </div>
         </section>
