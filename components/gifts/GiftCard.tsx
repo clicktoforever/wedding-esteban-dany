@@ -14,11 +14,13 @@ interface GiftCardProps {
 export default function GiftCard({ gift, onContribute }: GiftCardProps) {
   const isCrowdfunding = gift.is_crowdfunding
   const isCompleted = gift.status === 'COMPLETED'
-  const progressPercentage = isCrowdfunding && gift.total_amount > 0
-    ? (gift.collected_amount / gift.total_amount) * 100
+  const totalAmount = gift.total_amount ?? 0
+  const collectedAmount = gift.collected_amount ?? 0
+  const progressPercentage = isCrowdfunding && totalAmount > 0
+    ? (collectedAmount / totalAmount) * 100
     : 0
-  const remainingAmount = gift.total_amount - gift.collected_amount
-  const hasContributions = gift.collected_amount > 0
+  const remainingAmount = totalAmount - collectedAmount
+  const hasContributions = collectedAmount > 0
   
   // Use contributor_count if available, otherwise fallback to 0
   const contributorCount = gift.contributor_count || 0
@@ -114,7 +116,7 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
             {/* Always show collected and remaining amounts */}
             <div className="flex items-center justify-between text-sm">
               <span className="text-gray-600">
-                Recaudado: <span className="font-semibold text-primary">{formatCurrency(gift.collected_amount)}</span>
+                Recaudado: <span className="font-semibold text-primary">{formatCurrency(collectedAmount)}</span>
               </span>
               <span className="text-gray-600">
                 Faltan: <span className="font-semibold text-[#d3c3db]">{formatCurrency(remainingAmount)}</span>

@@ -1,19 +1,15 @@
 'use client'
-
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import type { Database } from '@/lib/database.types'
 import AdminStats from '@/components/admin/AdminStats'
 import GiftProgressCard from '@/components/admin/GiftProgressCard'
-
 type Guest = Database['public']['Tables']['guests']['Row']
 type Pass = Database['public']['Tables']['passes']['Row']
 type Gift = Database['public']['Tables']['gifts']['Row']
-
 interface GuestWithPasses extends Guest {
   passes: Pass[]
 }
-
 interface Stats {
   total_guests: number
   total_passes: number
@@ -25,85 +21,11 @@ interface Stats {
   total_contributions?: number
   approved_contributions?: number
 }
-
 interface AdminDashboardProps {
   readonly stats: Stats
   readonly guests: GuestWithPasses[]
   readonly gifts: Gift[]
 }
-
-// Mock data for UI prototyping; real data from props overrides it
-const GUESTS: GuestWithPasses[] = [
-  {
-    id: 'g1',
-    name: 'María Fernanda López',
-    email: 'maria.lopez@example.com',
-    phone: '+593987654321',
-    access_token: 'token-maria',
-    created_at: '',
-    updated_at: '',
-    table_id: null,
-    passes: [
-      { id: 'p1', guest_id: 'g1', attendee_name: 'María Fernanda López', confirmation_status: 'confirmed', dietary_restrictions: 'Vegetariana', notes: null, updated_at: '' },
-      { id: 'p2', guest_id: 'g1', attendee_name: 'Carlos Díaz', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
-    ],
-  },
-  {
-    id: 'g2',
-    name: 'Juan Pérez',
-    email: null,
-    phone: '+529991112233',
-    access_token: 'token-juan',
-    created_at: '',
-    updated_at: '',
-    table_id: null,
-    passes: [
-      { id: 'p3', guest_id: 'g2', attendee_name: 'Juan Pérez', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
-    ],
-  },
-  {
-    id: 'g3',
-    name: 'Ana Lucía Torres',
-    email: 'ana.torres@example.com',
-    phone: '+573145556677',
-    access_token: 'token-ana',
-    created_at: '',
-    updated_at: '',
-    table_id: null,
-    passes: [
-      { id: 'p4', guest_id: 'g3', attendee_name: 'Ana Lucía Torres', confirmation_status: 'declined', dietary_restrictions: null, notes: 'No puede asistir', updated_at: '' },
-      { id: 'p5', guest_id: 'g3', attendee_name: 'Marco Ruiz', confirmation_status: 'declined', dietary_restrictions: null, notes: null, updated_at: '' },
-    ],
-  },
-  {
-    id: 'g4',
-    name: 'Sofía Martínez',
-    email: 'sofia.mtz@example.com',
-    phone: '+593998887766',
-    access_token: 'token-sofia',
-    created_at: '',
-    updated_at: '',
-    table_id: null,
-    passes: [
-      { id: 'p6', guest_id: 'g4', attendee_name: 'Sofía Martínez', confirmation_status: 'confirmed', dietary_restrictions: 'Sin gluten', notes: null, updated_at: '' },
-      { id: 'p7', guest_id: 'g4', attendee_name: 'Laura Chávez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
-      { id: 'p8', guest_id: 'g4', attendee_name: 'Pedro Álvarez', confirmation_status: 'pending', dietary_restrictions: null, notes: null, updated_at: '' },
-    ],
-  },
-  {
-    id: 'g5',
-    name: 'Luis Ramírez',
-    email: 'lramirez@example.com',
-    phone: '+529998887755',
-    access_token: 'token-luis',
-    created_at: '',
-    updated_at: '',
-    table_id: null,
-    passes: [
-      { id: 'p9', guest_id: 'g5', attendee_name: 'Luis Ramírez', confirmation_status: 'confirmed', dietary_restrictions: null, notes: null, updated_at: '' },
-    ],
-  },
-]
 
 export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardProps) {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -122,118 +44,90 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined'>('all')
   const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
-  const [guestList, setGuestList] = useState<GuestWithPasses[]>(guests.length ? guests : GUESTS)
+  const [guestList, setGuestList] = useState<GuestWithPasses[]>(guests)
   const [expandedCardId, setExpandedCardId] = useState<string | null>(null)
   const [giftsTab, setGiftsTab] = useState<'pending' | 'completed'>('pending')
-
   // New components
   // Lazy imports at top of file
-
   // Mantener la lista en sync con datos reales si llegan desde servidor
   useEffect(() => {
     if (guests.length) {
       setGuestList(guests)
     }
   }, [guests])
-
   const validateEmail = (email: string): boolean => {
     if (!email) return true // Email is optional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
   }
-
   const getOverallStatus = (guest: GuestWithPasses): 'confirmed' | 'pending' | 'declined' => {
     const statuses = guest.passes.map(p => p.confirmation_status)
     if (statuses.every(s => s === 'confirmed')) return 'confirmed'
     if (statuses.every(s => s === 'declined')) return 'declined'
     return 'pending'
   }
-
   const statusStyles: Record<'confirmed' | 'pending' | 'declined', { label: string; classes: string }> = {
     confirmed: { label: 'Confirmado', classes: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
     pending: { label: 'Pendiente', classes: 'bg-amber-100 text-amber-800 border border-amber-200' },
     declined: { label: 'Declinado', classes: 'bg-rose-100 text-rose-800 border border-rose-200' },
   }
-
   const getCompanionBadge = (guest: GuestWithPasses) => {
     const count = Math.max(guest.passes.length - 1, 0)
     if (count === 0) return null
     const names = guest.passes.slice(1).map(c => c.attendee_name).join(', ')
     return { count, tooltip: names }
   }
-
   // Función para generar el mensaje de WhatsApp inicial
   const generateWhatsAppMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
     const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
-    
     return `¡Hola ${guest.name}! 💐✨
-
 Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
-
 🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
-
 ${confirmationUrl}
-
 ¡Esperamos contar con tu presencia! 💕`
   }
-
   // Función para generar el mensaje de recordatorio
   const generateReminderMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
     const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
-    
     return `¡Hola ${guest.name}! 💌
-
 Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
-
 Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
-
 ${confirmationUrl}
-
 ¡Tu presencia es muy importante para nosotros! 💕✨`
   }
-
   const getWhatsAppLink = (guest: GuestWithPasses, type: 'invite' | 'reminder') => {
     if (!guest.phone) return '#'
     const phoneNumber = guest.phone.replace(/[^0-9]/g, '')
     const message = type === 'reminder' ? generateReminderMessage(guest) : generateWhatsAppMessage(guest)
     return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
   }
-
   // Filtrar invitados según búsqueda y estado
   const filteredGuests = guestList.filter(guest => {
     // Filtro por búsqueda
     const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
-    
     if (!matchesSearch) return false
-
     // Filtro por estado
     if (statusFilter === 'all') return true
-    
     return guest.passes.some(pass => pass.confirmation_status === statusFilter)
   })
-
-
   const addPass = () => {
     setPasses([...passes, { attendee_name: '' }])
   }
-
   const removePass = (index: number) => {
     if (index > 0) { // No permitir eliminar el pase principal (índice 0)
       setPasses(passes.filter((_, i) => i !== index))
     }
   }
-
   const updatePass = (index: number, value: string) => {
     const newPasses = [...passes]
     newPasses[index].attendee_name = value
     setPasses(newPasses)
   }
-
   // Actualizar automáticamente el primer pase con el nombre del invitado
   const handleGuestNameChange = (value: string) => {
     setGuestName(value)
@@ -242,19 +136,16 @@ ${confirmationUrl}
     newPasses[0].attendee_name = value
     setPasses(newPasses)
   }
-
   const openEditModal = (guest: GuestWithPasses) => {
     setIsEditMode(true)
     setEditingGuestId(guest.id)
     setGuestName(guest.name)
     setGuestEmail(guest.email || '')
-    
     // Parsear teléfono para separar código de país
     const phone = guest.phone || ''
     // Buscar códigos de país conocidos primero
     const knownCodes = ['+593', '+52', '+57']
     const foundCode = knownCodes.find(code => phone.startsWith(code))
-    
     if (foundCode) {
       setCountryCode(foundCode)
       setGuestPhone(phone.substring(foundCode.length))
@@ -274,11 +165,9 @@ ${confirmationUrl}
       setCountryCode('+52')
       setGuestPhone(phone)
     }
-    
     setPasses(guest.passes.map(p => ({ id: p.id, attendee_name: p.attendee_name })))
     setIsModalOpen(true)
   }
-
   const openAddModal = () => {
     setIsEditMode(false)
     setEditingGuestId(null)
@@ -289,19 +178,15 @@ ${confirmationUrl}
     setPasses([{ attendee_name: '' }])
     setIsModalOpen(true)
   }
-
   const handleDeleteGuest = async () => {
     if (!guestToDelete) return
-
     try {
       const response = await fetch(`/api/guests/${guestToDelete}`, {
         method: 'DELETE',
       })
-
       if (!response.ok) {
         throw new Error('Error al eliminar invitado')
       }
-
       setGuestList(prev => prev.filter(g => g.id !== guestToDelete))
       setMessage({ type: 'success', text: 'Invitado eliminado exitosamente' })
     } catch (error) {
@@ -312,74 +197,59 @@ ${confirmationUrl}
       setGuestToDelete(null)
     }
   }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setMessage(null)
     setEmailError('')
-
     // Validar email si está presente
     if (guestEmail && !validateEmail(guestEmail)) {
       setEmailError('Por favor ingresa un correo electrónico válido')
       setIsSubmitting(false)
       return
     }
-
     try {
       const supabase = createClient()
       const fullPhone = countryCode + guestPhone
-
       if (isEditMode && editingGuestId) {
         // Actualizar invitado existente
         const { error: guestError } = await supabase
           .from('guests')
-          // @ts-ignore - Supabase types inference issue
           .update({
             name: guestName,
             email: guestEmail || null,
             phone: fullPhone,
           })
           .eq('id', editingGuestId)
-
         if (guestError) throw guestError
-
         // Obtener pases existentes
         const existingPassIds = passes.filter(p => p.id).map(p => p.id!)
         const newPasses = passes.filter(p => !p.id && p.attendee_name.trim())
-
         // Eliminar pases que ya no están (excepto el principal)
         const { data: allPasses } = await supabase
           .from('passes')
           .select('id')
           .eq('guest_id', editingGuestId)
-
         if (allPasses && allPasses.length > 0) {
           const passesToDelete = allPasses
             .filter((p: { id: string }, index: number) => index > 0) // No eliminar el primer pase (principal)
             .filter((p: { id: string }) => !existingPassIds.includes(p.id))
-
           if (passesToDelete.length > 0) {
             const { error: deleteError } = await supabase
               .from('passes')
               .delete()
               .in('id', passesToDelete.map((p: { id: string }) => p.id))
-
             if (deleteError) throw deleteError
           }
         }
-
         // Actualizar pases existentes
         for (const pass of passes.filter(p => p.id)) {
           const { error: updateError } = await supabase
             .from('passes')
-            // @ts-ignore - Supabase types inference issue
             .update({ attendee_name: pass.attendee_name.trim() })
             .eq('id', pass.id!)
-
           if (updateError) throw updateError
         }
-
         // Insertar nuevos pases
         if (newPasses.length > 0) {
           const { error: insertError } = await supabase
@@ -391,16 +261,13 @@ ${confirmationUrl}
                 confirmation_status: 'pending' as const,
               })) as any
             )
-
           if (insertError) throw insertError
         }
-
         setMessage({ type: 'success', text: 'Invitado actualizado exitosamente' })
       } else {
         // Crear nuevo invitado
         const { data: guestData, error: guestError } = await supabase
           .from('guests')
-          // @ts-ignore - Supabase types inference issue
           .insert({
             name: guestName,
             email: guestEmail || null,
@@ -408,37 +275,30 @@ ${confirmationUrl}
           })
           .select()
           .single()
-
         if (guestError || !guestData) throw guestError || new Error('No se pudo crear el invitado')
-
+        // Cast needed due to Supabase type inference issue
+        const guest = guestData as { id: string }
         const passesToInsert = passes
           .filter(pass => pass.attendee_name.trim())
           .map(pass => ({
-            // @ts-ignore - Supabase types inference issue
-            guest_id: guestData.id,
+            guest_id: guest.id,
             attendee_name: pass.attendee_name.trim(),
             confirmation_status: 'pending' as const,
           }))
-
         if (passesToInsert.length > 0) {
           const { error: passesError } = await supabase
             .from('passes')
-            // @ts-ignore - Supabase types inference issue
             .insert(passesToInsert)
-
-          if (passesError) throw passesError
+            if (passesError) throw passesError
         }
-
         setMessage({ type: 'success', text: 'Invitado agregado exitosamente' })
       }
-      
       // Resetear formulario
       setGuestName('')
       setGuestEmail('')
       setCountryCode('+52')
       setGuestPhone('')
       setPasses([{ attendee_name: '' }])
-      
       // Cerrar modal después de 2 segundos
       setTimeout(() => {
         setIsModalOpen(false)
@@ -447,7 +307,6 @@ ${confirmationUrl}
         setMessage(null)
         globalThis.location.reload()
       }, 2000)
-
     } catch (error) {
       console.error('Error al guardar invitado:', error)
       setMessage({ type: 'error', text: 'Error al guardar invitado. Intenta nuevamente.' })
@@ -455,11 +314,9 @@ ${confirmationUrl}
       setIsSubmitting(false)
     }
   }
-
   const exportToExcel = () => {
     // Preparar datos para exportar
     const rows: string[][] = []
-    
     // Encabezados
     rows.push([
       'Invitado',
@@ -467,10 +324,7 @@ ${confirmationUrl}
       'Tel\u00e9fono',
       'Nombre Asistente',
       'Estado',
-      'Restricciones Diet\u00e9ticas',
-      'Notas'
     ])
-
     // Datos de cada invitado y sus pases
     guests.forEach(guest => {
       guest.passes.forEach(pass => {
@@ -479,19 +333,15 @@ ${confirmationUrl}
           'declined': 'Declinado',
           'pending': 'Pendiente'
         }
-        
         rows.push([
           guest.name,
           guest.email || '',
           guest.phone || '',
           pass.attendee_name,
-          statusMap[pass.confirmation_status as keyof typeof statusMap] || pass.confirmation_status,
-          pass.dietary_restrictions || '',
-          pass.notes || ''
+          statusMap[pass.confirmation_status as keyof typeof statusMap] || pass.confirmation_status
         ])
       })
     })
-
     // Convertir a CSV
     const csvContent = rows.map(row => 
       row.map(cell => {
@@ -502,22 +352,18 @@ ${confirmationUrl}
           : cellStr
       }).join(',')
     ).join('\n')
-
     // Agregar BOM para que Excel reconozca UTF-8
     const BOM = '\uFEFF'
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
-    
     link.setAttribute('href', url)
     link.setAttribute('download', `invitados_boda_${new Date().toISOString().split('T')[0]}.csv`)
     link.style.visibility = 'hidden'
-    
     document.body.appendChild(link)
     link.click()
     link.remove()
   }
-
   return (
     <div className="space-y-8">
       {/* Safelist Tailwind colors for status dots to ensure rendering */}
@@ -535,7 +381,6 @@ ${confirmationUrl}
           gifts={gifts.map(g => ({ collected_amount: g.collected_amount }))}
         />
       </div>
-
       {/* Guests List */}
       <div className="bg-white border border-gray-200 overflow-hidden flex flex-col">
         <div className="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-gray-200">
@@ -564,7 +409,6 @@ ${confirmationUrl}
               </button>
             </div>
           </div>
-
           {/* Barra sticky de búsqueda y filtros */}
             <div className="px-6 pb-4 flex flex-col md:flex-row md:items-center gap-3">
             <div className="flex-1 relative">
@@ -611,13 +455,10 @@ ${confirmationUrl}
               ))}
             </div>
           </div>
-
           {/* Resumen removido por solicitud */}
         </div>
-
         <div className="p-4 pt-2 flex-1">
           <div className="text-sm text-gray-600 mb-3">Mostrando {filteredGuests.length} de {guestList.length} invitados</div>
-
           {/* Desktop Table */}
           <div className="hidden md:block border border-gray-200">
             <div className="overflow-auto max-h-[640px]">
@@ -777,7 +618,6 @@ ${confirmationUrl}
               </table>
             </div>
           </div>
-
           {/* Mobile Cards */}
           <div className="md:hidden space-y-3">
             {filteredGuests.map(guest => {
@@ -820,7 +660,6 @@ ${confirmationUrl}
                       {label}
                     </span>
                   </button>
-
                   {isOpen && (
                     <div className="border-t border-gray-100 px-4 py-3 space-y-3">
                       <div className="text-xs text-gray-600 space-y-1">
@@ -828,7 +667,6 @@ ${confirmationUrl}
                         {guest.phone && <div>{guest.phone}</div>}
                         {!guest.email && !guest.phone && <span className="text-gray-400">Sin contacto</span>}
                       </div>
-
                       <div className="text-xs text-gray-700">
                         <div className="font-semibold mb-1">Acompañantes</div>
                         <div className="space-y-1">
@@ -853,7 +691,6 @@ ${confirmationUrl}
                           )}
                         </div>
                       </div>
-
                       {hasPhone ? (
                         <div className="flex items-center gap-2 text-xs">
                           <label className="flex items-center gap-2">
@@ -934,7 +771,6 @@ ${confirmationUrl}
               )
             })}
           </div>
-
           {filteredGuests.length === 0 && (
             <div className="text-center py-12 text-gray-500">
               {guestList.length === 0 ? (
@@ -949,7 +785,6 @@ ${confirmationUrl}
           )}
         </div>
       </div>
-
       {/* Gift Tracker with Tabs */}
       <div className="bg-white border border-gray-200">
         <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -990,7 +825,6 @@ ${confirmationUrl}
           </div>
         </div>
       </div>
-
       {/* Modal para agregar invitado */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start md:items-center justify-center overflow-y-auto">
@@ -1018,7 +852,6 @@ ${confirmationUrl}
                   </svg>
                 </button>
               </div>
-
               {/* Decorative divider */}
               <div className="flex items-center justify-center mt-4">
                 <div className="h-px bg-wedding-forest/20 w-12"></div>
@@ -1028,7 +861,6 @@ ${confirmationUrl}
                 <div className="h-px bg-wedding-forest/20 w-12"></div>
               </div>
             </div>
-
             {/* Mensaje de éxito/error */}
             {message && (
               <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${
@@ -1039,7 +871,6 @@ ${confirmationUrl}
                 <p className="text-sm font-medium tracking-wide">{message.text}</p>
               </div>
             )}
-
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-6 flex-1 overflow-y-auto">
               {/* Información del Invitado */}
@@ -1047,7 +878,6 @@ ${confirmationUrl}
                 <h4 className="text-base md:text-lg font-serif text-wedding-forest tracking-wide border-b border-gray-200 pb-2">
                   Información del Invitado
                 </h4>
-
                 <div>
                   <label htmlFor="guestName" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase">
                     Nombre Completo *
@@ -1065,7 +895,6 @@ ${confirmationUrl}
                     Se creará un pase automático con este nombre
                   </p>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="guestEmail" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase">
@@ -1088,7 +917,6 @@ ${confirmationUrl}
                       <p className="text-xs text-red-600 mt-1">{emailError}</p>
                     )}
                   </div>
-
                   <div className="w-full">
                     <label htmlFor="guestPhone" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase break-words">
                       Teléfono *
@@ -1121,7 +949,6 @@ ${confirmationUrl}
                   </div>
                 </div>
               </div>
-
               {/* Pases */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2">
@@ -1140,7 +967,6 @@ ${confirmationUrl}
                     <span className="sm:hidden">Agregar</span>
                   </button>
                 </div>
-
                 <div className="space-y-3">
                   {passes.map((pass, index) => (
                     <div key={pass.id || `pass-${index}`} className="flex gap-2 md:gap-3 items-start bg-wedding-beige/20 p-3 md:p-4 border border-wedding-sage/10">
@@ -1172,12 +998,10 @@ ${confirmationUrl}
                     </div>
                   ))}
                 </div>
-
                 <p className="text-xs text-gray-500 italic">
                   * Los pases se crearán con estado "Pendiente" por defecto
                 </p>
               </div>
-
               {/* Botones */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                 <button
@@ -1218,7 +1042,6 @@ ${confirmationUrl}
           </div>
         </div>
       )}
-
       {/* Modal de confirmación de eliminación */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -1238,19 +1061,16 @@ ${confirmationUrl}
                 </p>
               </div>
             </div>
-
             <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500">
               <p className="text-sm text-red-800">
                 <strong>Advertencia:</strong> Se eliminará el invitado y todos sus pases asociados. Esta acción es permanente y no se puede revertir.
               </p>
             </div>
-
             {message?.type === 'error' && (
               <div className="mb-4 p-3 bg-red-100 border-l-4 border-red-500">
                 <p className="text-sm text-red-700">{message.text}</p>
               </div>
             )}
-
             <div className="flex gap-3">
               <button
                 onClick={() => {

@@ -7,7 +7,6 @@ interface Pass {
   id: string
   attendee_name: string
   confirmation_status: 'pending' | 'confirmed' | 'declined'
-  dietary_restrictions?: string | null
 }
 
 interface Guest {
@@ -15,6 +14,8 @@ interface Guest {
   name: string
   email?: string | null
   phone?: string | null
+  access_token: string
+  notified_whatsapp: boolean
   passes: Pass[]
 }
 

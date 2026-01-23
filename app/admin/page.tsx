@@ -41,6 +41,7 @@ export default async function AdminPage() {
 
   type GuestWithPasses = Database['public']['Tables']['guests']['Row'] & {
     passes: Database['public']['Tables']['passes']['Row'][]
+    notified_whatsapp: boolean
   }
 
   if (error) {
@@ -78,6 +79,11 @@ export default async function AdminPage() {
   // Calculate pending receipts (transactions in manual review)
   const pendingReceipts = (transactions as TransactionWithGift[])?.filter(
     t => t.status === 'MANUAL_REVIEW'
+  ).length || 0
+
+  // Calculate guests not notified via WhatsApp
+  const guestsNotNotified = (guests as GuestWithPasses[])?.filter(
+    g => !g.notified_whatsapp
   ).length || 0
 
   // Calculate total money raised in USD
@@ -144,6 +150,34 @@ export default async function AdminPage() {
                 <div className="flex items-center space-x-2">
                   <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
                     {pendingReceipts} Pendientes
+                  </span>
+                  <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
+                    chevron_right
+                  </span>
+                </div>
+              </button>
+
+              {/* Invitados sin Enviar */}
+              <button 
+                onClick={() => window.location.href = '/admin/guests'}
+                className="w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="bg-highlight-lavender/30 h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0 text-stone-700">
+                    <span className="material-symbols-outlined text-xl">send</span>
+                  </div>
+                  <div className="text-left">
+                    <span className="text-sm font-semibold text-text-main-light block">
+                      Invitados sin Enviar
+                    </span>
+                    <span className="text-xs text-text-muted-light block mt-0.5">
+                      Enviar invitaciones digitales
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
+                    {guestsNotNotified} Pendientes
                   </span>
                   <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
                     chevron_right

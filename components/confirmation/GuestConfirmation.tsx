@@ -40,7 +40,6 @@ export default function GuestConfirmation({ guest, token }: GuestConfirmationPro
     startTransition(async () => {
       const { error } = await supabase
         .from('passes')
-        // @ts-ignore - Supabase type inference issue
         .update({ confirmation_status: status })
         .eq('id', passId)
         .eq('guest_id', guest.id)

@@ -7,12 +7,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > lib/database.types.ts",
+    "generate-types": "./scripts/generate-types.sh",
     "check-gemini": "node scripts/check-gemini.js"
   },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
-    "@supabase/ssr": "^0.5.2",
+    "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.39.0",
     "framer-motion": "^11.18.2",
     "lucide-react": "^0.468.0",
