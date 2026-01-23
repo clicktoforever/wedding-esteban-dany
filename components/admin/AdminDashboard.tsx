@@ -999,7 +999,7 @@ ${confirmationUrl}
                   ))}
                 </div>
                 <p className="text-xs text-gray-500 italic">
-                  * Los pases se crearán con estado "Pendiente" por defecto
+                  * Los pases se crearán con estado Pendiente por defecto
                 </p>
               </div>
               {/* Botones */}

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import BottomNav from '@/components/admin/BottomNav'
 import WeddingCountdown from '@/components/admin/WeddingCountdown'
+import AdminHeader from '@/components/admin/AdminHeader'
 import type { Database } from '@/lib/database.types'
 
 export const revalidate = 10 // ISR with 10 second revalidation
@@ -65,6 +66,15 @@ export default async function AdminPage() {
     gifts: Database['public']['Tables']['gifts']['Row'] | null
   }
 
+  // Fetch wedding date from configurations
+  const { data: weddingDateConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'wedding_date')
+    .single()
+
+  const weddingDate = weddingDateConfig?.value || '2026-04-11T18:00:00'
+
   const statsData = stats?.[0] || {
     total_guests: 0,
     total_passes: 0,
@@ -102,29 +112,13 @@ export default async function AdminPage() {
 
   return (
     <div className="bg-[#F9F7F2] text-text-main-light font-sans transition-colors duration-300 antialiased pb-24">
-      {/* Header */}
-      <header className="fixed top-0 w-full z-50 bg-[#F9F7F2] border-b border-stone-200 transition-colors duration-300">
-        <div className="px-6 py-4 flex justify-between items-center max-w-md mx-auto md:max-w-4xl">
-          <div className="flex flex-col">
-            <h1 className="font-display text-2xl font-bold text-primary tracking-tight">
-              Dashboard Admin
-            </h1>
-            <p className="text-xs font-medium text-stone-500 uppercase tracking-widest mt-0.5">
-              Esteban & Dany
-            </p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button className="p-2 rounded-full hover:bg-stone-100 transition-colors">
-              <span className="material-icons-round text-stone-600">settings</span>
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* Header with Settings */}
+      <AdminHeader />
 
       {/* Main Content */}
       <main className="pt-24 px-6 pb-24 max-w-md mx-auto md:max-w-4xl">
         {/* Countdown Section */}
-        <WeddingCountdown />
+        <WeddingCountdown targetDate={weddingDate} />
 
         {/* Acciones Urgentes */}
         <section className="space-y-3 mb-8">
@@ -149,8 +143,11 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                    {pendingReceipts} Pendientes
+                  <span className="bg-highlight-lavender text-stone-800 text-sm font-bold px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 min-w-[32px]">
+                    {pendingReceipts}
+                    <span className="material-icons-round text-stone-500 text-base">
+                      schedule
+                    </span>
                   </span>
                   <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
                     chevron_right
@@ -177,8 +174,11 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                    {guestsNotNotified} Pendientes
+                  <span className="bg-highlight-lavender text-stone-800 text-sm font-bold px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 min-w-[32px]">
+                    {guestsNotNotified}
+                    <span className="material-icons-round text-stone-500 text-base">
+                      schedule
+                    </span>
                   </span>
                   <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
                     chevron_right
