@@ -134,8 +134,11 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                    {pendingReceipts} Pendientes
+                  <span className="bg-highlight-lavender text-stone-800 text-sm font-bold px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 min-w-[32px]">
+                    {pendingReceipts}
+                    <span className="material-icons-round text-stone-500 text-base">
+                      schedule
+                    </span>
                   </span>
                   <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
                     chevron_right
@@ -162,8 +165,11 @@ export default async function AdminPage() {
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="bg-highlight-lavender text-stone-800 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wide">
-                    {guestsNotNotified} Pendientes
+                  <span className="bg-highlight-lavender text-stone-800 text-sm font-bold px-3 py-1.5 rounded-full flex items-center justify-center gap-1.5 min-w-[32px]">
+                    {guestsNotNotified}
+                    <span className="material-icons-round text-stone-500 text-base">
+                      schedule
+                    </span>
                   </span>
                   <span className="material-icons-round text-stone-300 group-hover:text-primary transition-colors text-lg">
                     chevron_right

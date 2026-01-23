@@ -1,13 +1,52 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 
 export default function AdminHeader() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [isDateModalOpen, setIsDateModalOpen] = useState(false)
-  const [deadlineDate, setDeadlineDate] = useState('2026-03-11')
-  const [deadlineTime, setDeadlineTime] = useState('23:59')
+  const [deadlineDate, setDeadlineDate] = useState('2026-03-10')
+  const [deadlineHour, setDeadlineHour] = useState('23')
+  const [deadlineMinute, setDeadlineMinute] = useState('59')
+  const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingDeadline, setIsLoadingDeadline] = useState(true)
+
+  // Cargar la fecha límite actual de la base de datos
+  useEffect(() => {
+    loadDeadline()
+  }, [])
+
+  const loadDeadline = async () => {
+    try {
+      setIsLoadingDeadline(true)
+      const supabase = createClient()
+      const { data, error } = await supabase
+        .from('configurations')
+        .select('value')
+        .eq('key', 'confirmation_deadline')
+        .single()
+
+      if (error) {
+        console.error('Error al cargar fecha límite:', error)
+        return
+      }
+
+      if (data?.value) {
+        const deadline = new Date(data.value)
+        const date = deadline.toISOString().split('T')[0]
+        const hours = deadline.getHours().toString().padStart(2, '0')
+        const minutes = deadline.getMinutes().toString().padStart(2, '0')
+        setDeadlineDate(date)
+        setDeadlineHour(hours)
+        setDeadlineMinute(minutes)
+      }
+    } catch (error) {
+      console.error('Error al cargar fecha límite:', error)
+    } finally {
+      setIsLoadingDeadline(false)
+    }
+  }
 
   const handleLogout = async () => {
     const supabase = createClient()
@@ -16,15 +55,32 @@ export default function AdminHeader() {
   }
 
   const handleSaveDeadline = async () => {
+    setIsLoading(true)
     try {
-      const deadline = new Date(`${deadlineDate}T${deadlineTime}`)
-      console.log(`Nueva fecha límite guardada: ${deadline.toISOString()}`)
-      alert(`Fecha límite actualizada a ${deadlineDate} a las ${deadlineTime}`)
+      const deadline = new Date(`${deadlineDate}T${deadlineHour}:${deadlineMinute}:00`)
+      const supabase = createClient()
+
+      // Actualizar en la base de datos
+      const { error } = await supabase
+        .from('configurations')
+        .update({ 
+          value: deadline.toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('key', 'confirmation_deadline')
+
+      if (error) {
+        throw error
+      }
+
+      alert(`✅ Fecha límite actualizada a ${deadlineDate} a las ${deadlineHour}:${deadlineMinute}`)
       setIsDateModalOpen(false)
       setIsSettingsOpen(false)
     } catch (error) {
       console.error('Error al guardar fecha límite:', error)
-      alert('Error al guardar la fecha límite. Intenta de nuevo.')
+      alert('❌ Error al guardar la fecha límite. Intenta de nuevo.')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -83,50 +139,124 @@ export default function AdminHeader() {
       {/* Date Modal */}
       {isDateModalOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => setIsDateModalOpen(false)}></div>
+          <div className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm" onClick={() => !isLoading && setIsDateModalOpen(false)}></div>
           <div className="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden relative z-10 border border-stone-200">
             <div className="p-6">
               <h3 className="font-display text-xl font-bold text-stone-900 text-center mb-1">Nueva Fecha Límite</h3>
               <p className="text-xs text-center text-stone-600 mb-6">Selecciona el límite para confirmar asistencia</p>
               
-              <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-stone-500 tracking-wider ml-1">Fecha</label>
-                  <input
-                    type="date"
-                    value={deadlineDate}
-                    onChange={(e) => setDeadlineDate(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-sans focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-shadow text-stone-900"
-                  />
+              {isLoadingDeadline ? (
+                <div className="flex items-center justify-center py-8">
+                  <svg className="animate-spin h-8 w-8 text-stone-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
                 </div>
+              ) : (
+                <>
+                  <div className="space-y-4">
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-stone-500 tracking-wider ml-1">Fecha</label>
+                      <input
+                        type="date"
+                        value={deadlineDate}
+                        onChange={(e) => setDeadlineDate(e.target.value)}
+                        disabled={isLoading}
+                        className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-sans focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-shadow text-stone-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      />
+                    </div>
 
-                <div className="space-y-1">
-                  <label className="text-[10px] uppercase font-bold text-stone-500 tracking-wider ml-1">Hora</label>
-                  <input
-                    type="time"
-                    value={deadlineTime}
-                    onChange={(e) => setDeadlineTime(e.target.value)}
-                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-sans focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-shadow text-stone-900"
-                  />
-                </div>
-              </div>
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-stone-500 tracking-wider ml-1">Hora</label>
+                      <div className="flex items-center space-x-3">
+                        {/* Hour Picker */}
+                        <div className="flex-1">
+                          <select
+                            value={deadlineHour}
+                            onChange={(e) => setDeadlineHour(e.target.value)}
+                            disabled={isLoading}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-sans focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-shadow text-stone-900 disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                          >
+                            {Array.from({ length: 24 }, (_, i) => {
+                              const hour = i.toString().padStart(2, '0')
+                              return (
+                                <option key={hour} value={hour}>
+                                  {hour}
+                                </option>
+                              )
+                            })}
+                          </select>
+                          <p className="text-[10px] text-stone-500 mt-1 ml-1">Hora</p>
+                        </div>
 
-              <div className="mt-8 flex flex-col space-y-3">
-                <button
-                  onClick={handleSaveDeadline}
-                  className="w-full bg-stone-700 hover:bg-stone-800 text-white font-medium py-3.5 rounded-xl shadow-lg shadow-stone-700/20 transition-all active:scale-[0.98]"
-                  type="button"
-                >
-                  Guardar Fecha
-                </button>
-                <button
-                  onClick={() => setIsDateModalOpen(false)}
-                  className="w-full text-stone-600 hover:text-stone-800 text-sm font-medium py-2 transition-colors"
-                  type="button"
-                >
-                  Cancelar
-                </button>
-              </div>
+                        <span className="text-2xl text-stone-400 mb-5">:</span>
+
+                        {/* Minute Picker */}
+                        <div className="flex-1">
+                          <select
+                            value={deadlineMinute}
+                            onChange={(e) => setDeadlineMinute(e.target.value)}
+                            disabled={isLoading}
+                            className="w-full bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-sm font-sans focus:ring-2 focus:ring-stone-400 focus:border-transparent transition-shadow text-stone-900 disabled:opacity-50 disabled:cursor-not-allowed appearance-none"
+                          >
+                            {Array.from({ length: 60 }, (_, i) => {
+                              const minute = i.toString().padStart(2, '0')
+                              return (
+                                <option key={minute} value={minute}>
+                                  {minute}
+                                </option>
+                              )
+                            })}
+                          </select>
+                          <p className="text-[10px] text-stone-500 mt-1 ml-1">Minutos</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Preview */}
+                    <div className="bg-stone-100 rounded-xl p-3 border border-stone-200">
+                      <p className="text-[10px] uppercase font-bold text-stone-500 tracking-wider mb-1">Vista Previa</p>
+                      <p className="text-sm font-medium text-stone-700">
+                        {new Date(`${deadlineDate}T${deadlineHour}:${deadlineMinute}`).toLocaleDateString('es-ES', {
+                          weekday: 'long',
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric'
+                        })} a las {deadlineHour}:{deadlineMinute}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="mt-8 flex flex-col space-y-3">
+                    <button
+                      onClick={handleSaveDeadline}
+                      disabled={isLoading}
+                      className="w-full bg-stone-700 hover:bg-stone-800 disabled:bg-stone-400 disabled:cursor-not-allowed text-white font-medium py-3.5 rounded-xl shadow-lg shadow-stone-700/20 transition-all active:scale-[0.98] flex items-center justify-center space-x-2"
+                      type="button"
+                    >
+                      {isLoading ? (
+                        <>
+                          <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <span>Guardando...</span>
+                        </>
+                      ) : (
+                        <span>Guardar Fecha</span>
+                      )}
+                    </button>
+                    <button
+                      onClick={() => setIsDateModalOpen(false)}
+                      disabled={isLoading}
+                      className="w-full text-stone-600 hover:text-stone-800 disabled:text-stone-400 disabled:cursor-not-allowed text-sm font-medium py-2 transition-colors"
+                      type="button"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>
