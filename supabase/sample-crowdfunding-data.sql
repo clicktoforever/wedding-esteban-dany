@@ -81,10 +81,10 @@ INSERT INTO gifts (name, description, image_url, category, is_crowdfunding, tota
 -- SELECT id FROM gifts WHERE name = 'Aspiradora Robot';
 
 -- Then insert transactions (replace the UUID with actual one)
--- INSERT INTO gift_transactions (gift_id, donor_name, amount, status, external_transaction_id) VALUES
---   ('GIFT_ID_HERE', 'María García', 150.00, 'APPROVED', 'TEST-TXN-001'),
---   ('GIFT_ID_HERE', 'Juan Pérez', 100.00, 'APPROVED', 'TEST-TXN-002'),
---   ('GIFT_ID_HERE', 'Ana López', 75.00, 'APPROVED', 'TEST-TXN-003');
+-- INSERT INTO gift_transactions (gift_id, donor_name, amount, status) VALUES
+--   ('GIFT_ID_HERE', 'María García', 150.00, 'APPROVED'),
+--   ('GIFT_ID_HERE', 'Juan Pérez', 100.00, 'APPROVED'),
+--   ('GIFT_ID_HERE', 'Ana López', 75.00, 'APPROVED');
 
 -- Insert traditional (non-crowdfunding) gifts for comparison
 INSERT INTO gifts (name, description, image_url, category, is_crowdfunding, is_purchased, price) VALUES
