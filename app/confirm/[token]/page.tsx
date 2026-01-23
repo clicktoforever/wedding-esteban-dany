@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import Link from 'next/link'
 import GuestConfirmation from '@/components/confirmation/GuestConfirmation'
 import type { Database } from '@/lib/database.types'
@@ -21,6 +21,27 @@ export default async function ConfirmPage(props: PageProps) {
   
   const supabase = await createClient()
 
+  // Fetch confirmation deadline from configurations
+  const { data: deadlineConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'confirmation_deadline')
+    .single()
+
+  // Check if deadline has passed (server-side validation)
+  if (deadlineConfig?.value) {
+    const deadline = new Date(deadlineConfig.value)
+    
+    // Get current time in Ecuador timezone (GMT-5)
+    const now = new Date()
+    const ecuadorTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+    
+    if (ecuadorTime > deadline) {
+      // Deadline has passed, redirect to closed page
+      redirect('/confirm/closed')
+    }
+  }
+
   // Fetch guest by token with their passes
   const { data: guest, error } = await supabase
     .from('guests')
@@ -36,6 +57,9 @@ export default async function ConfirmPage(props: PageProps) {
   }
 
   const guestWithPasses = guest as unknown as GuestWithPasses
+
+  // Get deadline date for display
+  const deadlineDate = deadlineConfig?.value ? new Date(deadlineConfig.value) : null
 
   return (
     <div className="bg-background-light text-gray-800 font-body min-h-screen relative pb-32" style={{ backgroundImage: 'radial-gradient(#E6E6FA 0.5px, transparent 0.5px)', backgroundSize: '20px 20px' }}>
@@ -57,6 +81,7 @@ export default async function ConfirmPage(props: PageProps) {
         <GuestConfirmation 
           guest={guestWithPasses}
           token={token}
+          deadline={deadlineDate}
         />
       </main>
 
