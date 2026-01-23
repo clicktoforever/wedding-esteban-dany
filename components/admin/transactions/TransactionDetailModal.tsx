@@ -12,17 +12,17 @@ type Transaction = Database['public']['Tables']['gift_transactions']['Row'] & {
   }
 }
 
-interface TransactionDetailSheetProps {
+interface TransactionDetailModalProps {
   transaction: Transaction
   onClose: () => void
   onUpdate: () => void
 }
 
-export default function TransactionDetailSheet({
+export default function TransactionDetailModal({
   transaction,
   onClose,
   onUpdate,
-}: TransactionDetailSheetProps) {
+}: TransactionDetailModalProps) {
   const [editedAmount, setEditedAmount] = useState(transaction.amount.toString())
   const [showImageZoom, setShowImageZoom] = useState(false)
   const [processing, setProcessing] = useState(false)
@@ -31,7 +31,9 @@ export default function TransactionDetailSheet({
   const supabase = createClient()
   const isPending = transaction.status === 'PENDING' || transaction.status === 'MANUAL_REVIEW'
   const isApproved = transaction.status === 'APPROVED'
+  const isRejected = transaction.status === 'REJECTED'
   const isTransfer = transaction.payment_method === 'transfer_ec' || transaction.payment_method === 'transfer_mx'
+  const showValidationErrors = (transaction.status === 'MANUAL_REVIEW' || isRejected) && transaction.validation_errors
 
   // Block background scroll when modal is open
   useEffect(() => {
@@ -331,6 +333,31 @@ export default function TransactionDetailSheet({
                   </p>
                   <div className="flex w-full min-w-0 rounded-xl text-[#131514] border border-[#807d7c]/10 bg-[#807d7c]/5 p-4 font-normal italic text-sm leading-relaxed">
                     &ldquo;{transaction.message}&rdquo;
+                  </div>
+                </div>
+              )}
+
+              {/* Validation Errors */}
+              {showValidationErrors && (
+                <div className="flex flex-col">
+                  <div className="flex items-center gap-2 pb-1.5 px-1">
+                    <span className="material-symbols-outlined text-[#996678] text-sm">error</span>
+                    <p className="text-[#996678] text-[10px] font-bold uppercase tracking-widest leading-normal">
+                      Errores de Validación
+                    </p>
+                  </div>
+                  <div className="flex flex-col w-full rounded-xl border-2 border-[#996678]/20 bg-[#996678]/5 p-4 divide-y divide-[#996678]/30">
+                    {typeof transaction.validation_errors === 'string' ? (
+                      <p className="text-[#996678] text-sm font-medium leading-relaxed">
+                        {transaction.validation_errors}
+                      </p>
+                    ) : transaction.validation_errors && typeof transaction.validation_errors === 'object' ? (
+                      Object.values(transaction.validation_errors as Record<string, any>).map((value, index) => (
+                        <p key={index} className={`text-[#996678] text-sm font-medium leading-relaxed ${index > 0 ? 'pt-2' : ''} ${index < Object.values(transaction.validation_errors as Record<string, any>).length - 1 ? 'pb-2' : ''}`}>
+                          {typeof value === 'string' ? value : JSON.stringify(value)}
+                        </p>
+                      ))
+                    ) : null}
                   </div>
                 </div>
               )}

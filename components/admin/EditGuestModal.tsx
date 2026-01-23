@@ -291,7 +291,17 @@ export default function EditGuestModal({
                       className="w-full bg-white border border-stone-200 rounded-xl px-4 py-3 text-stone-900 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-shadow font-medium text-[15px]"
                       type="text"
                       value={formData.name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) => {
+                        const newName = e.target.value;
+                        setFormData(prev => ({
+                          ...prev,
+                          name: newName,
+                          // Actualizar automáticamente el nombre del primer pase (titular)
+                          passes: prev.passes.map((pass, idx) => 
+                            idx === 0 ? { ...pass, attendee_name: newName } : pass
+                          )
+                        }));
+                      }}
                       required
                     />
                   </div>
@@ -365,14 +375,24 @@ export default function EditGuestModal({
                           <div className="flex-1 space-y-2">
                             <div>
                               <label className="text-[10px] uppercase font-bold text-stone-400 block mb-0.5">
-                                {isMainPass ? 'Titular' : `Acompañante ${index}`}
+                                {isMainPass ? 'Titular (automático)' : `Acompañante ${index}`}
                               </label>
-                              <input
-                                type="text"
-                                value={pass.attendee_name}
-                                onChange={(e) => updatePassName(pass.id, e.target.value)}
-                                className="w-full bg-transparent border-0 p-0 text-sm font-bold text-stone-900 focus:outline-none focus:ring-0"
-                              />
+                              {isMainPass ? (
+                                <input
+                                  type="text"
+                                  value={pass.attendee_name}
+                                  readOnly
+                                  className="w-full bg-stone-50 border-0 p-0 text-sm font-bold text-stone-500 cursor-not-allowed"
+                                />
+                              ) : (
+                                <input
+                                  type="text"
+                                  value={pass.attendee_name}
+                                  onChange={(e) => updatePassName(pass.id, e.target.value)}
+                                  placeholder="Haz clic para editar..."
+                                  className="w-full bg-transparent border-b-2 border-dashed border-stone-200 pb-0.5 text-sm font-bold text-stone-900 focus:outline-none focus:border-primary focus:border-solid transition-all"
+                                />
+                              )}
                             </div>
                             <select
                               value={pass.confirmation_status}
