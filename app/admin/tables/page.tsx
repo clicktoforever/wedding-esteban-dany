@@ -82,16 +82,13 @@ export default function TablesPage() {
   return (
     <div className="min-h-screen bg-[#fbf8f0] pb-24">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#fbf8f0]/95 backdrop-blur-sm px-5 pt-14 pb-4 flex items-center justify-between border-b border-[#ece8de]">
+      <header className="sticky top-0 z-40 bg-[#fbf8f0]/95 backdrop-blur-sm px-5 pt-14 pb-4 border-b border-[#ece8de]">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-[#131514]">Distribución de Mesas</h1>
           <p className="text-xs text-[#6b7566] font-medium mt-0.5">
             Recepción Boda • {totalConfirmed} Invitados
           </p>
         </div>
-        <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white border border-[#ece8de] text-[#131514] shadow-sm hover:bg-gray-50 active:scale-95 transition-all">
-          <span className="material-symbols-outlined">sort</span>
-        </button>
       </header>
 
       {/* Stats Card */}

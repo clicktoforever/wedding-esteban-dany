@@ -34,7 +34,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const router = useRouter()
   const [guests, setGuests] = useState<Guest[]>(initialGuests)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined'>('all')
+  const [filter, setFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined' | 'sent' | 'not-sent'>('all')
   
   // Modals state
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null)
@@ -99,7 +99,11 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
     }
 
     // Apply filter
-    if (filter !== 'all') {
+    if (filter === 'sent') {
+      filtered = filtered.filter(guest => guest.notified_whatsapp === true)
+    } else if (filter === 'not-sent') {
+      filtered = filtered.filter(guest => guest.notified_whatsapp === false)
+    } else if (filter !== 'all') {
       filtered = filtered.filter(guest =>
         guest.passes.some(pass => pass.confirmation_status === filter)
       )
@@ -112,8 +116,10 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const counts = useMemo(() => {
     const confirmed = guests.filter(g => g.passes.some(p => p.confirmation_status === 'confirmed')).length
     const pending = guests.filter(g => g.passes.every(p => p.confirmation_status === 'pending')).length
+    const sent = guests.filter(g => g.notified_whatsapp === true).length
+    const notSent = guests.filter(g => g.notified_whatsapp === false).length
     
-    return { confirmed, pending }
+    return { confirmed, pending, sent, notSent }
   }, [guests])
 
   const getGuestStatus = (guest: Guest) => {
@@ -370,6 +376,26 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             }`}
           >
             Confirmados ({counts.confirmed})
+          </button>
+          <button
+            onClick={() => setFilter('sent')}
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
+              filter === 'sent'
+                ? 'bg-primary text-white'
+                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+            }`}
+          >
+            Enviados ({counts.sent})
+          </button>
+          <button
+            onClick={() => setFilter('not-sent')}
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
+              filter === 'not-sent'
+                ? 'bg-primary text-white'
+                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+            }`}
+          >
+            No enviados ({counts.notSent})
           </button>
         </div>
 

@@ -16,6 +16,7 @@ interface Guest {
   phone?: string | null
   access_token: string
   notified_whatsapp: boolean
+  updated_at?: string
   passes: Pass[]
 }
 
@@ -78,6 +79,29 @@ export default function GuestDetailModal({
 
   const mainStatus = guest.passes[0]?.confirmation_status || 'pending'
   const statusBadge = getStatusBadge(mainStatus)
+
+  const getTimeAgo = (dateString?: string) => {
+    if (!dateString) return 'Actualizado recientemente'
+    
+    const updatedDate = new Date(dateString)
+    const now = new Date()
+    
+    // Convertir a timezone Ecuador (GMT-5)
+    const ecuadorTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
+    const diffMs = ecuadorTime.getTime() - updatedDate.getTime()
+    const diffSecs = Math.floor(diffMs / 1000)
+    const diffMins = Math.floor(diffSecs / 60)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    
+    if (diffSecs < 60) return 'Actualizado hace unos segundos'
+    if (diffMins < 60) return `Actualizado hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`
+    if (diffHours < 24) return `Actualizado hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`
+    if (diffDays < 30) return `Actualizado hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`
+    
+    const diffMonths = Math.floor(diffDays / 30)
+    return `Actualizado hace ${diffMonths} ${diffMonths === 1 ? 'mes' : 'meses'}`
+  }
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setStartY(e.touches[0].clientY)
@@ -177,7 +201,7 @@ export default function GuestDetailModal({
                   {statusBadge.label}
                 </span>
               </div>
-              <p className="text-xs text-stone-400 mt-2 font-medium">Actualizado recientemente</p>
+              <p className="text-xs text-stone-400 mt-2 font-medium">{getTimeAgo(guest.updated_at)}</p>
             </div>
 
             {/* Main Card */}
@@ -189,7 +213,7 @@ export default function GuestDetailModal({
                   <div className="relative flex-shrink-0">
                     <div className="w-[72px] h-[72px] rounded-2xl bg-stone-100 overflow-hidden shadow-inner flex items-center justify-center">
                       <span className="text-3xl font-display font-bold text-primary">
-                        {guest.name.substring(0, 2).toUpperCase()}
+                        {guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                       </span>
                     </div>
                     <div className="absolute -bottom-2 -right-2 bg-white rounded-xl p-1.5 shadow-sm border border-stone-200">

@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/browser'
 import { Database } from '@/lib/database.types'
 import Image from 'next/image'
 import BottomNav from '@/components/admin/BottomNav'
-import TransactionDetailSheet from '@/components/admin/transactions/TransactionDetailSheet'
+import TransactionDetailModal from '@/components/admin/transactions/TransactionDetailModal'
 
 type Transaction = Database['public']['Tables']['gift_transactions']['Row'] & {
   gift?: {
@@ -313,7 +313,7 @@ export default function TransactionsPage() {
 
       {/* Transaction Detail Modal */}
       {selectedTransaction && (
-        <TransactionDetailSheet
+        <TransactionDetailModal
           transaction={selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
           onUpdate={fetchTransactions}
