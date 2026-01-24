@@ -158,10 +158,6 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
       .toUpperCase()
   }
 
-  const hasWhatsApp = (guest: Guest) => {
-    return guest.phone && guest.phone.trim() !== ''
-  }
-
   const handleDownloadExcel = () => {
     // Prepare CSV data
     const csvRows = []
@@ -249,11 +245,12 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
     
     // Custom message for the guest
     const message = encodeURIComponent(
-      `¡Hola ${guest.name}! 💐✨\n\n` +
-      `Es un honor invitarte a nuestra boda. Tienes asignado ${totalPasses} ${pasesText} para este día tan especial.\n\n` +
-      `🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:\n\n` +
-      `https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-      `¡Esperamos contar con tu presencia! 💕`
+      `¡Hola ${guest.name}! �✨\n\n` +
+      `Estamos muy emocionados porque cada vez falta menos para nuestro gran día y no nos imaginamos celebrarlo sin ti.\n\n` +
+      `Hemos preparado una invitación muy especial para ti. En este enlace encontrarás tus pases asignados y todos los detalles de nuestra boda:\n\n` +
+      `💌 https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+      `Por favor entra para confirmar tu asistencia, ¡nos haría muy felices contar contigo!\n\n` +
+      `Con cariño, Esteban y Dany 💍`
     )
     
     // Open WhatsApp
