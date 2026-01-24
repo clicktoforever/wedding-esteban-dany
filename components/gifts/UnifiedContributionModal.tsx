@@ -43,7 +43,7 @@ export default function UnifiedContributionModal({
   
   // Form State
   const [donorName, setDonorName] = useState('')
-  const [amount, setAmount] = useState('50.00')
+  const [amount, setAmount] = useState('50') // Changed from '50.00' to '50'
   const [message, setMessage] = useState('')
   
   // Transfer State
@@ -80,13 +80,19 @@ export default function UnifiedContributionModal({
     ? (collectedAmount / totalAmount) * 100 
     : 0
 
+  // Calculate remaining amount in selected currency
+  const getRemainingInCurrency = () => {
+    const country = currency === 'USD' ? 'EC' : 'MX'
+    return getDisplayAmount(remainingUSD, country)
+  }
+
   // Quick amount buttons based on currency
   const quickAmounts = currency === 'USD' 
     ? [20, 50, 100, 200] 
-    : [500, 1000, 2000, 5000]
+    : [500, 1000, 2000, 5000] // No decimal values for MXN
 
   // Currency symbol
-  const currencySymbol = currency === 'USD' ? '$' : '$'
+  const currencySymbol = currency === 'USD' ? '$' : '$' // Adjust if needed
   const currencyLabel = currency === 'USD' ? 'USD' : 'MXN'
 
   // Fetch bank account when switching to transfer
@@ -106,7 +112,7 @@ export default function UnifiedContributionModal({
       // Reset form after close animation
       setTimeout(() => {
         setDonorName('')
-        setAmount('50.00')
+        setAmount('50')
         setMessage('')
         setReceiptFile(null)
         setReceiptPreview(null)
@@ -568,6 +574,12 @@ export default function UnifiedContributionModal({
                         <span className="text-[11px] font-bold text-primary/60">
                           Meta: {progressPercentage.toFixed(0)}% alcanzado
                         </span>
+                        <span className="text-[13px] font-bold text-primary-light">
+                          Faltan: {currency === 'USD' 
+                            ? `${formatCurrency(remainingUSD)} USD`
+                            : `$${Math.round(getRemainingInCurrency().amount)} MXN`
+                          }
+                        </span>
                       </div>
                       <div className="w-full h-1.5 bg-[#f5f3ef] rounded-full overflow-hidden">
                         <div 
@@ -604,7 +616,7 @@ export default function UnifiedContributionModal({
                         onChange={() => {
                           setCurrency('USD')
                           setPaymentMethod('card')
-                          setAmount('50.00')
+                          setAmount('50')
                         }}
                         className="hidden"
                       />
@@ -622,7 +634,7 @@ export default function UnifiedContributionModal({
                         onChange={() => {
                           setCurrency('MXN')
                           setPaymentMethod('transfer')
-                          setAmount('1000.00')
+                          setAmount('1000')
                         }}
                         className="hidden"
                       />
@@ -656,7 +668,7 @@ export default function UnifiedContributionModal({
                     {quickAmounts.map((quickAmount) => (
                       <button
                         key={quickAmount}
-                        onClick={() => setAmount(quickAmount.toFixed(2))}
+                        onClick={() => setAmount(quickAmount.toString())}
                         className={`flex h-12 shrink-0 items-center justify-center rounded-full px-7 font-semibold text-[16px] transition-all ${
                           parseFloat(amount) === quickAmount
                             ? 'bg-primary text-white shadow-lg shadow-primary/30'
@@ -791,9 +803,9 @@ export default function UnifiedContributionModal({
                   disabled={isSubmitting || !amount || !donorName.trim()}
                   className="w-full h-16 bg-primary hover:bg-[#3d4a43] active:scale-[0.98] transition-all text-white font-bold rounded-2xl text-[17px] shadow-xl shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <span>
-                    Regalar {currencySymbol}{parseFloat(amount).toFixed(2)} vía {paymentMethod === 'card' ? 'Tarjeta' : 'Transferencia'}
-                  </span>
+                    <span>
+                    Regalar {currencySymbol}{amount} vía {paymentMethod === 'card' ? 'Tarjeta' : 'Transferencia'}
+                    </span>
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                   </svg>
