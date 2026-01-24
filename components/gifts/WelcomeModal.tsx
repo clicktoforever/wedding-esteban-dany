@@ -18,8 +18,10 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
     onClose()
   }
 
+  // Prevent body scroll
   useEffect(() => {
     document.body.style.overflow = 'hidden'
+    // Prevent scroll on iOS Safari
     document.body.style.position = 'fixed'
     document.body.style.width = '100%'
     return () => {
@@ -78,11 +80,12 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
       <div 
         className="fixed inset-0 bg-stone-900/60 backdrop-blur-md"
         onClick={handleClose}
-      ></div>
+      />
 
+      {/* Modal Container */}
       <div 
         ref={modalRef}
-        className="relative z-10 w-full max-w-md bg-background-light rounded-t-[32px] shadow-2xl flex flex-col max-h-[90vh] overflow-hidden animate-in slide-in-from-bottom duration-500"
+        className="relative z-10 w-full max-w-[430px] min-h-[calc(100vh-6rem)] bg-background-light rounded-t-[32px] shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom duration-300"
         style={{ transition: isDragging ? 'none' : 'transform 0.5s ease-in-out' }}
       >
         {/* Handle Bar */}
@@ -109,8 +112,9 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
           </svg>
         </button>
 
-        <div className="overflow-y-auto overscroll-contain pb-safe">
-          <div className="flex flex-col items-center pt-8 px-8 pb-6 text-center">
+        {/* Scrollable Content */}
+        <div className="flex-1 overflow-y-auto px-6 pb-8 no-scrollbar">
+          <div className="flex flex-col items-center pt-8 pb-6 text-center">
             <div className="mb-6 h-14 w-14 rounded-full bg-accent/20 flex items-center justify-center">
               <svg className="w-8 h-8 text-accent" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
@@ -123,11 +127,11 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
             </h1>
 
             <p className="text-gray-600 text-[15px] lg:text-base xl:text-lg leading-relaxed max-w-xs lg:max-w-sm xl:max-w-md mx-auto font-medium transition-all duration-300">
-              Para facilitar su comodidad, hemos optado por una mesa de regalos tipo <span className="text-primary/80 font-bold">'crowdfunding'</span>. Pueden contribuir con el monto que deseen hacia los regalos que hemos seleccionado para nuestra nueva vida juntos.
+              Para facilitar su comodidad, hemos optado por una mesa de regalos tipo <span className="text-primary/80 font-bold">&lsquo;crowdfunding&rsquo;</span>. Pueden contribuir con el monto que deseen hacia los regalos que hemos seleccionado para nuestra nueva vida juntos.
             </p>
           </div>
 
-          <div className="px-6 py-2 w-full">
+          <div className="py-2 w-full">
             <div className="flex items-center gap-4 mb-5 opacity-60">
               <div className="h-px bg-accent/50 flex-1"></div>
               <h4 className="text-gray-500 text-xs font-bold uppercase tracking-[0.15em]">Métodos de Pago</h4>
@@ -173,9 +177,9 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
             </div>
           </div>
 
-          <div className="p-8 pt-6 pb-10 lg:pb-12 flex flex-col items-center gap-6 transition-all duration-300">
+          <div className="pt-6 pb-10 lg:pb-12 flex flex-col items-center gap-6 transition-all duration-300">
             <p className="font-display italic text-gray-500 text-sm lg:text-base xl:text-lg text-center opacity-80 transition-all duration-300">
-              "Gracias por ser parte de nuestra historia"<br/>
+              &ldquo;Gracias por ser parte de nuestra historia&rdquo;<br/>
               <span className="text-xs lg:text-sm font-body not-italic font-bold tracking-widest mt-1 block text-accent uppercase">— Esteban &amp; Dany —</span>
             </p>
 
