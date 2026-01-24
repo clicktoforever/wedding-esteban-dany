@@ -45,7 +45,7 @@ export const metadata: Metadata = {
     siteName: 'Boda Esteban & Dany',
     images: [
       {
-        url: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb2c477eaaeee4caab9ba5d05b1f51906',
+        url: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa71fead96e4e444199285c4212f659d8',
         width: 1200,
         height: 630,
         alt: 'Esteban & Dany - Boda 11 de Abril 2026',
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Esteban & Dany - 11 de Abril 2026',
     description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
-    images: ['https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb2c477eaaeee4caab9ba5d05b1f51906'],
+    images: ['https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa71fead96e4e444199285c4212f659d8'],
   },
   robots: {
     index: true,
