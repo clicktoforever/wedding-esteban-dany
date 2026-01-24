@@ -27,12 +27,40 @@ const notoSans = Noto_Sans({
 })
 
 export const metadata: Metadata = {
-  title: 'Esteban & Dany - 11 de Abril 2026',
-  description: 'Te invitamos a celebrar nuestra boda el 10 de Abril, 2025 en Ciudad de México',
+  title: {
+    default: 'Esteban & Dany - 11 de Abril 2026',
+    template: '%s | Esteban & Dany',
+  },
+  description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
+  icons: {
+    icon: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
+    shortcut: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
+    apple: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
+  },
   openGraph: {
     title: 'Esteban & Dany - 11 de Abril 2026',
-    description: 'Te invitamos a celebrar nuestra boda el 10 de Abril, 2025 en Ciudad de México',
+    description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
     type: 'website',
+    locale: 'es_MX',
+    siteName: 'Boda Esteban & Dany',
+    images: [
+      {
+        url: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb2c477eaaeee4caab9ba5d05b1f51906',
+        width: 1200,
+        height: 630,
+        alt: 'Esteban & Dany - Boda 11 de Abril 2026',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Esteban & Dany - 11 de Abril 2026',
+    description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
+    images: ['https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb2c477eaaeee4caab9ba5d05b1f51906'],
+  },
+  robots: {
+    index: true,
+    follow: true,
   },
 }
 
