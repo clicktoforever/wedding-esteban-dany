@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/browser'
+import * as XLSX from 'xlsx'
 import type { Database } from '@/lib/database.types'
 import BottomNav from '@/components/admin/BottomNav'
 import GuestDetailModal from '@/components/admin/GuestDetailModal'
@@ -158,76 +159,114 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
       .toUpperCase()
   }
 
-  const handleDownloadExcel = () => {
-    // Prepare CSV data
-    const csvRows = []
-    
-    // CSV Headers
-    csvRows.push([
-      'Invitado',
-      'Email',
-      'Teléfono',
-      'Estado General',
-      'Total Pases',
-      'Pase #',
-      'Nombre Asistente',
-      'Estado Pase'
-    ].join(','))
-    
-    // Add guest data
-    guests.forEach(guest => {
-      const status = getGuestStatus(guest)
-      const statusLabel = getStatusBadge(status).label
-      const totalPasses = guest.passes.length
+  const handleDownloadExcel = async () => {
+    try {
+      const supabase = createClient()
       
-      if (guest.passes.length === 0) {
-        // Guest with no passes
-        csvRows.push([
-          `"${guest.name}"`,
-          `"${guest.email || ''}"`,
-          `"${guest.phone || ''}"`,
-          statusLabel,
-          totalPasses,
-          '',
-          '',
-          ''
-        ].join(','))
-      } else {
-        // Guest with passes
-        guest.passes.forEach((pass, index) => {
-          const passStatusLabel = pass.confirmation_status === 'confirmed' ? 'Confirmado' :
-                                  pass.confirmation_status === 'declined' ? 'Declinado' : 'Pendiente'
-          
-          csvRows.push([
-            `"${guest.name}"`,
-            `"${guest.email || ''}"`,
-            `"${guest.phone || ''}"`,
+      // Get all guests with their passes and table assignments
+      const { data: guestsData, error: guestsError } = await supabase
+        .from('guests')
+        .select(`
+          *,
+          passes (*),
+          tables (name)
+        `)
+        .order('name', { ascending: true })
+
+      if (guestsError) throw guestsError
+
+      // Create Excel data
+      const excelData: any[] = []
+
+      // Header row
+      excelData.push([
+        'Invitado',
+        'Email',
+        'Teléfono',
+        'Mesa',
+        'Estado General',
+        'Total Pases',
+        'Pase #',
+        'Nombre Asistente',
+        'Estado Pase',
+        'Invitación Enviada'
+      ])
+
+      // Add guest data
+      guestsData?.forEach((guest: any) => {
+        const status = getGuestStatus(guest)
+        const statusLabel = getStatusBadge(status).label
+        const totalPasses = guest.passes?.length || 0
+        const tableName = guest.tables?.name || 'Sin asignar'
+        const inviteSent = guest.notified_whatsapp ? 'Sí' : 'No'
+        
+        if (!guest.passes || guest.passes.length === 0) {
+          // Guest with no passes
+          excelData.push([
+            guest.name,
+            guest.email || '',
+            guest.phone || '',
+            tableName,
             statusLabel,
             totalPasses,
-            index + 1,
-            `"${pass.attendee_name}"`,
-            passStatusLabel
-          ].join(','))
-        })
-      }
-    })
-    
-    // Create CSV content
-    const csvContent = csvRows.join('\n')
-    
-    // Add BOM for Excel UTF-8 support
-    const BOM = '\uFEFF'
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
-    
-    // Create download link
-    const link = document.createElement('a')
-    const url = URL.createObjectURL(blob)
-    link.setAttribute('href', url)
-    link.setAttribute('download', `invitados_${new Date().toISOString().split('T')[0]}.csv`)
-    link.style.visibility = 'hidden'
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
+            '',
+            '',
+            '',
+            inviteSent
+          ])
+        } else {
+          // Guest with passes
+          guest.passes.forEach((pass: any, index: number) => {
+            const passStatusLabel = pass.confirmation_status === 'confirmed' ? 'Confirmado' :
+                                    pass.confirmation_status === 'declined' ? 'Declinado' : 'Pendiente'
+            
+            excelData.push([
+              guest.name,
+              guest.email || '',
+              guest.phone || '',
+              tableName,
+              statusLabel,
+              totalPasses,
+              index + 1,
+              pass.attendee_name,
+              passStatusLabel,
+              inviteSent
+            ])
+          })
+        }
+      })
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.aoa_to_sheet(excelData)
+
+      // Set column widths
+      ws['!cols'] = [
+        { wch: 30 }, // Invitado
+        { wch: 30 }, // Email
+        { wch: 15 }, // Teléfono
+        { wch: 20 }, // Mesa
+        { wch: 15 }, // Estado General
+        { wch: 12 }, // Total Pases
+        { wch: 8 },  // Pase #
+        { wch: 30 }, // Nombre Asistente
+        { wch: 15 }, // Estado Pase
+        { wch: 18 }  // Invitación Enviada
+      ]
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Lista de Invitados')
+
+      // Generate file name with current date
+      const date = new Date().toISOString().split('T')[0]
+      const fileName = `Invitados_Boda_${date}.xlsx`
+
+      // Download file
+      XLSX.writeFile(wb, fileName)
+    } catch (error) {
+      console.error('Error generating Excel:', error)
+      alert('Error al generar el archivo Excel')
+    }
   }
 
   const handleSendWhatsApp = (guest: Guest) => {
@@ -310,17 +349,20 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
       <header className="fixed top-0 w-full z-40 bg-[#F9F7F2] border-b border-stone-200/50 transition-colors duration-300">
         <div className="px-6 py-4 flex justify-between items-center max-w-md mx-auto md:max-w-4xl">
           <div className="flex flex-col">
-            <h1 className="font-display text-2xl font-bold text-primary tracking-tight">
+            <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
+              Esteban &amp; Dany
+            </p>
+            <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514]">
               Lista de Invitados
             </h1>
           </div>
           <div className="flex items-center space-x-2">
             <button 
               onClick={handleDownloadExcel}
-              className="p-2 rounded-full hover:bg-stone-100 transition-colors"
-              title="Descargar lista en Excel"
+              className="flex items-center justify-center w-10 h-10 rounded-full bg-[#495a51] text-white hover:bg-[#3d4b43] active:scale-95 transition-all shadow-sm"
+              title="Descargar Excel"
             >
-              <span className="material-icons-round text-stone-600">download</span>
+              <span className="material-symbols-outlined text-[22px]">download</span>
             </button>
           </div>
         </div>

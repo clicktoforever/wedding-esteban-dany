@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import Link from 'next/link'
+import * as XLSX from 'xlsx'
 import NewTableModal from '@/components/admin/tables/NewTableModal'
 import BottomNav from '@/components/admin/BottomNav'
 
@@ -11,6 +12,12 @@ interface Table {
   name: string
   capacity: number
   occupancy: number
+}
+
+interface Guest {
+  id: string
+  name: string
+  table_id: string | null
 }
 
 export default function TablesPage() {
@@ -79,15 +86,110 @@ export default function TablesPage() {
   const totalAssigned = tables.reduce((sum, table) => sum + table.occupancy, 0)
   const totalCapacity = tables.reduce((sum, table) => sum + table.capacity, 0)
 
+  const downloadExcel = async () => {
+    try {
+      const supabase = createClient()
+
+      // Get all tables with their assigned guests
+      const { data: tablesData, error: tablesError } = await supabase
+        .from('tables')
+        .select('*')
+        .order('name', { ascending: true })
+
+      if (tablesError) throw tablesError
+
+      // Get all guests
+      const { data: guestsData, error: guestsError } = await supabase
+        .from('guests')
+        .select('id, name, table_id')
+        .order('name', { ascending: true })
+
+      if (guestsError) throw guestsError
+
+      // Create Excel data
+      const excelData: any[] = []
+
+      // Header row
+      excelData.push(['Mesa', 'Capacidad', 'Ocupación', 'Invitado'])
+
+      // Add tables with their guests
+      tablesData?.forEach((table: any) => {
+        const tableGuests = guestsData?.filter((g: any) => g.table_id === table.id) || []
+        const occupancy = tableGuests.length
+
+        if (tableGuests.length === 0) {
+          // Empty table
+          excelData.push([table.name, table.capacity, 0, 'Sin asignar'])
+        } else {
+          // Table with guests
+          tableGuests.forEach((guest: any, index: number) => {
+            if (index === 0) {
+              excelData.push([table.name, table.capacity, occupancy, guest.name])
+            } else {
+              excelData.push(['', '', '', guest.name])
+            }
+          })
+        }
+      })
+
+      // Add unassigned guests section
+      const unassignedGuests = guestsData?.filter((g: any) => !g.table_id) || []
+      if (unassignedGuests.length > 0) {
+        excelData.push(['', '', '', '']) // Empty row
+        excelData.push(['SIN ASIGNAR', '', unassignedGuests.length, ''])
+        unassignedGuests.forEach((guest: any) => {
+          excelData.push(['', '', '', guest.name])
+        })
+      }
+
+      // Create workbook and worksheet
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.aoa_to_sheet(excelData)
+
+      // Set column widths
+      ws['!cols'] = [
+        { wch: 20 }, // Mesa
+        { wch: 12 }, // Capacidad
+        { wch: 12 }, // Ocupación
+        { wch: 35 }  // Invitado
+      ]
+
+      // Add worksheet to workbook
+      XLSX.utils.book_append_sheet(wb, ws, 'Distribución de Mesas')
+
+      // Generate file name with current date
+      const date = new Date().toISOString().split('T')[0]
+      const fileName = `Mesas_Boda_${date}.xlsx`
+
+      // Download file
+      XLSX.writeFile(wb, fileName)
+    } catch (error) {
+      console.error('Error generating Excel:', error)
+      alert('Error al generar el archivo Excel')
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#fbf8f0] pb-24">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-[#fbf8f0]/95 backdrop-blur-sm px-5 pt-14 pb-4 border-b border-[#ece8de]">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#131514]">Distribución de Mesas</h1>
-          <p className="text-xs text-[#6b7566] font-medium mt-0.5">
-            Recepción Boda • {totalConfirmed} Invitados
-          </p>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
+              Esteban &amp; Dany
+            </p>
+            <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514] mb-1">Distribución de Mesas</h1>
+            <p className="text-xs text-[#6b7566] font-medium">
+              Recepción Boda • {totalConfirmed} Invitados
+            </p>
+          </div>
+          <button
+            onClick={downloadExcel}
+            className="flex items-center justify-center w-10 h-10 rounded-full bg-[#495a51] text-white hover:bg-[#3d4b43] active:scale-95 transition-all shadow-sm"
+            title="Descargar Excel"
+          >
+            <span className="material-symbols-outlined text-[22px]">download</span>
+          </button>
         </div>
       </header>
 
