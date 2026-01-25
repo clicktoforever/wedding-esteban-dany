@@ -141,10 +141,15 @@ export default function TransactionsPage() {
     <div className="min-h-screen bg-[#fbf8f0] pb-24">
       {/* Header */}
       <header className="sticky top-0 z-30 bg-[#fbf8f0]/80 backdrop-blur-md">
-        <div className="flex items-center p-4 pb-2 justify-center">
-          <h2 className="text-[#131514] text-xl font-extrabold leading-tight tracking-tight text-center">
-            Historial de Pagos
-          </h2>
+        <div className="flex items-start p-4 pb-2">
+          <div className="flex-1">
+            <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
+              Esteban &amp; Dany
+            </p>
+            <h2 className="text-[#131514] text-[32px] leading-tight font-serif font-bold">
+              Historial de Pagos
+            </h2>
+          </div>
         </div>
 
         {/* Search Bar */}
