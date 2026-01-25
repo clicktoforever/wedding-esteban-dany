@@ -158,12 +158,12 @@ export default function AdminHeader() {
       <header className="fixed top-0 w-full z-50 bg-[#F9F7F2] border-b border-stone-200 transition-colors duration-300">
         <div className="px-6 py-4 flex justify-between items-center max-w-md mx-auto md:max-w-4xl">
           <div className="flex flex-col">
-            <h1 className="font-display text-2xl font-bold text-primary tracking-tight">
+            <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
+              Esteban &amp; Dany
+            </p>
+            <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514]">
               Dashboard Admin
             </h1>
-            <p className="text-xs font-medium text-stone-500 uppercase tracking-widest mt-0.5">
-              Esteban & Dany
-            </p>
           </div>
           <div className="flex items-center space-x-2 relative">
             <button 
