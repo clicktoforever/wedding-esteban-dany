@@ -68,6 +68,7 @@ export type Database = {
           approved_at: string | null
           country: string | null
           created_at: string
+          donor_email: string
           donor_name: string
           extracted_account: string | null
           extracted_amount: number | null
@@ -95,6 +96,7 @@ export type Database = {
           approved_at?: string | null
           country?: string | null
           created_at?: string
+          donor_email: string
           donor_name: string
           extracted_account?: string | null
           extracted_amount?: number | null
@@ -122,6 +124,7 @@ export type Database = {
           approved_at?: string | null
           country?: string | null
           created_at?: string
+          donor_email?: string
           donor_name?: string
           extracted_account?: string | null
           extracted_amount?: number | null
