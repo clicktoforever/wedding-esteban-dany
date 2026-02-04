@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
     
     const giftId = formData.get('giftId') as string;
     const donorName = formData.get('donorName') as string;
+    const donorEmail = formData.get('donorEmail') as string;
     const amount = Number.parseFloat(formData.get('amount') as string); // En USD
     const displayAmount = Number.parseFloat(formData.get('displayAmount') as string); // En moneda original
     const displayCurrency = formData.get('displayCurrency') as 'USD' | 'MXN';
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     const receiptFile = formData.get('receipt') as File;
 
     // Validaciones
-    if (!giftId || !donorName || !amount || !displayAmount || !country || !receiptFile) {
+    if (!giftId || !donorName || !donorEmail || !amount || !displayAmount || !country || !receiptFile) {
       return NextResponse.json(
         { success: false, error: 'Datos incompletos' },
         { status: 400 }
@@ -175,6 +176,7 @@ export async function POST(request: NextRequest) {
       .insert({
         gift_id: giftId,
         donor_name: donorName.trim(),
+        donor_email: donorEmail.trim(),
         message: message?.trim() || null,
         amount,
         payment_method: country === 'EC' ? ('transfer_ec' as const) : ('transfer_mx' as const),

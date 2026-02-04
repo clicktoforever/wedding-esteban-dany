@@ -43,6 +43,7 @@ export default function UnifiedContributionModal({
   
   // Form State
   const [donorName, setDonorName] = useState('')
+  const [donorEmail, setDonorEmail] = useState('')
   const [amount, setAmount] = useState('50') // Changed from '50.00' to '50'
   const [message, setMessage] = useState('')
   
@@ -256,6 +257,17 @@ export default function UnifiedContributionModal({
       return
     }
 
+    if (!donorEmail.trim()) {
+      setError('Por favor ingresa tu correo electrónico')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(donorEmail.trim())) {
+      setError('Por favor ingresa un correo electrónico válido')
+      return
+    }
+
     if (isNaN(contributionAmount) || contributionAmount <= 0) {
       setError('Por favor ingresa un monto válido')
       return
@@ -271,6 +283,7 @@ export default function UnifiedContributionModal({
         body: JSON.stringify({
           giftId: gift.id,
           donorName: donorName.trim(),
+          donorEmail: donorEmail.trim(),
           amount: contributionAmount,
           message: message.trim() || undefined,
         }),
@@ -298,6 +311,17 @@ export default function UnifiedContributionModal({
   const handleTransferSubmit = async () => {
     if (!donorName.trim()) {
       setError('Por favor ingresa tu nombre')
+      return
+    }
+
+    if (!donorEmail.trim()) {
+      setError('Por favor ingresa tu correo electrónico')
+      return
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(donorEmail.trim())) {
+      setError('Por favor ingresa un correo electrónico válido')
       return
     }
 
@@ -349,6 +373,7 @@ export default function UnifiedContributionModal({
       const formData = new FormData()
       formData.append('giftId', gift.id)
       formData.append('donorName', donorName.trim())
+      formData.append('donorEmail', donorEmail.trim())
       formData.append('amount', amountInUSD.toString())
       formData.append('displayAmount', contributionAmount.toString())
       formData.append('displayCurrency', currencyLabel)
@@ -774,6 +799,24 @@ export default function UnifiedContributionModal({
                   />
                 </div>
 
+                {/* Donor Email Input */}
+                <div className="mb-6">
+                  <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-3 block">
+                    Tu Correo
+                  </label>
+                  <input
+                    type="email"
+                    value={donorEmail}
+                    onChange={(e) => setDonorEmail(e.target.value)}
+                    placeholder="dany@gmail.com"
+                    required
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[15px]"
+                  />
+                  <p className="text-xs text-gray-400 mt-2 ml-1">
+                    El correo es necesario para poder enviarte una sorpresa
+                  </p>
+                </div>
+
                 {/* Message for Couple */}
                 <div className="mb-6">
                   <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-3 block">
@@ -800,7 +843,7 @@ export default function UnifiedContributionModal({
               <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light via-background-light to-transparent pt-12">
                 <button
                   onClick={handleProceed}
-                  disabled={isSubmitting || !amount || !donorName.trim()}
+                  disabled={isSubmitting || !amount || !donorName.trim() || !donorEmail.trim()}
                   className="w-full h-16 bg-primary hover:bg-[#3d4a43] active:scale-[0.98] transition-all text-white font-bold rounded-2xl text-[17px] shadow-xl shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                     <span>

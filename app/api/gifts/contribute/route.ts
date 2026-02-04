@@ -10,6 +10,7 @@ export const dynamic = 'force-dynamic'
 interface ContributeRequest {
   giftId: string
   donorName: string
+  donorEmail: string
   amount: number
   message?: string
 }
@@ -17,10 +18,10 @@ interface ContributeRequest {
 export async function POST(request: NextRequest) {
   try {
     const body: ContributeRequest = await request.json()
-    const { giftId, donorName, amount, message } = body
+    const { giftId, donorName, donorEmail, amount, message } = body
 
     // Validate input
-    if (!giftId || !donorName || !amount || amount <= 0) {
+    if (!giftId || !donorName || !donorEmail || !amount || amount <= 0) {
       return NextResponse.json(
         { error: 'Missing or invalid required fields' },
         { status: 400 }
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
       .insert({
         gift_id: giftId,
         donor_name: donorName,
+        donor_email: donorEmail,
         amount: amount,
         status: 'PENDING',
         payphone_client_transaction_id: clientTransactionId,
