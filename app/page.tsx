@@ -3,6 +3,8 @@ import Link from 'next/link'
 import { Suspense } from 'react'
 import CountdownTimer from '@/components/CountdownTimer'
 import RSVPButton from '@/components/RSVPButton'
+import AddToCalendarButton from '@/components/AddToCalendarButton'
+import GalleryLightbox from '@/components/GalleryLightbox'
 import { createClient } from '@/lib/supabase/server'
 
 export const revalidate = 60
@@ -39,22 +41,26 @@ export default async function Page() {
             fill
             className="object-cover brightness-75"
             priority
-            style={{ objectPosition: 'center 30%' }}
+            style={{ objectPosition: 'center 5%' }}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
         </div>
 
-          <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up">
-            <div className="w-32 h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg mb-4 transition-all duration-300">
-            <Image
-              src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
-              alt="Logo"
-              width={64}
-              height={64}
-              className="object-contain lg:w-20 lg:h-20 xl:w-24 xl:h-24"
-            />
+          {/* Logo Circle - Positioned independently */}
+          <div className="absolute top-12 lg:top-16 left-1/2 transform -translate-x-1/2 z-10">
+            <div className="w-24 h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+              <Image
+                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
+                alt="Logo"
+                width={72}
+                height={72}
+                className="object-contain lg:w-24 lg:h-24 xl:w-28 xl:h-28"
+              />
+            </div>
           </div>
 
+          {/* Content - Names, Date, Countdown */}
+          <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-56 lg:mt-64">
             <h1 className="font-display text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
               Esteban <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Dany
             </h1>
@@ -69,11 +75,7 @@ export default async function Page() {
             <CountdownTimer targetDate={weddingDate} />
           </div>
 
-          <div className="absolute bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-10 text-primary">
-            <svg className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </div>
+          <AddToCalendarButton />
         </header>
 
         {/* Gallery Section */}
@@ -85,35 +87,28 @@ export default async function Page() {
             <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl text-gray-800 transition-all duration-300">Momentos Juntos</h2>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-5 xl:gap-6 mb-8 lg:mx-auto lg:max-w-6xl">
-            <div className="col-span-2 lg:col-span-4 h-64 lg:h-80 xl:h-96 rounded-xl lg:rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300">
-              <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F4d0783ada0a44302b4305c1f52e1ea8f"
-                alt="Couple wide shot"
-                width={800}
-                height={400}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div className="h-40 lg:h-56 xl:h-64 lg:col-span-2 rounded-xl lg:rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group">
-              <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F195ab2d14d414911a0f5e1d2ab1ca811"
-                alt="Couple portrait"
-                width={400}
-                height={320}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-            <div className="h-40 lg:h-56 xl:h-64 lg:col-span-2 rounded-xl lg:rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 group">
-              <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F449e5d83e6864bea9046d6a2ed9a99df"
-                alt="Couple details"
-                width={400}
-                height={320}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
-          </div>
+          <GalleryLightbox
+            images={[
+              {
+                src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F4d0783ada0a44302b4305c1f52e1ea8f',
+                alt: 'Esteban y Dany - Momento especial',
+                width: 800,
+                height: 400
+              },
+              {
+                src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F195ab2d14d414911a0f5e1d2ab1ca811',
+                alt: 'Esteban y Dany - Retrato',
+                width: 400,
+                height: 320
+              },
+              {
+                src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F449e5d83e6864bea9046d6a2ed9a99df',
+                alt: 'Esteban y Dany - Detalles',
+                width: 400,
+                height: 320
+              }
+            ]}
+          />
         </section>
 
         {/* Event Details Section */}
@@ -174,29 +169,29 @@ export default async function Page() {
         </section>
 
         {/* Footer */}
-        <footer className="relative h-96 lg:h-[28rem] xl:h-[32rem] w-full flex items-center justify-center">
+        <footer className="relative h-96 lg:h-[28rem] xl:h-[32rem] w-full flex items-end justify-center">
           <div className="absolute inset-0 z-0">
             <Image
               src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F817ed4cfe46441ee902e78a55ce23445"
               alt="Couple landscape photo footer"
               fill
               className="object-cover"
+              style={{ objectPosition: 'center 40%' }}
             />
-            <div className="absolute inset-0 bg-black/60 z-10"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-black/50 z-10"></div>
           </div>
 
-          <div className="relative z-20 flex flex-col items-center justify-center text-white">
-            <div className="w-24 h-24 lg:w-32 lg:h-32 xl:w-40 xl:h-40 border border-white/30 rounded-full flex items-center justify-center mb-4 lg:mb-6 backdrop-blur-sm bg-white/10 transition-all duration-300">
+          <div className="relative z-20 flex flex-col items-center pb-16 lg:pb-20 xl:pb-24 text-white">
+            <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 border border-white/20 rounded-full flex items-center justify-center mb-2 lg:mb-3 backdrop-blur-sm bg-white/5 transition-all duration-300 shadow-lg">
               <Image
                 src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
                 alt="Logo"
-                width={56}
-                height={56}
-                className="object-contain brightness-0 invert lg:w-20 lg:h-20 xl:w-24 xl:h-24"
+                width={52}
+                height={52}
+                className="object-contain brightness-0 invert lg:w-16 lg:h-16 xl:w-20 xl:h-20"
               />
             </div>
-            <p className="font-display text-2xl lg:text-3xl xl:text-4xl tracking-widest transition-all duration-300">E &amp; D</p>
-            <p className="text-xs lg:text-sm xl:text-base mt-2 lg:mt-3 text-white/70 uppercase tracking-widest">Gracias por acompañarnos</p>
+            <p className="text-xs lg:text-sm xl:text-base text-white/80 uppercase tracking-widest font-light">Gracias por acompañarnos</p>
           </div>
         </footer>
 

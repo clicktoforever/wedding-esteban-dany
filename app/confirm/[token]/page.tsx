@@ -71,7 +71,7 @@ export default async function ConfirmPage(props: PageProps) {
           </svg>
         </Link>
         <div className="text-center">
-          <h1 className="font-display font-semibold text-xl tracking-wide text-primary">D &amp; E</h1>
+          <h1 className="font-display font-semibold text-xl tracking-wide text-primary">E &amp; D</h1>
         </div>
         <div className="w-6"></div>
       </nav>
