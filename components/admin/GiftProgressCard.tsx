@@ -36,7 +36,7 @@ export default function GiftProgressCard({ id, name, category, target_amount, cu
           {category && <p className="text-xs text-gray-500 mt-1 truncate">{category}</p>}
         </div>
         <div className="text-right flex-shrink-0">
-          <span className="text-sm font-serif text-wedding-forest">{formatCurrency(current_amount, "USD")}</span>
+          <span className="text-sm font-serif text-admin-forest">{formatCurrency(current_amount, "USD")}</span>
         </div>
       </div>
 

@@ -8,7 +8,7 @@ import Link from 'next/link'
 function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  
+
   const type = searchParams.get('type')
   const status = searchParams.get('status')
   const donorName = searchParams.get('donorName')
@@ -47,7 +47,7 @@ function ConfirmPaymentContent() {
           <div className="relative mb-8 lg:mb-12 animate-scale-in group">
             {/* Decorative Glow */}
             <div className="absolute inset-0 rounded-full bg-accent-light/20 blur-xl transform scale-150 animate-pulse-slow"></div>
-            
+
             {/* Outer Gold Ring */}
             <div className="relative flex items-center justify-center w-28 h-28 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full border-[3px] lg:border-4 border-accent-light bg-white shadow-xl shadow-accent-light/10 transition-all duration-300">
               {/* Inner Green Check */}
@@ -68,7 +68,7 @@ function ConfirmPaymentContent() {
           {/* Headline Block */}
           <div className="space-y-4 lg:space-y-6 mb-8 lg:mb-10 animate-fade-in-up delay-200">
             <h1 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium tracking-tight text-primary leading-tight transition-all duration-300">
-              ¡Muchas Gracias,<br/>
+              ¡Muchas Gracias,<br />
               <span className="italic text-accent-light">{donorName || 'Amigo'}!</span>
             </h1>
             <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-gray-600 font-medium leading-relaxed max-w-[320px] lg:max-w-md xl:max-w-lg mx-auto transition-all duration-300">
@@ -298,7 +298,7 @@ function ConfirmPaymentContent() {
   // Error Page
   if (isError) {
     const whatsappMessage = encodeURIComponent(
-      `Hola Esteban y Dany 💕\n\nTuve un inconveniente al realizar mi aporte para el regalo "${giftName || 'Mesa de Regalos'}".\n\nDetalles del aporte:\n• Monto: ${amount || 'No especificado'}\n• Nombre: ${donorName || 'No especificado'}${clientTransactionId ? `\n• ID Transacción: ${clientTransactionId}` : ''}\n\n¿Me podrían ayudar a completarlo? ¡Muchas gracias! 🎁`
+      `Hola Carlos y Dany 💕\n\nTuve un inconveniente al realizar mi aporte para el regalo "${giftName || 'Mesa de Regalos'}".\n\nDetalles del aporte:\n• Monto: ${amount || 'No especificado'}\n• Nombre: ${donorName || 'No especificado'}${clientTransactionId ? `\n• ID Transacción: ${clientTransactionId}` : ''}\n\n¿Me podrían ayudar a completarlo? ¡Muchas gracias! 🎁`
     )
 
     return (

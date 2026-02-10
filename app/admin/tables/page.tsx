@@ -73,7 +73,7 @@ export default function TablesPage() {
         .eq('confirmation_status', 'confirmed')
 
       const uniqueConfirmedGuests = new Set((confirmedPasses as any)?.map((p: any) => p.guest_id) || [])
-      
+
       setUnassignedCount(unassignedConfirmed || 0)
       setTotalConfirmed(uniqueConfirmedGuests.size)
     } catch (error) {
@@ -176,7 +176,7 @@ export default function TablesPage() {
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1">
             <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
-              Esteban &amp; Dany
+              Carlos &amp; Dany
             </p>
             <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514] mb-1">Distribución de Mesas</h1>
             <p className="text-xs text-[#6b7566] font-medium">
@@ -207,7 +207,7 @@ export default function TablesPage() {
             </div>
           </div>
           <div className="mt-3 h-2 bg-gray-100 rounded-full overflow-hidden">
-            <div 
+            <div
               className="h-full bg-[#495a51] transition-all duration-500"
               style={{ width: `${totalCapacity > 0 ? (totalAssigned / totalCapacity) * 100 : 0}%` }}
             />
@@ -232,42 +232,40 @@ export default function TablesPage() {
             {tables.map((table) => {
               const isFull = table.occupancy >= table.capacity
               const percentage = (table.occupancy / table.capacity) * 100
-              
+
               return (
                 <Link
                   key={table.id}
                   href={`/admin/tables/${table.id}`}
-                  className={`group relative flex flex-col bg-white rounded-lg p-4 border-2 shadow-sm transition-all active:scale-[0.98] ${
-                    isFull ? 'border-[#996678]' : 'border-[#d3c3db]'
-                  }`}
+                  className={`group relative flex flex-col bg-white rounded-lg p-4 border-2 shadow-sm transition-all active:scale-[0.98] ${isFull ? 'border-[#996678]' : 'border-[#d3c3db]'
+                    }`}
                 >
                   {isFull && (
                     <div className="absolute top-3 right-3">
                       <span className="flex h-2 w-2 rounded-full bg-[#996678]" />
                     </div>
                   )}
-                  
+
                   <div className="mb-4 flex items-center justify-center">
-                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${
-                      isFull ? 'bg-[#996678]/10 text-[#996678]' : 
-                      table.occupancy > 0 ? 'bg-[#d3c3db]/10 text-[#495a51]' : 
-                      'bg-gray-50 text-gray-400'
-                    }`}>
+                    <div className={`flex h-16 w-16 items-center justify-center rounded-full ${isFull ? 'bg-[#996678]/10 text-[#996678]' :
+                        table.occupancy > 0 ? 'bg-[#d3c3db]/10 text-[#495a51]' :
+                          'bg-gray-50 text-gray-400'
+                      }`}>
                       <span className="material-symbols-outlined !text-[32px]">
                         table_restaurant
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex flex-col items-center text-center">
                     <h3 className="text-base font-bold text-[#131514] leading-tight">
                       {table.name}
                     </h3>
                     <p className="text-xs text-[#6b7566] mb-3 font-medium">
-                      {table.occupancy === 0 ? 'Disponible' : 
-                       isFull ? '(Completa)' : '(En uso)'}
+                      {table.occupancy === 0 ? 'Disponible' :
+                        isFull ? '(Completa)' : '(En uso)'}
                     </p>
-                    
+
                     <div className="flex items-center gap-2 w-full justify-center">
                       <div className="relative h-5 w-5">
                         <svg className="h-full w-full transform -rotate-90" viewBox="0 0 36 36">
@@ -289,11 +287,10 @@ export default function TablesPage() {
                           />
                         </svg>
                       </div>
-                      <span className={`text-sm font-bold ${
-                        isFull ? 'text-[#996678]' : 
-                        table.occupancy > 0 ? 'text-[#495a51]' : 
-                        'text-[#6b7566]'
-                      }`}>
+                      <span className={`text-sm font-bold ${isFull ? 'text-[#996678]' :
+                          table.occupancy > 0 ? 'text-[#495a51]' :
+                            'text-[#6b7566]'
+                        }`}>
                         {table.occupancy}/{table.capacity}
                       </span>
                     </div>

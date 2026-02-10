@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       is_crowdfunding: boolean | null
       status: string
     } | null
-    
+
     if (giftResult.error || !gift) {
       return NextResponse.json(
         { error: 'Gift not found' },
@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Auto-enable crowdfunding if not set and has price
     const giftTotal = gift.total_amount || gift.price || 0
     const giftCollected = gift.collected_amount || 0
-    
+
     if (giftTotal <= 0) {
       return NextResponse.json(
         { error: 'Gift does not have a valid price' },
@@ -89,16 +89,7 @@ export async function POST(request: NextRequest) {
     // Calculate remaining amount
     const remainingAmount = giftTotal - giftCollected
 
-    // Validate contribution amount
-    if (amount > remainingAmount) {
-      return NextResponse.json(
-        {
-          error: `Amount exceeds remaining balance. Remaining: ${formatCurrency(remainingAmount)}`,
-          remainingAmount,
-        },
-        { status: 400 }
-      )
-    }
+
 
     // Generate unique client transaction ID
     const clientTransactionId = generateClientTransactionId(giftId)
@@ -156,7 +147,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in contribute endpoint:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error'
       },

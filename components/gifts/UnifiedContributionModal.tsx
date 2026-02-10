@@ -31,27 +31,27 @@ type Step = 'amount' | 'transfer-details' | 'validating' | 'success' | 'review' 
 type Currency = 'USD' | 'MXN'
 type PaymentMethod = 'card' | 'transfer'
 
-export default function UnifiedContributionModal({ 
-  gift, 
-  isOpen, 
+export default function UnifiedContributionModal({
+  gift,
+  isOpen,
   onClose,
-  onSuccess 
+  onSuccess
 }: UnifiedContributionModalProps) {
   // Currency & Payment Method
   const [currency, setCurrency] = useState<Currency>('USD')
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('card')
-  
+
   // Form State
   const [donorName, setDonorName] = useState('')
   const [donorEmail, setDonorEmail] = useState('')
   const [amount, setAmount] = useState('50') // Changed from '50.00' to '50'
   const [message, setMessage] = useState('')
-  
+
   // Transfer State
   const [bankAccount, setBankAccount] = useState<BankAccount | null>(null)
   const [receiptFile, setReceiptFile] = useState<File | null>(null)
   const [receiptPreview, setReceiptPreview] = useState<string | null>(null)
-  
+
   // UI State
   const [step, setStep] = useState<Step>('amount')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -59,26 +59,23 @@ export default function UnifiedContributionModal({
   const [validationProgress, setValidationProgress] = useState(0)
   const [validationMessage, setValidationMessage] = useState('')
   const [transactionId, setTransactionId] = useState<string | null>(null)
-  
+
   // Payphone State
   const [payphoneScriptLoaded, setPayphoneScriptLoaded] = useState(false)
   const [paymentConfig, setPaymentConfig] = useState<any>(null)
   const [showPayphoneWidget, setShowPayphoneWidget] = useState(false)
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
-  
-  // Drag state for swipe to dismiss
-  const [dragStartY, setDragStartY] = useState<number | null>(null)
-  const [dragCurrentY, setDragCurrentY] = useState<number | null>(null)
-  const [isDragging, setIsDragging] = useState(false)
+
+
 
   // Amounts - handle potential null values
   const totalAmount = gift.total_amount ?? 0
   const collectedAmount = gift.collected_amount ?? 0
   const remainingUSD = totalAmount - collectedAmount
-  const progressPercentage = totalAmount > 0 
-    ? (collectedAmount / totalAmount) * 100 
+  const progressPercentage = totalAmount > 0
+    ? (collectedAmount / totalAmount) * 100
     : 0
 
   // Calculate remaining amount in selected currency
@@ -88,8 +85,8 @@ export default function UnifiedContributionModal({
   }
 
   // Quick amount buttons based on currency
-  const quickAmounts = currency === 'USD' 
-    ? [20, 50, 100, 200] 
+  const quickAmounts = currency === 'USD'
+    ? [20, 50, 100, 200]
     : [500, 1000, 2000, 5000] // No decimal values for MXN
 
   // Currency symbol
@@ -156,7 +153,7 @@ export default function UnifiedContributionModal({
       document.body.style.position = 'unset'
       document.body.style.width = 'auto'
     }
-    return () => { 
+    return () => {
       document.body.style.overflow = 'unset'
       document.body.style.position = 'unset'
       document.body.style.width = 'auto'
@@ -173,7 +170,7 @@ export default function UnifiedContributionModal({
         if (modalContent) {
           modalContent.scrollTop = 0
         }
-        
+
         // Also scroll the modal container itself to top
         if (modalRef.current) {
           const scrollableParent = modalRef.current.parentElement
@@ -251,7 +248,7 @@ export default function UnifiedContributionModal({
 
   const handlePayphonePayment = async () => {
     const contributionAmount = parseFloat(amount)
-    
+
     if (!donorName.trim()) {
       setError('Por favor ingresa tu nombre')
       return
@@ -277,6 +274,12 @@ export default function UnifiedContributionModal({
     setError(null)
 
     try {
+      // Convert to USD if using MXN (Rate: 20 MXN = 1 USD)
+      // This is a rough conversion for the payment processor
+      const amountInUSD = currency === 'MXN'
+        ? contributionAmount / 20
+        : contributionAmount
+
       const response = await fetch('/api/gifts/contribute', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -284,7 +287,7 @@ export default function UnifiedContributionModal({
           giftId: gift.id,
           donorName: donorName.trim(),
           donorEmail: donorEmail.trim(),
-          amount: contributionAmount,
+          amount: amountInUSD, // Send converted amount
           message: message.trim() || undefined,
         }),
       })
@@ -339,7 +342,7 @@ export default function UnifiedContributionModal({
     setIsSubmitting(true)
     setError(null)
     setStep('validating')
-    
+
     // Start validation animation - 20 seconds max to reach 99%
     const messages = [
       'Subiendo comprobante seguro...',
@@ -347,16 +350,16 @@ export default function UnifiedContributionModal({
       'Verificando monto...',
       'Procesando con IA...'
     ]
-    
+
     let progress = 0
     let messageIndex = 0
     let messageTimer = 0
-    
+
     // Progress interval: increment every 200ms, reach 99% in ~20 seconds (100 increments)
     const interval = setInterval(() => {
       progress += 1
       setValidationProgress(Math.min(progress, 99))
-      
+
       // Change message every 3 seconds (3000ms / 200ms = 15 increments)
       messageTimer += 1
       if (messageTimer >= 15) {
@@ -369,7 +372,7 @@ export default function UnifiedContributionModal({
     try {
       const country = currency === 'USD' ? 'EC' : 'MX'
       const amountInUSD = convertToUsd(contributionAmount, country)
-      
+
       const formData = new FormData()
       formData.append('giftId', gift.id)
       formData.append('donorName', donorName.trim())
@@ -394,15 +397,15 @@ export default function UnifiedContributionModal({
 
       if (data.success) {
         setTransactionId(data.transactionId)
-        
+
         // Small delay for UX before redirecting
         await new Promise(resolve => setTimeout(resolve, 800))
-        
+
         // Redirect to confirmation page with all details
         const giftImageUrl = gift.image_url || ''
-        const status = data.status === 'approved' ? 'approved' : 
-                       data.status === 'rejected' ? 'error' : 'review'
-        
+        const status = data.status === 'approved' ? 'approved' :
+          data.status === 'rejected' ? 'error' : 'review'
+
         const confirmUrl = new URL('/confirm-payment', window.location.origin)
         confirmUrl.searchParams.set('type', 'transfer')
         confirmUrl.searchParams.set('status', status)
@@ -414,7 +417,7 @@ export default function UnifiedContributionModal({
         if (giftImageUrl) {
           confirmUrl.searchParams.set('giftImage', giftImageUrl)
         }
-        
+
         window.location.href = confirmUrl.toString()
       } else {
         // Error case - redirect to error page
@@ -429,13 +432,13 @@ export default function UnifiedContributionModal({
         if (giftImageUrl) {
           confirmUrl.searchParams.set('giftImage', giftImageUrl)
         }
-        
+
         window.location.href = confirmUrl.toString()
       }
     } catch (error) {
       clearInterval(interval)
       console.error('Error:', error)
-      
+
       // Error case - redirect to error page
       const giftImageUrl = gift.image_url || ''
       const confirmUrl = new URL('/confirm-payment', window.location.origin)
@@ -448,7 +451,7 @@ export default function UnifiedContributionModal({
       if (giftImageUrl) {
         confirmUrl.searchParams.set('giftImage', giftImageUrl)
       }
-      
+
       window.location.href = confirmUrl.toString()
     } finally {
       setIsSubmitting(false)
@@ -463,57 +466,15 @@ export default function UnifiedContributionModal({
     }
   }
 
-  // Drag handlers for swipe to dismiss
-  const handleDragStart = (clientY: number) => {
-    setDragStartY(clientY)
-    setIsDragging(true)
-  }
 
-  const handleDragMove = (clientY: number) => {
-    if (dragStartY === null) return
-    
-    const diff = clientY - dragStartY
-    // Only allow dragging down
-    if (diff > 0) {
-      setDragCurrentY(clientY)
-      if (modalRef.current) {
-        modalRef.current.style.transform = `translateY(${diff}px)`
-      }
-    }
-  }
-
-  const handleDragEnd = () => {
-    if (dragStartY === null || dragCurrentY === null) {
-      setIsDragging(false)
-      setDragStartY(null)
-      setDragCurrentY(null)
-      return
-    }
-
-    const diff = dragCurrentY - dragStartY
-    
-    // Reset modal position
-    if (modalRef.current) {
-      modalRef.current.style.transform = ''
-    }
-
-    // If dragged down more than 180px, close the modal
-    if (diff > 180) {
-      onClose()
-    }
-
-    setIsDragging(false)
-    setDragStartY(null)
-    setDragCurrentY(null)
-  }
 
   if (!isOpen) return null
 
   return (
     <>
       {/* PayPhone Scripts */}
-      <link 
-        rel="stylesheet" 
+      <link
+        rel="stylesheet"
         href="https://cdn.payphonetodoesposible.com/box/v1.1/payphone-payment-box.css"
       />
       <Script
@@ -525,42 +486,27 @@ export default function UnifiedContributionModal({
 
       {/* Modal Backdrop */}
       <div className="fixed inset-0 z-[100] flex items-start justify-center pt-12 overflow-y-auto">
-        <div 
+        <div
           className="fixed inset-0 bg-stone-900/60 backdrop-blur-md"
           onClick={!isSubmitting ? onClose : undefined}
         />
 
         {/* Modal Container */}
-        <div 
+        <div
           ref={modalRef}
           className="relative z-10 w-full max-w-[430px] min-h-[calc(100vh-6rem)] bg-background-light rounded-t-[32px] shadow-2xl overflow-hidden flex flex-col animate-in slide-in-from-bottom duration-300"
-          style={{ transition: isDragging ? 'none' : 'transform 0.5s ease-in-out' }}
         >
-          
-          {/* Handle Bar */}
-          <div 
-            className="flex flex-col items-center pt-4 pb-2 shrink-0 cursor-grab active:cursor-grabbing"
-            onTouchStart={(e) => handleDragStart(e.touches[0].clientY)}
-            onTouchMove={(e) => handleDragMove(e.touches[0].clientY)}
-            onTouchEnd={handleDragEnd}
-            onMouseDown={(e) => handleDragStart(e.clientY)}
-            onMouseMove={(e) => isDragging && handleDragMove(e.clientY)}
-            onMouseUp={handleDragEnd}
-            onMouseLeave={handleDragEnd}
-          >
-            <div className="h-1.5 w-16 rounded-full bg-gray-300" />
-          </div>
 
           {/* STEP: Amount Selection */}
           {step === 'amount' && !showPayphoneWidget && (
             <>
               {/* Header with Gift Preview */}
-              <div className="px-6 pt-6 pb-2 shrink-0">
+              <div className="px-6 pt-8 pb-2 shrink-0">
                 <div className="flex items-center justify-between mb-3">
-                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
+                  <span className="text-[10px] font-body uppercase tracking-[0.2em] text-neutral-text">
                     Regalo Seleccionado
                   </span>
-                  <button 
+                  <button
                     onClick={onClose}
                     className="w-8 h-8 flex items-center justify-center rounded-full bg-[#f5f3ef] text-gray-400 hover:text-gray-600 transition-colors"
                   >
@@ -571,11 +517,11 @@ export default function UnifiedContributionModal({
                 </div>
 
                 {/* Gift Card Preview */}
-                <div className="bg-white rounded-2xl p-3 shadow-sm border border-primary/5 flex gap-4">
+                <div className="bg-white rounded-2xl p-3 shadow-sm border border-primary/5 flex gap-2">
                   <div className="w-20 h-20 rounded-xl overflow-hidden shrink-0 bg-gray-100">
                     {gift.image_url ? (
-                      <Image 
-                        src={gift.image_url} 
+                      <Image
+                        src={gift.image_url}
                         alt={gift.name}
                         width={80}
                         height={80}
@@ -585,30 +531,31 @@ export default function UnifiedContributionModal({
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-gray-300">
                         <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z"/>
+                          <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4z" />
                         </svg>
                       </div>
                     )}
                   </div>
-                  <div className="flex flex-col justify-center flex-1 pr-2">
-                    <h3 className="font-serif text-lg font-bold text-primary leading-tight mb-2">
+                  <div className="flex flex-col justify-center flex-1">
+                    <h3 className="font-display text-2xl font-bold text-main leading-tight mb-2">
                       {gift.name}
                     </h3>
                     <div className="space-y-1.5">
-                      <div className="flex justify-between items-end">
-                        <span className="text-[11px] font-bold text-primary/60">
-                          Meta: {progressPercentage.toFixed(0)}% alcanzado
-                        </span>
-                        <span className="text-[13px] font-bold text-primary-light">
-                          Faltan: {currency === 'USD' 
+                      <div className="flex justify-between items-end gap-1">
+                        <div className="text-[11px] font-bold font-body leading-none">
+                          <span className="text-neutral-text">Meta: </span>
+                          <span className="text-primary">{progressPercentage.toFixed(0)}% alcanzado</span>
+                        </div>
+                        <span className="text-[11px] font-bold font-body text-neutral-text leading-none whitespace-nowrap">
+                          Faltan: {currency === 'USD'
                             ? `${formatCurrency(remainingUSD)} USD`
                             : `$${Math.round(getRemainingInCurrency().amount)} MXN`
                           }
                         </span>
                       </div>
                       <div className="w-full h-1.5 bg-[#f5f3ef] rounded-full overflow-hidden">
-                        <div 
-                          className="bg-primary h-full rounded-full transition-all duration-500" 
+                        <div
+                          className="bg-primary h-full rounded-full transition-all duration-500"
                           style={{ width: `${progressPercentage}%` }}
                         />
                       </div>
@@ -623,20 +570,18 @@ export default function UnifiedContributionModal({
                 <div className="mt-6 mb-8">
                   <div className="relative flex h-14 w-full items-center justify-center rounded-full bg-[#f5f3ef] p-1.5">
                     {/* Sliding Background */}
-                    <div 
-                      className={`absolute h-[calc(100%-12px)] w-[calc(50%-6px)] bg-primary rounded-full shadow-lg transition-all duration-500 ease-out ${
-                        currency === 'USD' ? 'left-1.5' : 'left-[calc(50%+6px)]'
-                      }`}
+                    <div
+                      className={`absolute h-[calc(100%-12px)] w-[calc(50%-6px)] bg-primary rounded-full shadow-lg transition-all duration-500 ease-out ${currency === 'USD' ? 'left-1.5' : 'left-[calc(50%+6px)]'
+                        }`}
                     />
-                    
+
                     <label className="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-full px-4 text-[15px] font-semibold transition-all duration-300 z-10">
-                      <span className={`truncate transition-colors duration-300 ${
-                        currency === 'USD' ? 'text-white' : 'text-gray-400'
-                      }`}>Ecuador ($ USD)</span>
-                      <input 
-                        type="radio" 
-                        name="currency" 
-                        value="USD" 
+                      <span className={`truncate transition-colors duration-300 ${currency === 'USD' ? 'text-white' : 'text-gray-400'
+                        }`}>Ecuador ($ USD)</span>
+                      <input
+                        type="radio"
+                        name="currency"
+                        value="USD"
                         checked={currency === 'USD'}
                         onChange={() => {
                           setCurrency('USD')
@@ -646,19 +591,18 @@ export default function UnifiedContributionModal({
                         className="hidden"
                       />
                     </label>
-                    
+
                     <label className="flex cursor-pointer h-full grow items-center justify-center overflow-hidden rounded-full px-4 text-[15px] font-semibold transition-all duration-300 z-10">
-                      <span className={`truncate transition-colors duration-300 ${
-                        currency === 'MXN' ? 'text-white' : 'text-gray-400'
-                      }`}>México ($ MXN)</span>
-                      <input 
-                        type="radio" 
-                        name="currency" 
-                        value="MXN" 
+                      <span className={`truncate transition-colors duration-300 ${currency === 'MXN' ? 'text-white' : 'text-gray-400'
+                        }`}>México ($ MXN)</span>
+                      <input
+                        type="radio"
+                        name="currency"
+                        value="MXN"
                         checked={currency === 'MXN'}
                         onChange={() => {
                           setCurrency('MXN')
-                          setPaymentMethod('transfer')
+                          setPaymentMethod('card') // Default to card for MXN too
                           setAmount('1000')
                         }}
                         className="hidden"
@@ -682,23 +626,22 @@ export default function UnifiedContributionModal({
                         const val = e.target.value.replace(/[^0-9.]/g, '')
                         setAmount(val)
                       }}
-                      className="w-full bg-transparent border-none text-center text-primary focus:ring-0 p-0 leading-none font-bold"
+                      className="w-full bg-transparent border-none text-center text-neutral-text focus:ring-0 p-0 leading-none font-bold"
                       style={{ fontSize: '56px', letterSpacing: '-0.02em' }}
                     />
                     <div className="h-[3px] w-32 bg-primary/20 mx-auto mt-2 rounded-full" />
                   </div>
 
                   {/* Quick Amount Buttons */}
-                  <div className="flex gap-3 mt-8 mb-2 overflow-x-auto w-full justify-center no-scrollbar py-2">
+                  <div className="flex gap-3 mt-8 mb-2 overflow-x-auto w-full justify-center px-4 no-scrollbar py-2">
                     {quickAmounts.map((quickAmount) => (
                       <button
                         key={quickAmount}
                         onClick={() => setAmount(quickAmount.toString())}
-                        className={`flex h-12 shrink-0 items-center justify-center rounded-full px-7 font-semibold text-[16px] transition-all ${
-                          parseFloat(amount) === quickAmount
-                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                            : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
-                        }`}
+                        className={`flex h-12 shrink-0 items-center justify-center rounded-full px-5 font-semibold text-[14px] transition-all ${parseFloat(amount) === quickAmount
+                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                          : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
+                          }`}
                       >
                         {currencySymbol}{quickAmount}
                       </button>
@@ -708,76 +651,67 @@ export default function UnifiedContributionModal({
 
                 {/* Payment Method Section */}
                 <div className="mb-6">
-                  <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-4">
+                  <h4 className="text-[11px] font-body uppercase tracking-[0.2em] text-neutral-text mb-4">
                     Método de Pago
                   </h4>
 
-                  {/* Payphone Option - Only for USD */}
-                  {currency === 'USD' && (
-                    <button
-                      onClick={() => setPaymentMethod('card')}
-                      className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all mb-3 ${
-                        paymentMethod === 'card'
-                          ? 'border-primary bg-primary/5'
-                          : 'border-gray-100 bg-white hover:border-gray-200'
+                  {/* Card Option - For USD and MXN */}
+                  <button
+                    onClick={() => setPaymentMethod('card')}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all mb-3 ${paymentMethod === 'card'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-gray-100 bg-white hover:border-gray-200'
                       }`}
-                    >
-                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                        paymentMethod === 'card' ? 'bg-primary/10' : 'bg-gray-100'
+                  >
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${paymentMethod === 'card' ? 'bg-primary/10' : 'bg-gray-100'
                       }`}>
-                        <svg className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-primary' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
-                        </svg>
+                      <svg className={`w-6 h-6 ${paymentMethod === 'card' ? 'text-primary' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                      </svg>
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <h5 className="font-body font-bold text-[17px] text-gray-900">Tarjeta</h5>
+                        <span className="text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-600 px-2.5 py-1 rounded ml-auto">
+                          Instantáneo
+                        </span>
                       </div>
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <h5 className="font-bold text-[17px] text-gray-900">Payphone</h5>
-                          <h5 className="font-normal text-[17px] text-gray-900">(Tarjeta)</h5>
-                          <span className="text-[10px] font-bold uppercase tracking-wide bg-gray-100 text-gray-600 px-2.5 py-1 rounded ml-auto">
-                            Instantáneo
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-400">Visa, Mastercard, Amex</p>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        paymentMethod === 'card' ? 'border-primary' : 'border-gray-300'
+                      <p className="text-sm text-gray-400">Visa, Mastercard, Amex, etc.</p>
+                    </div>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'card' ? 'border-primary' : 'border-gray-300'
                       }`}>
-                        {paymentMethod === 'card' && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                        )}
-                      </div>
-                    </button>
-                  )}
+                      {paymentMethod === 'card' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                      )}
+                    </div>
+                  </button>
 
                   {/* Transfer Option */}
                   <button
                     onClick={() => setPaymentMethod('transfer')}
-                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${
-                      paymentMethod === 'transfer'
-                        ? 'border-primary bg-primary/5'
-                        : 'border-gray-100 bg-white hover:border-gray-200'
-                    }`}
+                    className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all ${paymentMethod === 'transfer'
+                      ? 'border-primary bg-primary/5'
+                      : 'border-gray-100 bg-white hover:border-gray-200'
+                      }`}
                   >
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                      paymentMethod === 'transfer' ? 'bg-primary/10' : 'bg-gray-100'
-                    }`}>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${paymentMethod === 'transfer' ? 'bg-primary/10' : 'bg-gray-100'
+                      }`}>
                       <svg className={`w-6 h-6 ${paymentMethod === 'transfer' ? 'text-primary' : 'text-gray-500'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
                       </svg>
                     </div>
                     <div className="flex-1 text-left">
-                      <h5 className="font-bold text-[17px] text-gray-900 mb-1">
+                      <h5 className="font-body font-bold text-[17px] text-gray-900 mb-1">
                         {currency === 'USD' ? 'Transferencia Ecuador' : 'Transferencia México'}
                       </h5>
                       <p className="text-sm text-gray-400">
-                        {currency === 'USD' 
-                          ? 'Banco Pichincha, Guayaquil, Produbanco' 
+                        {currency === 'USD'
+                          ? 'Pichincha, Guayaquil, Produbanco, etc.'
                           : 'SPEI - Cualquier banco'}
                       </p>
                     </div>
-                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      paymentMethod === 'transfer' ? 'border-primary' : 'border-gray-300'
-                    }`}>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${paymentMethod === 'transfer' ? 'border-primary' : 'border-gray-300'
+                      }`}>
                       {paymentMethod === 'transfer' && (
                         <div className="w-2.5 h-2.5 rounded-full bg-primary" />
                       )}
@@ -787,30 +721,35 @@ export default function UnifiedContributionModal({
 
                 {/* Donor Name Input */}
                 <div className="mb-6">
-                  <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-3 block">
+                  <label className="text-[11px] font-bold font-body uppercase tracking-[0.2em] text-neutral-text mb-3 block">
                     Tu Nombre
                   </label>
                   <input
                     type="text"
                     value={donorName}
                     onChange={(e) => setDonorName(e.target.value)}
+                    onBlur={() => window.scrollTo(0, 0)}
                     placeholder="¿Cómo te llamas?"
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[15px]"
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[16px]"
                   />
                 </div>
 
                 {/* Donor Email Input */}
                 <div className="mb-6">
-                  <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-3 block">
+                  <label className="text-[11px] font-bold font-body uppercase tracking-[0.2em] text-neutral-text mb-3 block">
                     Tu Correo
                   </label>
                   <input
                     type="email"
                     value={donorEmail}
-                    onChange={(e) => setDonorEmail(e.target.value)}
+                    onChange={(e) => {
+                      setDonorEmail(e.target.value)
+                      if (error) setError(null)
+                    }}
+                    onBlur={() => window.scrollTo(0, 0)}
                     placeholder="dany@gmail.com"
                     required
-                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[15px]"
+                    className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[16px]"
                   />
                   <p className="text-xs text-gray-400 mt-2 ml-1">
                     El correo es necesario para poder enviarte una sorpresa
@@ -819,15 +758,16 @@ export default function UnifiedContributionModal({
 
                 {/* Message for Couple */}
                 <div className="mb-6">
-                  <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-gray-300 mb-3 block">
-                    Mensaje para Esteban y Dany
+                  <label className="text-[11px] font-bold font-body uppercase tracking-[0.2em] text-neutral-text mb-3 block">
+                    Mensaje para Carlos y Dany
                   </label>
                   <textarea
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
+                    onBlur={() => window.scrollTo(0, 0)}
                     placeholder="Escribe un mensaje especial para los novios..."
                     rows={4}
-                    className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-[15px]"
+                    className="w-full px-4 py-3 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-[16px]"
                   />
                 </div>
 
@@ -846,15 +786,15 @@ export default function UnifiedContributionModal({
                   disabled={isSubmitting || !amount || !donorName.trim() || !donorEmail.trim()}
                   className="w-full h-16 bg-primary hover:bg-[#3d4a43] active:scale-[0.98] transition-all text-white font-bold rounded-2xl text-[17px] shadow-xl shadow-primary/20 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                    <span>
+                  <span>
                     Regalar {currencySymbol}{amount} vía {paymentMethod === 'card' ? 'Tarjeta' : 'Transferencia'}
-                    </span>
+                  </span>
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
                   </svg>
                 </button>
                 <p className="text-[11px] text-gray-400 text-center mt-3 leading-relaxed">
-                  Al continuar, aceptas que esta contribución es final y se procesará<br/>de forma segura.
+                  Al continuar, aceptas que esta contribución es final y se procesará<br />de forma segura.
                 </p>
               </div>
             </>
@@ -888,7 +828,7 @@ export default function UnifiedContributionModal({
             <>
               {/* Header */}
               <div className="sticky top-0 z-10 bg-background-light/95 backdrop-blur-sm px-6 py-4 flex items-center justify-between border-b border-stone-200/50">
-                <button 
+                <button
                   onClick={() => setStep('amount')}
                   className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-stone-100 transition-colors text-primary"
                 >
@@ -896,19 +836,23 @@ export default function UnifiedContributionModal({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <h1 className="font-serif text-lg font-bold text-gray-900 tracking-tight">
+                <h1 className="font-display text-2xl font-bold text-gray-900 tracking-tight">
                   Detalles de Transferencia
                 </h1>
                 <div className="w-10" />
               </div>
 
               <div className="flex-1 overflow-y-auto px-6 pt-6 pb-32 no-scrollbar modal-transfer-content">
-                {/* Wedding Monogram */}
+                {/* Wedding Logo */}
                 <div className="mb-8 flex flex-col items-center">
-                  <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-serif text-2xl font-bold mb-3 shadow-lg">
-                    E&D
+                  <div className="w-24 h-24 relative mb-2">
+                    <Image
+                      src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
+                      alt="Logo Carlos & Dany"
+                      fill
+                      className="object-contain brightness-0 opacity-80"
+                    />
                   </div>
-                  <p className="text-gray-500 text-sm font-medium">Boda Esteban & Dany</p>
                 </div>
 
                 {/* Bank Details Card */}
@@ -921,7 +865,7 @@ export default function UnifiedContributionModal({
                         </svg>
                       </div>
                       <div>
-                        <h3 className="font-serif text-lg font-bold text-gray-900 leading-tight">
+                        <h3 className="font-body text-lg font-bold text-gray-900 leading-tight">
                           {bankAccount.bankName}
                         </h3>
                         <p className="text-gray-500 text-sm">{bankAccount.accountType || 'Cuenta de Ahorros'}</p>
@@ -933,14 +877,14 @@ export default function UnifiedContributionModal({
                     <div className="space-y-6">
                       {/* Account Number */}
                       <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">
+                        <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
                           Número de cuenta
                         </label>
                         <div className="flex items-center justify-between">
-                          <p className="text-lg font-medium text-gray-900 font-mono tracking-tight">
+                          <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
                             {bankAccount.accountNumber}
                           </p>
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.preventDefault()
                               copyToClipboard(bankAccount.accountNumber)
@@ -948,8 +892,8 @@ export default function UnifiedContributionModal({
                             type="button"
                             className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
                           >
-                            <span className="text-xs font-medium">Copiar</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                           </button>
@@ -958,14 +902,14 @@ export default function UnifiedContributionModal({
 
                       {/* Beneficiary Name */}
                       <div>
-                        <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">
+                        <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
                           Beneficiario
                         </label>
                         <div className="flex items-center justify-between">
-                          <p className="text-lg font-medium text-gray-900">
+                          <p className="text-lg font-body font-bold text-gray-900">
                             {bankAccount.accountName}
                           </p>
-                          <button 
+                          <button
                             onClick={(e) => {
                               e.preventDefault()
                               copyToClipboard(bankAccount.accountName)
@@ -973,8 +917,8 @@ export default function UnifiedContributionModal({
                             type="button"
                             className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
                           >
-                            <span className="text-xs font-medium">Copiar</span>
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                           </button>
@@ -984,14 +928,14 @@ export default function UnifiedContributionModal({
                       {/* ID Number */}
                       {bankAccount.identificationNumber && (
                         <div>
-                          <label className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-1 block">
+                          <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
                             C.I. / RUC
                           </label>
                           <div className="flex items-center justify-between">
-                            <p className="text-lg font-medium text-gray-900 font-mono tracking-tight">
+                            <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
                               {bankAccount.identificationNumber}
                             </p>
-                            <button 
+                            <button
                               onClick={(e) => {
                                 e.preventDefault()
                                 copyToClipboard(bankAccount.identificationNumber!)
@@ -999,8 +943,8 @@ export default function UnifiedContributionModal({
                               type="button"
                               className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
                             >
-                              <span className="text-xs font-medium">Copiar</span>
-                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                               </svg>
                             </button>
@@ -1013,17 +957,16 @@ export default function UnifiedContributionModal({
 
                 {/* Upload Receipt Section */}
                 <section>
-                  <h4 className="font-serif text-lg font-bold text-gray-900 mb-4">
+                  <h4 className="font-display text-2xl font-bold text-gray-900 mb-4">
                     Adjuntar Comprobante
                   </h4>
-                  
+
                   <div
                     onClick={() => fileInputRef.current?.click()}
-                    className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
-                      receiptPreview 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-gray-200 hover:border-primary/50 bg-white'
-                    }`}
+                    className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${receiptPreview
+                      ? 'border-primary bg-primary/5'
+                      : 'border-gray-200 hover:border-primary/50 bg-white'
+                      }`}
                   >
                     <input
                       ref={fileInputRef}
@@ -1032,7 +975,7 @@ export default function UnifiedContributionModal({
                       onChange={handleFileChange}
                       className="hidden"
                     />
-                    
+
                     {receiptPreview ? (
                       <div className="space-y-4">
                         <div className="relative w-full h-48 rounded-xl overflow-hidden">
@@ -1117,8 +1060,8 @@ export default function UnifiedContributionModal({
                 {/* Progress Bar */}
                 <div className="w-full px-4">
                   <div className="h-2 w-full bg-[#d3c3db]/20 rounded-full overflow-hidden">
-                    <div 
-                      className="h-full bg-[#d3c3db] rounded-full transition-all duration-300" 
+                    <div
+                      className="h-full bg-[#d3c3db] rounded-full transition-all duration-300"
                       style={{ width: `${validationProgress}%` }}
                     />
                   </div>
@@ -1130,7 +1073,7 @@ export default function UnifiedContributionModal({
             </div>
           )}
         </div>
-      </div>
+      </div >
     </>
   )
 }

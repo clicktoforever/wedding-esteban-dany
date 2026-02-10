@@ -52,7 +52,7 @@ async function generateInvite(guestInput: GuestInput) {
     // Generate URLs
     const confirmUrl = `https://yourdomain.com/confirm/${guest.access_token}`
     const message = encodeURIComponent(
-      `¡Hola! Te invitamos a la boda de Esteban y Dany 💍\n\nConfirma tu asistencia aquí: ${confirmUrl}\n\n¡Esperamos contar con tu presencia!`
+      `¡Hola! Te invitamos a la boda de Carlos y Dany 💍\n\nConfirma tu asistencia aquí: ${confirmUrl}\n\n¡Esperamos contar con tu presencia!`
     )
     const whatsappUrl = `https://wa.me/${guestInput.phone?.replace(/[^0-9]/g, '')}?text=${message}`
 
@@ -105,7 +105,7 @@ const guestsToInvite: GuestInput[] = [
 
 // Main execution
 async function main() {
-  console.log('🎉 Generador de Invitaciones - Boda Esteban & Dany')
+  console.log('🎉 Generador de Invitaciones - Boda Carlos & Dany')
   console.log('═══════════════════════════════════════════════\n')
 
   if (!supabaseUrl || !supabaseServiceKey) {

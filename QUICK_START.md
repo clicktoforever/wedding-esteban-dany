@@ -15,7 +15,7 @@
 1. Ve a: **https://supabase.com/dashboard**
 2. Click en **"New Project"**
 3. Configura:
-   - **Name**: `wedding-esteban-dany`
+   - **Name**: `wedding-Carlos-dany`
    - **Database Password**: (genera una y guárdala en un lugar seguro)
    - **Region**: `South America (São Paulo)` o el más cercano
 4. Click **"Create new project"** → Espera 2-3 minutos
@@ -88,7 +88,7 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOi...
 1. Ve a: **https://builder.io**
 2. Click en **"Get Started Free"**
 3. Regístrate con GitHub (recomendado) o email
-4. Crea un nuevo Space: `wedding-esteban-dany`
+4. Crea un nuevo Space: `wedding-Carlos-dany`
 
 ### 2.2 Copiar API Key
 
@@ -138,7 +138,7 @@ NEXT_PUBLIC_BUILDER_API_KEY=tu_api_key_aqui
 En el editor visual:
 
 1. **Arrastra componentes desde la barra lateral izquierda:**
-   - Text → Escribe "Boda Esteban & Dany"
+   - Text → Escribe "Boda Carlos & Dany"
    - Heading → Configura como H1
    - Busca **"WeddingCountdown"** en "Custom Components"
      - Arrastra al canvas

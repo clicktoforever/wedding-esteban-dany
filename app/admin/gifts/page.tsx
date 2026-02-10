@@ -91,7 +91,7 @@ export default function GiftsAdminPage() {
         <div className="flex justify-between items-start">
           <div className="flex flex-col w-full">
             <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
-              Esteban &amp; Dany
+              Carlos &amp; Dany
             </p>
             <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514] mb-4">
               Gestión de Regalos
@@ -121,31 +121,28 @@ export default function GiftsAdminPage() {
           <div className="flex bg-[#edece6] p-1 rounded-xl relative">
             <button
               onClick={() => setActiveTab('all')}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'all'
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'all'
                   ? 'bg-white text-[#4a5951] shadow-sm'
                   : 'text-[#807d7c] hover:text-[#4a5951]'
-              }`}
+                }`}
             >
               Todos
             </button>
             <button
               onClick={() => setActiveTab('active')}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'active'
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'active'
                   ? 'bg-white text-[#4a5951] shadow-sm'
                   : 'text-[#807d7c] hover:text-[#4a5951]'
-              }`}
+                }`}
             >
               Activos
             </button>
             <button
               onClick={() => setActiveTab('completed')}
-              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${
-                activeTab === 'completed'
+              className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'completed'
                   ? 'bg-white text-[#4a5951] shadow-sm'
                   : 'text-[#807d7c] hover:text-[#4a5951]'
-              }`}
+                }`}
             >
               Completados
             </button>
@@ -159,11 +156,10 @@ export default function GiftsAdminPage() {
               <button
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
-                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                  selectedCategory === cat.id
+                className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedCategory === cat.id
                     ? 'bg-[#4a5951] text-white shadow-soft'
                     : 'bg-white border border-[#4a5951]/10 text-[#807d7c] hover:bg-[#4a5951]/5'
-                }`}
+                  }`}
               >
                 {cat.label}
               </button>
@@ -237,9 +233,8 @@ export default function GiftsAdminPage() {
                       {/* Progress Bar */}
                       <div className="h-1.5 w-full bg-[#f0eee6] rounded-full overflow-hidden">
                         <div
-                          className={`h-full rounded-full transition-all duration-1000 ${
-                            isCompleted ? 'bg-[#4a5951]' : 'bg-[#d3c3db]'
-                          }`}
+                          className={`h-full rounded-full transition-all duration-1000 ${isCompleted ? 'bg-[#4a5951]' : 'bg-[#d3c3db]'
+                            }`}
                           style={{ width: `${progress}%` }}
                         />
                       </div>

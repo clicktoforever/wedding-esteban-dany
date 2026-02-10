@@ -246,6 +246,6 @@ Con validación automática usando IA en tiempo real.
 
 ---
 
-**Desarrollado para Esteban & Dany** 💑
+**Desarrollado para Carlos & Dany** 💑
 
 ¿Preguntas? Revisa la documentación en la carpeta `docs/`

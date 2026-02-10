@@ -65,7 +65,7 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
         {/* Category Badge */}
         {gift.category && (
           <div className="absolute top-3 right-3">
-            <span className="bg-white/90 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-primary shadow-sm">
+            <span className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold text-[#4c5851] shadow-sm uppercase tracking-wide">
               {gift.category}
             </span>
           </div>
@@ -88,7 +88,7 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
       <div className="p-5">
         {/* Contributors Count */}
         {hasContributions && !isCompleted && contributorCount > 0 && (
-          <div className="flex items-center gap-1.5 text-sm text-gray-600 mb-3">
+          <div className="flex items-center gap-1.5 text-sm text-[#666666] mb-3 font-sans">
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
             </svg>
@@ -99,13 +99,13 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
         )}
 
         {/* Title */}
-        <h3 className="font-serif text-xl text-gray-900 mb-2 leading-snug">
+        <h3 className="font-serif text-xl text-[#3d3d3d] mb-2 leading-snug font-medium">
           {gift.name}
         </h3>
         
         {/* Description */}
         {gift.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-[#666666] mb-4 line-clamp-2 leading-relaxed font-sans">
             {gift.description}
           </p>
         )}
@@ -114,12 +114,12 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
         {!isCompleted && isCrowdfunding && (
           <div className="mb-5 space-y-2.5">
             {/* Always show collected and remaining amounts */}
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">
-                Recaudado: <span className="font-semibold text-primary">{formatCurrency(collectedAmount)}</span>
+            <div className="flex items-center justify-between text-sm font-sans">
+              <span className="text-[#926978]">
+                Recaudado: <span className="font-semibold text-[#926978]">{formatCurrency(collectedAmount)}</span>
               </span>
-              <span className="text-gray-600">
-                Faltan: <span className="font-semibold text-[#d3c3db]">{formatCurrency(remainingAmount)}</span>
+              <span className="text-[#926978]">
+                Faltan: <span className="font-semibold text-[#926978]">{formatCurrency(remainingAmount)}</span>
               </span>
             </div>
             
@@ -151,10 +151,10 @@ export default function GiftCard({ gift, onContribute }: GiftCardProps) {
         <button
           onClick={() => onContribute?.(gift)}
           disabled={isCompleted}
-          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 ${
+          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 font-sans ${
             isCompleted
               ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-              : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'
+              : 'border-2 border-[#4c5851] text-[#4c5851] hover:bg-[#4c5851] hover:text-white'
           }`}
         >
           {isCompleted ? '✓ Completado' : 'Colaborar'}

@@ -87,9 +87,9 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
           <span className="text-sm font-bold text-primary">{confirmedCount} de {totalCount} confirmados</span>
         </div>
         <div className="h-2 w-full bg-accent/50 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-primary rounded-full transition-all duration-500 ease-out" 
-            style={{ width: `${(confirmedCount / totalCount) * 100}%` }}
+          <div
+            className="h-full rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${(confirmedCount / totalCount) * 100}%`, backgroundColor: 'rgba(173, 182, 151, 0.9)' }}
           ></div>
         </div>
       </div>
@@ -129,8 +129,8 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
           const isPending = pass.confirmation_status === 'pending'
 
           return (
-            <div 
-              key={pass.id} 
+            <div
+              key={pass.id}
               className={`bg-white rounded-2xl p-5 shadow-sm border border-gray-100 relative overflow-hidden group transition-all duration-300 ${isPending ? 'opacity-80 hover:opacity-100' : ''}`}
             >
               {/* Left Accent Bar for confirmed */}
@@ -142,13 +142,12 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
               <div className={`flex items-center justify-between mb-4 ${isConfirmed ? 'pl-3' : ''}`}>
                 <div className="flex items-center gap-3">
                   {/* Avatar */}
-                  <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center font-display font-bold text-lg transition-all duration-300 ${
-                    isConfirmed 
-                      ? 'bg-primary/10 text-primary' 
-                      : isDeclined 
-                      ? 'bg-gray-100 text-gray-400' 
+                  <div className={`w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center font-display font-bold text-lg transition-all duration-300 ${isConfirmed
+                    ? 'bg-primary/10 text-primary'
+                    : isDeclined
+                      ? 'bg-gray-100 text-gray-400'
                       : 'bg-accent/50 text-secondary'
-                  }`}>
+                    }`}>
                     {getInitials(pass.attendee_name || 'Invitado')}
                   </div>
                   {/* Name */}
@@ -169,11 +168,10 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
                 <button
                   onClick={() => updatePass(pass.id, 'confirmed')}
                   disabled={isPending && isConfirmed}
-                  className={`flex-1 py-3 lg:py-4 px-4 rounded-xl flex items-center justify-center gap-2 font-medium text-sm lg:text-base transition-all duration-300 ${
-                    isConfirmed
-                      ? 'bg-primary text-white shadow-md transform scale-[1.02]'
-                      : 'border border-gray-300 text-gray-500 bg-transparent hover:border-primary hover:text-primary'
-                  } ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'}`}
+                  className={`flex-1 py-3 lg:py-4 px-4 rounded-xl flex items-center justify-center gap-2 font-body text-sm lg:text-base transition-all duration-300 ${isConfirmed
+                    ? 'bg-primary text-white shadow-md transform scale-[1.02]'
+                    : 'border border-gray-300 text-gray-500 bg-transparent hover:border-primary hover:text-primary'
+                    } ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'}`}
                 >
                   {isConfirmed && (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,11 +183,10 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
                 <button
                   onClick={() => updatePass(pass.id, 'declined')}
                   disabled={isPending && isDeclined}
-                  className={`flex-1 py-3 lg:py-4 px-4 rounded-xl flex items-center justify-center gap-2 font-medium text-sm lg:text-base transition-all duration-300 ${
-                    isDeclined
-                      ? 'border-2 border-gray-400 text-gray-700 bg-gray-50'
-                      : 'border border-gray-300 text-gray-500 bg-transparent hover:bg-gray-50'
-                  } ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'}`}
+                  className={`flex-1 py-3 lg:py-4 px-4 rounded-xl flex items-center justify-center gap-2 font-body font-bold text-sm lg:text-base transition-all duration-300 ${isDeclined
+                    ? 'border-2 border-gray-400 text-gray-700 bg-gray-50'
+                    : 'border border-gray-300 text-gray-500 bg-transparent hover:bg-gray-50'
+                    } ${isPending ? 'opacity-50 cursor-not-allowed' : 'hover:scale-[1.02] active:scale-95'}`}
                 >
                   {isDeclined && (
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -207,7 +204,7 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
       {/* Fixed Save Button */}
       <div className="fixed bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-background-light via-background-light to-transparent pointer-events-none flex justify-center pb-8 pt-12 z-40">
         <div className="w-full max-w-md lg:max-w-2xl xl:max-w-4xl px-6 lg:px-12 xl:px-20">
-          <button 
+          <button
             onClick={() => {
               // Check if all passes are declined
               const allDeclined = passes.every(

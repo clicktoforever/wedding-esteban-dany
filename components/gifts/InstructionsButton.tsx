@@ -10,10 +10,10 @@ export default function InstructionsButton() {
     <>
       <button 
         onClick={() => setShowModal(true)}
-        className="w-10 h-10 rounded-full border border-primary/10 flex items-center justify-center bg-white hover:bg-primary/5 transition-colors group"
+        className="w-10 h-10 rounded-full border border-gray-200 flex items-center justify-center bg-white hover:bg-gray-50 transition-colors group"
         aria-label="Ver instrucciones"
       >
-        <span className="material-symbols-outlined text-primary text-[20px] group-hover:scale-110 transition-transform">
+        <span className="material-symbols-outlined text-[#4a4a4a] text-[20px] group-hover:scale-110 transition-transform">
           help
         </span>
       </button>

@@ -18,7 +18,7 @@ interface PageProps {
 export default async function ConfirmPage(props: PageProps) {
   const params = await props.params
   const { token } = params
-  
+
   const supabase = await createClient()
 
   // Fetch confirmation deadline from configurations
@@ -31,11 +31,11 @@ export default async function ConfirmPage(props: PageProps) {
   // Check if deadline has passed (server-side validation)
   if (deadlineConfig?.value) {
     const deadline = new Date(deadlineConfig.value)
-    
+
     // Get current time in Ecuador timezone (GMT-5)
     const now = new Date()
     const ecuadorTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
-    
+
     if (ecuadorTime > deadline) {
       // Deadline has passed, redirect to closed page
       redirect('/confirm/closed')
@@ -70,15 +70,12 @@ export default async function ConfirmPage(props: PageProps) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </Link>
-        <div className="text-center">
-          <h1 className="font-display font-semibold text-xl tracking-wide text-primary">E &amp; D</h1>
-        </div>
         <div className="w-6"></div>
       </nav>
 
       {/* Main Content */}
       <main className="max-w-md lg:max-w-2xl xl:max-w-4xl mx-auto px-6 lg:px-12 xl:px-20 pt-6">
-        <GuestConfirmation 
+        <GuestConfirmation
           guest={guestWithPasses}
           token={token}
           deadline={deadlineDate}
@@ -95,7 +92,7 @@ export default async function ConfirmPage(props: PageProps) {
 export async function generateMetadata(props: PageProps) {
   const params = await props.params
   return {
-    title: 'Confirma tu Asistencia - Esteban & Dany',
+    title: 'Confirma tu Asistencia - Carlos & Dany',
     description: 'Confirma tu asistencia a nuestra boda el 11 de Abril, 2026',
     robots: 'noindex, nofollow',
   }

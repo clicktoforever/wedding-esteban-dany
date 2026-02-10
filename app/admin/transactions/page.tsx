@@ -144,7 +144,7 @@ export default function TransactionsPage() {
         <div className="flex items-start p-4 pb-2">
           <div className="flex-1">
             <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
-              Esteban &amp; Dany
+              Carlos &amp; Dany
             </p>
             <h2 className="text-[#131514] text-[32px] leading-tight font-serif font-bold">
               Historial de Pagos
@@ -172,11 +172,10 @@ export default function TransactionsPage() {
         {/* Filter Tabs */}
         <div className="flex px-4 py-3">
           <div className="flex h-12 items-center rounded-xl bg-[#4a5951]/5 p-1.5 gap-1 overflow-x-auto">
-            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
-              activeTab === 'all' 
-                ? 'bg-white shadow-sm text-[#4a5951]' 
+            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${activeTab === 'all'
+                ? 'bg-white shadow-sm text-[#4a5951]'
                 : 'text-[#807d7c]'
-            }`}>
+              }`}>
               <span>Todas</span>
               <input
                 type="radio"
@@ -187,11 +186,10 @@ export default function TransactionsPage() {
                 className="invisible w-0"
               />
             </label>
-            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
-              activeTab === 'approved' 
-                ? 'bg-white shadow-sm text-[#4a5951]' 
+            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${activeTab === 'approved'
+                ? 'bg-white shadow-sm text-[#4a5951]'
                 : 'text-[#807d7c]'
-            }`}>
+              }`}>
               <span>Aprobadas</span>
               <input
                 type="radio"
@@ -202,11 +200,10 @@ export default function TransactionsPage() {
                 className="invisible w-0"
               />
             </label>
-            <label className={`relative flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
-              activeTab === 'manual_review' 
-                ? 'bg-white shadow-sm text-[#4a5951]' 
+            <label className={`relative flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${activeTab === 'manual_review'
+                ? 'bg-white shadow-sm text-[#4a5951]'
                 : 'text-[#807d7c]'
-            }`}>
+              }`}>
               <span>Revisión Manual</span>
               {manualReviewCount > 0 && (
                 <span className="ml-1.5 size-2 bg-[#d3c3db] rounded-full ring-2 ring-white"></span>
@@ -220,11 +217,10 @@ export default function TransactionsPage() {
                 className="invisible w-0"
               />
             </label>
-            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
-              activeTab === 'pending' 
-                ? 'bg-white shadow-sm text-[#4a5951]' 
+            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${activeTab === 'pending'
+                ? 'bg-white shadow-sm text-[#4a5951]'
                 : 'text-[#807d7c]'
-            }`}>
+              }`}>
               <span>Pendiente</span>
               <input
                 type="radio"
@@ -235,11 +231,10 @@ export default function TransactionsPage() {
                 className="invisible w-0"
               />
             </label>
-            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${
-              activeTab === 'rejected' 
-                ? 'bg-white shadow-sm text-[#4a5951]' 
+            <label className={`flex cursor-pointer h-full items-center justify-center rounded-lg px-3 text-xs font-bold transition-all whitespace-nowrap shrink-0 ${activeTab === 'rejected'
+                ? 'bg-white shadow-sm text-[#4a5951]'
                 : 'text-[#807d7c]'
-            }`}>
+              }`}>
               <span>Rechazada</span>
               <input
                 type="radio"
@@ -278,9 +273,8 @@ export default function TransactionsPage() {
               className="flex items-center gap-4 bg-white p-4 rounded-xl shadow-sm justify-between border border-white/50 cursor-pointer active:scale-[0.98] transition-transform"
             >
               <div className="flex items-center gap-4">
-                <div className={`text-[#4a5951] flex items-center justify-center rounded-xl ${
-                  transaction.status === 'REJECTED' ? 'bg-[#996678]/10 text-[#996678]' : 'bg-[#4a5951]/10'
-                } shrink-0 size-12`}>
+                <div className={`text-[#4a5951] flex items-center justify-center rounded-xl ${transaction.status === 'REJECTED' ? 'bg-[#996678]/10 text-[#996678]' : 'bg-[#4a5951]/10'
+                  } shrink-0 size-12`}>
                   <span className="material-symbols-outlined">
                     {transaction.status === 'REJECTED' ? 'error_outline' : getPaymentIcon(transaction.payment_method)}
                   </span>
@@ -298,10 +292,9 @@ export default function TransactionsPage() {
                 </div>
               </div>
               <div className="flex flex-col items-end gap-1.5">
-                <span className={`font-extrabold text-base ${
-                  transaction.status === 'REJECTED' ? 'text-[#996678]' : 
-                  transaction.status === 'APPROVED' ? 'text-[#4a5951]' : 'text-[#4a5951]'
-                }`}>
+                <span className={`font-extrabold text-base ${transaction.status === 'REJECTED' ? 'text-[#996678]' :
+                    transaction.status === 'APPROVED' ? 'text-[#4a5951]' : 'text-[#4a5951]'
+                  }`}>
                   {transaction.status === 'REJECTED' ? '' : '+'}${transaction.amount.toFixed(2)}
                 </span>
                 <div className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest border ${getStatusColor(transaction.status)}`}>

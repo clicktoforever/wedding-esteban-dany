@@ -17,7 +17,7 @@ export const dynamic = 'force-dynamic';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    
+
     const giftId = formData.get('giftId') as string;
     const donorName = formData.get('donorName') as string;
     const donorEmail = formData.get('donorEmail') as string;
@@ -82,16 +82,8 @@ export async function POST(request: NextRequest) {
     }
 
     const remainingAmount = (gift.total_amount ?? 0) - (gift.collected_amount ?? 0);
-    
-    if (amount > remainingAmount) {
-      // Convertir remaining a la moneda de visualización para el error
-      const displayRemaining = country === 'MX' ? usdToMxn(remainingAmount) : remainingAmount;
-      const currencyLabel = country === 'MX' ? 'MXN' : 'USD';
-      return NextResponse.json(
-        { success: false, error: `El monto excede el saldo disponible: $${displayRemaining.toFixed(2)} ${currencyLabel}` },
-        { status: 400 }
-      );
-    }
+
+
 
     // 2. Convertir archivo a buffer
     const arrayBuffer = await receiptFile.arrayBuffer();
@@ -124,7 +116,7 @@ export async function POST(request: NextRequest) {
 
     // 3.5. Validar si el comprobante ya existe (detectar duplicados)
     const receiptHash = Buffer.from(buffer).toString('base64').substring(0, 50); // Hash simple del archivo
-    
+
     const { data: existingTransactions } = await supabase
       .from('gift_transactions')
       .select('id, status')
@@ -199,7 +191,7 @@ export async function POST(request: NextRequest) {
     // 5. Validar con Gemini API (SÍNCRONO para que Vercel espere)
     // Pasar displayAmount para que Gemini valide contra el monto en el comprobante
     console.log(`[${transaction.id}] Starting SYNCHRONOUS validation`);
-    
+
     await validateReceiptAsync(
       transaction.id,
       buffer,
@@ -208,7 +200,7 @@ export async function POST(request: NextRequest) {
       giftId,
       supabase
     );
-    
+
     console.log(`[${transaction.id}] Validation completed, fetching updated transaction`);
 
     // 6. Obtener el estado actualizado de la transacción
@@ -216,9 +208,9 @@ export async function POST(request: NextRequest) {
       .from('gift_transactions')
       .select('status')
       .eq('id', transaction.id)
-      .single() as { 
-        data: { status: string } | null; 
-        error: any 
+      .single() as {
+        data: { status: string } | null;
+        error: any
       };
 
     if (fetchError) {
@@ -232,13 +224,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       status: finalStatus.toLowerCase(),
-      message: finalStatus === 'APPROVED' 
+      message: finalStatus === 'APPROVED'
         ? 'Tu transferencia ha sido verificada exitosamente'
         : finalStatus === 'REJECTED'
-        ? 'Tu comprobante no pudo ser verificado. Revisa los datos.'
-        : finalStatus === 'MANUAL_REVIEW'
-        ? 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
-        : 'Tu comprobante está siendo procesado',
+          ? 'Tu comprobante no pudo ser verificado. Revisa los datos.'
+          : finalStatus === 'MANUAL_REVIEW'
+            ? 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
+            : 'Tu comprobante está siendo procesado',
       transactionId: transaction.id,
       data: {
         donorName,
@@ -269,19 +261,19 @@ async function validateReceiptAsync(
   supabase: any
 ) {
   console.log(`[${transactionId}] Starting validation - Country: ${country}, Expected: ${expectedAmount}`);
-  
+
   try {
     console.log(`[${transactionId}] Initializing Gemini validator...`);
     const validator = new GeminiReceiptValidator();
     console.log(`[${transactionId}] Validator initialized, calling validateReceipt...`);
-    
+
     const result = await validator.validateReceipt(
       imageBuffer,
       country,
       expectedAmount,
       transactionId
     );
-    
+
     console.log(`[${transactionId}] Gemini response received:`, JSON.stringify({
       isValid: result.validation.isValid,
       confidence: result.validation.confidence,
@@ -293,7 +285,7 @@ async function validateReceiptAsync(
     const needsReview = validator.needsManualReview(result.validation);
 
     let validationStatus: 'APPROVED' | 'MANUAL_REVIEW' | 'REJECTED';
-    
+
     if (needsReview) {
       validationStatus = 'MANUAL_REVIEW';
     } else if (result.validation.isValid) {
@@ -336,14 +328,14 @@ async function validateReceiptAsync(
     console.error(`[${transactionId}] Error message:`, error?.message);
     console.error(`[${transactionId}] Error stack:`, error?.stack);
     console.error(`[${transactionId}] Full error:`, JSON.stringify(error, null, 2));
-    
+
     // Distinguir tipos de error
     const errorMessage = error?.message || 'Error desconocido';
-    
+
     if (errorMessage.includes('INVALID_IMAGE:')) {
       // Imagen no es un comprobante válido - RECHAZAR inmediatamente
       const cleanMessage = errorMessage.replace('INVALID_IMAGE:', '');
-      
+
       await supabase
         .from('gift_transactions')
         .update({
@@ -351,13 +343,13 @@ async function validateReceiptAsync(
           validation_errors: [cleanMessage]
         })
         .eq('id', transactionId);
-        
+
       console.error(`[${transactionId}] Transaction REJECTED - Invalid image`);
-      
+
     } else if (errorMessage.includes('TIMEOUT:') || errorMessage.includes('TECHNICAL_ERROR:')) {
       // Error técnico o timeout - MANUAL_REVIEW
       const cleanMessage = errorMessage.replace(/^(TIMEOUT:|TECHNICAL_ERROR:)/, '');
-      
+
       await supabase
         .from('gift_transactions')
         .update({
@@ -365,9 +357,9 @@ async function validateReceiptAsync(
           validation_errors: [cleanMessage, error?.stack || 'No stack trace']
         })
         .eq('id', transactionId);
-        
+
       console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to technical error`);
-      
+
     } else {
       // Error desconocido - MANUAL_REVIEW por seguridad
       await supabase
@@ -377,7 +369,7 @@ async function validateReceiptAsync(
           validation_errors: [`Error al procesar: ${errorMessage}`, error?.stack || 'No stack trace']
         })
         .eq('id', transactionId);
-        
+
       console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to unknown error`);
     }
   }
