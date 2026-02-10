@@ -41,7 +41,7 @@ Se ha desarrollado exitosamente una aplicación full-stack serverless para gesti
 ### 📂 Estructura del Proyecto
 
 ```
-wedding-esteban-dany/
+wedding-Carlos-dany/
 ├── app/                      # Next.js 14 App Router
 │   ├── layout.tsx           # Layout principal
 │   ├── page.tsx             # Landing (Builder.io)
@@ -209,6 +209,6 @@ Para cualquier duda:
 
 ---
 
-**Desarrollado con ❤️ para Esteban & Dany**
+**Desarrollado con ❤️ para Carlos & Dany**
 
 **Tech Lead Notes**: Este proyecto sigue best practices de Next.js 14 App Router, usa TypeScript strict mode, implementa Row Level Security correctamente, y está optimizado para el caso de uso específico sin sobreingeniería. Código idiomático, performante y mantenible.

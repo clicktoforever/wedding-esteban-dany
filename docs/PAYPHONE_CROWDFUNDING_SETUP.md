@@ -277,7 +277,7 @@ supabase status
 En `GiftCard.tsx`:
 ```tsx
 // Cambiar el gradiente de la barra de progreso
-className="bg-gradient-to-r from-wedding-sage to-wedding-forest h-full"
+className="bg-gradient-to-r from-admin-sage to-admin-forest h-full"
 ```
 
 ### **Ajustar Montos Sugeridos**

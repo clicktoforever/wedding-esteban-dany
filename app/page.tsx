@@ -62,8 +62,8 @@ export default async function Page() {
 
           {/* Content - Names, Date, Countdown */}
           <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-56 lg:mt-64">
-            <h1 className="font-display text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
-              Esteban <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Dany
+            <h1 className="font-serif text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
+              Carlos <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Dany
             </h1>
 
             <div className="w-16 lg:w-24 xl:w-32 h-0.5 bg-secondary rounded-full my-4 lg:my-6 shadow-sm transition-all duration-300"></div>
@@ -92,19 +92,19 @@ export default async function Page() {
             images={[
               {
                 src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F4d0783ada0a44302b4305c1f52e1ea8f',
-                alt: 'Esteban y Dany - Momento especial',
+                alt: 'Carlos y Dany - Momento especial',
                 width: 800,
                 height: 400
               },
               {
                 src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F195ab2d14d414911a0f5e1d2ab1ca811',
-                alt: 'Esteban y Dany - Retrato',
+                alt: 'Carlos y Dany - Retrato',
                 width: 400,
                 height: 320
               },
               {
                 src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F449e5d83e6864bea9046d6a2ed9a99df',
-                alt: 'Esteban y Dany - Detalles',
+                alt: 'Carlos y Dany - Detalles',
                 width: 400,
                 height: 320
               }
@@ -181,7 +181,7 @@ export default async function Page() {
 
 export async function generateMetadata() {
   return {
-    title: 'Esteban & Dany - Boda 11 de Abril 2026',
+    title: 'Carlos & Dany - Boda 11 de Abril 2026',
     description: 'Te invitamos a celebrar nuestra boda el 11 de Abril, 2026 en Quito, Ecuador.',
   }
 }

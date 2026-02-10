@@ -36,7 +36,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const [guests, setGuests] = useState<Guest[]>(initialGuests)
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined' | 'sent' | 'not-sent'>('all')
-  
+
   // Modals state
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null)
   const [showDetailModal, setShowDetailModal] = useState(false)
@@ -70,15 +70,15 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const handleDeleteGuest = async (guestId: string) => {
     try {
       const supabase = createClient()
-      
+
       // Delete passes first (cascade should handle this, but being explicit)
       await supabase.from('passes').delete().eq('guest_id', guestId)
-      
+
       // Delete guest
       const { error } = await supabase.from('guests').delete().eq('id', guestId)
-      
+
       if (error) throw error
-      
+
       refreshData()
     } catch (error) {
       console.error('Error deleting guest:', error)
@@ -119,14 +119,14 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
     const pending = guests.filter(g => g.passes.every(p => p.confirmation_status === 'pending')).length
     const sent = guests.filter(g => g.notified_whatsapp === true).length
     const notSent = guests.filter(g => g.notified_whatsapp === false).length
-    
+
     return { confirmed, pending, sent, notSent }
   }, [guests])
 
   const getGuestStatus = (guest: Guest) => {
     const hasConfirmed = guest.passes.some(p => p.confirmation_status === 'confirmed')
     const allDeclined = guest.passes.every(p => p.confirmation_status === 'declined')
-    
+
     if (allDeclined) return 'declined'
     if (hasConfirmed) return 'confirmed'
     return 'pending'
@@ -162,7 +162,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const handleDownloadExcel = async () => {
     try {
       const supabase = createClient()
-      
+
       // Get all guests with their passes and table assignments
       const { data: guestsData, error: guestsError } = await supabase
         .from('guests')
@@ -199,7 +199,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         const totalPasses = guest.passes?.length || 0
         const tableName = guest.tables?.name || 'Sin asignar'
         const inviteSent = guest.notified_whatsapp ? 'Sí' : 'No'
-        
+
         if (!guest.passes || guest.passes.length === 0) {
           // Guest with no passes
           excelData.push([
@@ -218,8 +218,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           // Guest with passes
           guest.passes.forEach((pass: any, index: number) => {
             const passStatusLabel = pass.confirmation_status === 'confirmed' ? 'Confirmado' :
-                                    pass.confirmation_status === 'declined' ? 'Declinado' : 'Pendiente'
-            
+              pass.confirmation_status === 'declined' ? 'Declinado' : 'Pendiente'
+
             excelData.push([
               guest.name,
               guest.email || '',
@@ -277,25 +277,25 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
 
     // Clean phone number (remove spaces, dashes, etc.)
     const cleanPhone = guest.phone.replace(/[\s\-()]/g, '')
-    
+
     // Count passes
     const totalPasses = guest.passes.length
     const pasesText = totalPasses === 1 ? 'pase' : 'pases'
-    
+
     // Custom message for the guest
     const message = encodeURIComponent(
       `¡Hola ${guest.name}! 👋✨\n\n` +
       `Estamos muy emocionados porque cada vez falta menos para nuestro gran día y no nos imaginamos celebrarlo sin ti.\n\n` +
       `Hemos preparado una invitación muy especial para ti. En este enlace encontrarás tus pases asignados y todos los detalles de nuestra boda:\n\n` +
-      `💌 https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+      `💌 https://Carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
       `Por favor entra para confirmar tu asistencia, ¡nos haría muy felices contar contigo!\n\n` +
-      `Con cariño, Esteban y Dany 💍`
+      `Con cariño, Carlos y Dany 💍`
     )
-    
+
     // Open WhatsApp
     const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`
     window.open(whatsappUrl, '_blank')
-    
+
     // Mark as notified in database (run in background)
     void (async () => {
       try {
@@ -324,16 +324,16 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
 
       // Clean phone number
       const cleanPhone = guest.phone.replace(/[\s\-()]/g, '')
-      
+
       // Reminder message
       const message = encodeURIComponent(
         `¡Hola ${guest.name}! 💌\n\n` +
         `Te recordamos que la fecha límite para confirmar tu asistencia es el 10 de marzo. 📅\n\n` +
         `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
-        `https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+        `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
         `¡Tu presencia es muy importante para nosotros! 💕✨`
       )
-      
+
       // Open WhatsApp with reminder message
       const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`
       window.open(whatsappUrl, '_blank')
@@ -350,14 +350,14 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         <div className="px-6 py-4 flex justify-between items-center max-w-md mx-auto md:max-w-4xl">
           <div className="flex flex-col">
             <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
-              Esteban &amp; Dany
+              Carlos &amp; Dany
             </p>
             <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514]">
               Lista de Invitados
             </h1>
           </div>
           <div className="flex items-center space-x-2">
-            <button 
+            <button
               onClick={handleDownloadExcel}
               className="flex items-center justify-center w-10 h-10 rounded-full bg-[#495a51] text-white hover:bg-[#3d4b43] active:scale-95 transition-all shadow-sm"
               title="Descargar Excel"
@@ -388,51 +388,46 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         <div className="flex space-x-2 mb-6 overflow-x-auto no-scrollbar pb-1">
           <button
             onClick={() => setFilter('all')}
-            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
-              filter === 'all'
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'all'
                 ? 'bg-primary text-white'
                 : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
-            }`}
+              }`}
           >
             Todos ({guests.length})
           </button>
           <button
             onClick={() => setFilter('pending')}
-            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
-              filter === 'pending'
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'pending'
                 ? 'bg-primary text-white'
                 : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
-            }`}
+              }`}
           >
             Pendientes ({counts.pending})
           </button>
           <button
             onClick={() => setFilter('confirmed')}
-            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
-              filter === 'confirmed'
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'confirmed'
                 ? 'bg-primary text-white'
                 : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
-            }`}
+              }`}
           >
             Confirmados ({counts.confirmed})
           </button>
           <button
             onClick={() => setFilter('sent')}
-            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
-              filter === 'sent'
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'sent'
                 ? 'bg-primary text-white'
                 : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
-            }`}
+              }`}
           >
             Enviados ({counts.sent})
           </button>
           <button
             onClick={() => setFilter('not-sent')}
-            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${
-              filter === 'not-sent'
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'not-sent'
                 ? 'bg-primary text-white'
                 : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
-            }`}
+              }`}
           >
             No enviados ({counts.notSent})
           </button>

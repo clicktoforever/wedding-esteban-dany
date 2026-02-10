@@ -100,7 +100,7 @@ export default function AdminHeader() {
       // Actualizar en la base de datos
       const { error } = await supabase
         .from('configurations')
-        .update({ 
+        .update({
           value: deadline.toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -130,7 +130,7 @@ export default function AdminHeader() {
       // Actualizar en la base de datos
       const { error } = await supabase
         .from('configurations')
-        .update({ 
+        .update({
           value: wedding.toISOString(),
           updated_at: new Date().toISOString()
         })
@@ -143,7 +143,7 @@ export default function AdminHeader() {
       alert(`✅ Fecha de boda actualizada a ${weddingDate} a las ${weddingHour}:${weddingMinute}`)
       setIsWeddingDateModalOpen(false)
       setIsSettingsOpen(false)
-      
+
       // Recargar la página para mostrar la nueva fecha
       window.location.reload()
     } catch (error) {
@@ -159,14 +159,14 @@ export default function AdminHeader() {
         <div className="px-6 py-4 flex justify-between items-center max-w-md mx-auto md:max-w-4xl">
           <div className="flex flex-col">
             <p className="text-[#4a5951] text-xs font-bold tracking-[0.15em] uppercase mb-1">
-              Esteban &amp; Dany
+              Carlos &amp; Dany
             </p>
             <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514]">
               Dashboard Admin
             </h1>
           </div>
           <div className="flex items-center space-x-2 relative">
-            <button 
+            <button
               onClick={() => setIsSettingsOpen(!isSettingsOpen)}
               className="p-2 rounded-full hover:bg-stone-100 transition-colors"
               type="button"
@@ -224,7 +224,7 @@ export default function AdminHeader() {
             <div className="p-6">
               <h3 className="font-display text-xl font-bold text-stone-900 text-center mb-1">Nueva Fecha Límite</h3>
               <p className="text-xs text-center text-stone-600 mb-6">Selecciona el límite para confirmar asistencia</p>
-              
+
               {isLoadingDeadline ? (
                 <div className="flex items-center justify-center py-8">
                   <svg className="animate-spin h-8 w-8 text-stone-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -350,7 +350,7 @@ export default function AdminHeader() {
             <div className="p-6">
               <h3 className="font-display text-xl font-bold text-stone-900 text-center mb-1">Fecha del Evento</h3>
               <p className="text-xs text-center text-stone-600 mb-6">Cambia la fecha y hora de la boda</p>
-              
+
               {isLoadingWeddingDate ? (
                 <div className="flex items-center justify-center py-8">
                   <svg className="animate-spin h-8 w-8 text-stone-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">

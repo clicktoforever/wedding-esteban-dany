@@ -13,7 +13,7 @@ export default async function AdminPage() {
 
   // Verificar autenticación
   const { data: { user }, error: authError } = await supabase.auth.getUser()
-  
+
   if (authError || !user) {
     redirect('/admin/login')
   }
@@ -26,7 +26,7 @@ export default async function AdminPage() {
     .single()
 
   if (!adminUser) {
-    redirect('/')
+    redirect('/admin/login')
   }
 
   // Fetch stats using the helper function
@@ -156,7 +156,7 @@ export default async function AdminPage() {
               </Link>
 
               {/* Invitados sin Enviar */}
-              <Link 
+              <Link
                 href="/admin/guests"
                 className="block w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform"
               >
@@ -281,7 +281,7 @@ export default async function AdminPage() {
 
 export async function generateMetadata() {
   return {
-    title: 'Admin Dashboard - Esteban & Dany',
+    title: 'Admin Dashboard - Carlos & Dany',
     description: 'Panel administrativo de la boda',
     robots: 'noindex, nofollow',
   }

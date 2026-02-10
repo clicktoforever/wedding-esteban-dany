@@ -4,7 +4,7 @@ export default function AddToCalendarButton() {
   const handleAddToCalendar = () => {
     // Crear evento de calendario en formato .ics
     const event = {
-      title: 'Boda de Esteban & Dany',
+      title: 'Boda de Carlos & Dany',
       description: 'Ceremonia civil y festejo\\n\\nUbicación: https://share.google/rG5IgDFHQyzZgs1Q4',
       location: 'Hacienda Capelo, Quito, Ecuador',
       start: '20260411T110000',
@@ -15,7 +15,7 @@ export default function AddToCalendarButton() {
     const icsContent = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Boda Esteban & Dany//ES',
+      'PRODID:-//Boda Carlos & Dany//ES',
       'CALSCALE:GREGORIAN',
       'BEGIN:VEVENT',
       `DTSTART:${event.start}`,
@@ -33,7 +33,7 @@ export default function AddToCalendarButton() {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = 'boda-esteban-dany.ics';
+    link.download = 'boda-Carlos-dany.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

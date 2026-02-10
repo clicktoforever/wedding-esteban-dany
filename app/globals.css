@@ -10,46 +10,60 @@
   --font-inter: 'Inter', sans-serif;
   --font-playfair: 'Playfair Display', serif;
   --font-montaga: 'Montaga', serif;
-  
-  /* User's Wedding Color Palette */
-  --wedding-rose: #f5cbcc;
-  --wedding-lavender: #d1c1d9;
-  --wedding-purple: #9579B4;
-  --wedding-beige: #F1DBD0;
-  --wedding-sage: #ADB697;
-  --wedding-forest: #4D5D53;
-  
+
+  /* User's Admin Color Palette */
+  --admin-rose: #f5cbcc;
+  --admin-lavender: #d1c1d9;
+  --admin-purple: #9579B4;
+  --admin-beige: #F1DBD0;
+  --admin-sage: #ADB697;
+  --admin-forest: #4D5D53;
+
   /* Figma Design Colors */
   --neutral-bg: #FCF9F7;
   --neutral-text: #2B1105;
-  --wedding-primary: #C6754D;
+  --admin-primary: #C6754D;
+}
+
+/* Material Symbols Outlined Styles */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+}
+
+.icon-filled {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 @layer base {
   body {
     @apply bg-neutral-bg text-neutral-text antialiased;
   }
-  
-  h1, h2, h3, h4, h5, h6 {
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply font-montaga;
   }
-  
+
   p {
     @apply font-sans;
   }
-  
+
   /* Hide scrollbar for carousel */
   .hide-scrollbar::-webkit-scrollbar,
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-  
+
   .hide-scrollbar,
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-  
+
   /* Prevent mobile zoom on input focus */
   input[type="text"],
   input[type="email"],
@@ -61,8 +75,9 @@
   select {
     font-size: 16px;
   }
-  
+
   @media (min-width: 640px) {
+
     input[type="text"],
     input[type="email"],
     input[type="tel"],
@@ -80,21 +95,22 @@
   .font-montaga {
     font-family: var(--font-montaga);
   }
-  
+
   .nav-link {
     @apply font-montaga text-lg md:text-xl text-neutral-text/60 hover:text-neutral-text transition-all duration-300 relative;
   }
-  
+
   /* Fluid Design Utilities */
   .fade-in-up {
     animation: fadeInUp 0.8s ease-out forwards;
   }
-  
+
   @keyframes fadeInUp {
     from {
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -106,68 +122,73 @@
     0% {
       transform: scale(1);
     }
+
     14% {
       transform: scale(1.15);
     }
+
     28% {
       transform: scale(1);
     }
+
     42% {
       transform: scale(1.15);
     }
+
     56% {
       transform: scale(1);
     }
+
     100% {
       transform: scale(1);
     }
   }
-  
+
   /* Smooth transitions for all interactive elements */
   .transition-fluid {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  
+
   .nav-link:hover {
     opacity: 1;
   }
-  
-  .wedding-btn-primary {
-    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-neutral-bg bg-wedding-primary border border-wedding-primary transition-all duration-300 hover:bg-wedding-primary/90 hover:shadow-lg;
+
+  .btn-admin-primary {
+    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-neutral-bg bg-admin-primary border border-admin-primary transition-all duration-300 hover:bg-admin-primary/90 hover:shadow-lg;
   }
-  
-  .wedding-btn-outline {
-    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-wedding-primary bg-neutral-bg border border-wedding-primary transition-all duration-300 hover:bg-wedding-primary hover:text-neutral-bg;
+
+  .btn-admin-outline {
+    @apply inline-flex items-center justify-center px-8 py-4 font-montaga text-lg text-admin-primary bg-neutral-bg border border-admin-primary transition-all duration-300 hover:bg-admin-primary hover:text-neutral-bg;
   }
-  
-  .btn-primary {
-    @apply bg-wedding-purple text-white px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-wedding-forest hover:shadow-lg;
+
+  .btn-admin-purple {
+    @apply bg-admin-purple text-white px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-admin-forest hover:shadow-lg;
   }
-  
-  .btn-secondary {
-    @apply bg-white text-wedding-forest border-2 border-wedding-forest px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-wedding-forest hover:text-white;
+
+  .btn-admin-outline-forest {
+    @apply bg-white text-admin-forest border-2 border-admin-forest px-8 py-3 rounded-none uppercase tracking-wider text-sm font-medium transition-all duration-300 hover:bg-admin-forest hover:text-white;
   }
-  
+
   .section-padding {
     @apply py-20 md:py-32;
   }
-  
+
   .container-custom {
     @apply container mx-auto px-4 md:px-8 lg:px-16;
   }
-  
+
   .card-elegant {
     @apply bg-white shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden;
   }
-  
+
   .heading-primary {
     @apply text-4xl md:text-5xl lg:text-6xl font-montaga text-neutral-text leading-tight;
   }
-  
+
   .heading-secondary {
     @apply text-3xl md:text-4xl font-montaga text-neutral-text leading-tight;
   }
-  
+
   .text-body {
     @apply text-base md:text-lg text-gray-600 leading-relaxed;
   }
@@ -177,74 +198,75 @@
   .text-balance {
     text-wrap: balance;
   }
-  
-  .bg-gradient-wedding {
-    background: linear-gradient(135deg, var(--wedding-beige) 0%, var(--wedding-rose) 100%);
+
+  .bg-gradient-admin {
+    background: linear-gradient(135deg, var(--admin-beige) 0%, var(--admin-rose) 100%);
   }
-  
+
   .bg-gradient-soft {
-    background: linear-gradient(to bottom, var(--neutral-bg) 0%, var(--wedding-beige) 100%);
+    background: linear-gradient(to bottom, var(--neutral-bg) 0%, var(--admin-beige) 100%);
   }
-  
+
   .bg-neutral-bg {
     background-color: var(--neutral-bg);
   }
-  
+
   .text-neutral-text {
     color: var(--neutral-text);
   }
-  
-  .text-wedding-primary {
-    color: var(--wedding-primary);
+
+  .text-admin-primary {
+    color: var(--admin-primary);
   }
-  
-  .bg-wedding-primary {
-    background-color: var(--wedding-primary);
+
+  .bg-admin-primary {
+    background-color: var(--admin-primary);
   }
-  
-  .border-wedding-primary {
-    border-color: var(--wedding-primary);
+
+  .border-admin-primary {
+    border-color: var(--admin-primary);
   }
-  
-  .bg-wedding-beige {
-    background-color: var(--wedding-beige);
+
+  .bg-admin-beige {
+    background-color: var(--admin-beige);
   }
-  
-  .bg-wedding-rose {
-    background-color: var(--wedding-rose);
+
+  .bg-admin-rose {
+    background-color: var(--admin-rose);
   }
-  
-  .bg-wedding-lavender {
-    background-color: var(--wedding-lavender);
+
+  .bg-admin-lavender {
+    background-color: var(--admin-lavender);
   }
-  
-  .bg-wedding-purple {
-    background-color: var(--wedding-purple);
+
+  .bg-admin-purple {
+    background-color: var(--admin-purple);
   }
-  
-  .bg-wedding-sage {
-    background-color: var(--wedding-sage);
+
+  .bg-admin-sage {
+    background-color: var(--admin-sage);
   }
-  
-  .bg-wedding-forest {
-    background-color: var(--wedding-forest);
+
+  .bg-admin-forest {
+    background-color: var(--admin-forest);
   }
-  
+
   /* PayPhone Widget Responsive Styles */
   #pp-button iframe,
-  #pp-button > div {
+  #pp-button>div {
     @apply w-full !important;
     max-width: 100% !important;
     min-height: 600px !important;
   }
-  
+
   @media (max-width: 640px) {
+
     #pp-button iframe,
-    #pp-button > div {
+    #pp-button>div {
       min-height: 650px !important;
     }
   }
-  
+
   /* Ensure PayPhone container is responsive */
   .payphone-container {
     @apply w-full max-w-full overflow-hidden;
@@ -257,7 +279,9 @@
 
   /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
 }

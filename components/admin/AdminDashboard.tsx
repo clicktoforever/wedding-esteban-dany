@@ -81,7 +81,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const generateWhatsAppMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
-    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
     return `¡Hola ${guest.name}! 💐✨
 Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
 🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
@@ -92,7 +92,7 @@ ${confirmationUrl}
   const generateReminderMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
-    const confirmationUrl = `https://estebanydany.clicktoforever.com/?token=${guest.access_token}`
+    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
     return `¡Hola ${guest.name}! 💌
 Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
 Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
@@ -109,7 +109,7 @@ ${confirmationUrl}
   const filteredGuests = guestList.filter(guest => {
     // Filtro por búsqueda
     const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
+      guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
     if (!matchesSearch) return false
     // Filtro por estado
     if (statusFilter === 'all') return true
@@ -289,7 +289,7 @@ ${confirmationUrl}
           const { error: passesError } = await supabase
             .from('passes')
             .insert(passesToInsert)
-            if (passesError) throw passesError
+          if (passesError) throw passesError
         }
         setMessage({ type: 'success', text: 'Invitado agregado exitosamente' })
       }
@@ -343,12 +343,12 @@ ${confirmationUrl}
       })
     })
     // Convertir a CSV
-    const csvContent = rows.map(row => 
+    const csvContent = rows.map(row =>
       row.map(cell => {
         // Escapar comillas dobles y envolver en comillas si contiene comas o saltos de l\u00ednea
         const cellStr = String(cell).replaceAll('"', '""')
-        return cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"') 
-          ? `"${cellStr}"` 
+        return cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')
+          ? `"${cellStr}"`
           : cellStr
       }).join(',')
     ).join('\n')
@@ -386,12 +386,12 @@ ${confirmationUrl}
         <div className="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-gray-200">
           <div className="p-6 pb-4 flex flex-wrap items-center justify-between gap-4">
             <div>
-              <h2 className="text-2xl font-serif text-wedding-forest">Lista de Invitados</h2>
+              <h2 className="text-2xl font-serif text-admin-forest">Lista de Invitados</h2>
             </div>
             <div className="flex gap-3 flex-wrap">
               <button
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 bg-wedding-rose text-white tracking-wider uppercase text-xs font-medium hover:bg-wedding-rose/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-admin-rose text-white tracking-wider uppercase text-xs font-medium hover:bg-admin-rose/90 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
@@ -400,7 +400,7 @@ ${confirmationUrl}
               </button>
               <button
                 onClick={exportToExcel}
-                className="flex items-center gap-2 px-4 py-2 bg-wedding-forest text-white tracking-wider uppercase text-xs font-medium hover:bg-wedding-forest/90 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-admin-forest text-white tracking-wider uppercase text-xs font-medium hover:bg-admin-forest/90 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -410,14 +410,14 @@ ${confirmationUrl}
             </div>
           </div>
           {/* Barra sticky de búsqueda y filtros */}
-            <div className="px-6 pb-4 flex flex-col md:flex-row md:items-center gap-3">
+          <div className="px-6 pb-4 flex flex-col md:flex-row md:items-center gap-3">
             <div className="flex-1 relative">
               <input
                 type="text"
                 placeholder="Buscar por nombre o acompañante"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full px-4 py-2 pl-10 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm"
+                className="w-full px-4 py-2 pl-10 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm"
               />
               <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -428,7 +428,7 @@ ${confirmationUrl}
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value as 'all' | 'confirmed' | 'pending' | 'declined')}
-                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20"
+                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20"
               >
                 <option value="all">Todos</option>
                 <option value="confirmed">Confirmados</option>
@@ -448,7 +448,7 @@ ${confirmationUrl}
                 <button
                   key={tab.key}
                   onClick={() => setStatusFilter(tab.key as 'all' | 'confirmed' | 'pending' | 'declined')}
-                  className={`px-3 py-2 rounded-full border transition-colors ${statusFilter === tab.key ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+                  className={`px-3 py-2 rounded-full border transition-colors ${statusFilter === tab.key ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
                 >
                   {tab.label}
                 </button>
@@ -483,14 +483,14 @@ ${confirmationUrl}
                     const inviteHref = getWhatsAppLink(guest, 'invite')
                     const reminderHref = getWhatsAppLink(guest, 'reminder')
                     return (
-                      <tr key={guest.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-wedding-beige/30 transition-colors`}>
+                      <tr key={guest.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-admin-beige/30 transition-colors`}>
                         <td className="px-4 py-3 align-top">
-                          <div className="font-serif text-wedding-forest text-sm">{guest.name}</div>
+                          <div className="font-serif text-admin-forest text-sm">{guest.name}</div>
                           <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
                             <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
                             {badge && (
                               <span
-                                className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-wedding-sage/20 text-wedding-forest border border-wedding-sage/30"
+                                className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-admin-sage/20 text-admin-forest border border-admin-sage/30"
                                 title={badge.tooltip}
                               >
                                 +{badge.count}
@@ -503,13 +503,12 @@ ${confirmationUrl}
                             {guest.passes.slice(1).map(pass => (
                               <div key={pass.id} className="flex items-center gap-2">
                                 <span
-                                  className={`inline-block h-3 w-3 rounded-full flex-shrink-0 ${
-                                    pass.confirmation_status === 'confirmed'
+                                  className={`inline-block h-3 w-3 rounded-full flex-shrink-0 ${pass.confirmation_status === 'confirmed'
                                       ? 'bg-emerald-500'
                                       : pass.confirmation_status === 'pending'
-                                      ? 'bg-amber-400'
-                                      : 'bg-gray-400'
-                                  }`}
+                                        ? 'bg-amber-400'
+                                        : 'bg-gray-400'
+                                    }`}
                                 ></span>
                                 <span>{pass.attendee_name}</span>
                               </div>
@@ -544,7 +543,7 @@ ${confirmationUrl}
                                     else next.delete(guest.id)
                                     setSentMessages(next)
                                   }}
-                                  className="w-4 h-4 accent-wedding-forest"
+                                  className="w-4 h-4 accent-admin-forest"
                                 />
                                 <span>Enviado</span>
                               </label>
@@ -560,7 +559,7 @@ ${confirmationUrl}
                                     }
                                     setSentMessages(prev => new Set([...prev, guest.id]))
                                   }}
-                                  className={`p-2 rounded hover:bg-wedding-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                                  className={`p-2 rounded hover:bg-admin-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
                                   title="Enviar invitación"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -572,7 +571,7 @@ ${confirmationUrl}
                                   href={reminderHref}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="p-2 rounded hover:bg-wedding-sage/20 transition"
+                                  className="p-2 rounded hover:bg-admin-sage/20 transition"
                                   title="Enviar recordatorio"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -590,7 +589,7 @@ ${confirmationUrl}
                           <div className="flex justify-end gap-2 text-gray-600">
                             <button
                               onClick={() => openEditModal(guest)}
-                              className="p-2 rounded hover:bg-wedding-sage/20 transition"
+                              className="p-2 rounded hover:bg-admin-sage/20 transition"
                               title="Editar invitado"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,12 +635,12 @@ ${confirmationUrl}
                     className="w-full flex items-center justify-between gap-3 px-4 py-3"
                   >
                     <div className="text-left flex-1 min-w-0">
-                      <div className="font-serif text-wedding-forest truncate">{guest.name}</div>
+                      <div className="font-serif text-admin-forest truncate">{guest.name}</div>
                       <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
                         <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
                         {badge && (
                           <span
-                            className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-wedding-sage/20 text-wedding-forest border border-wedding-sage/30"
+                            className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-admin-sage/20 text-admin-forest border border-admin-sage/30"
                             title={badge.tooltip}
                           >
                             +{badge.count}
@@ -649,7 +648,7 @@ ${confirmationUrl}
                         )}
                       </div>
                     </div>
-                    <span 
+                    <span
                       className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold flex-shrink-0"
                       style={{
                         backgroundColor: statusKey === 'confirmed' ? '#d1fae5' : statusKey === 'pending' ? '#fef3c7' : '#fee2e2',
@@ -674,11 +673,11 @@ ${confirmationUrl}
                             const dotColor = pass.confirmation_status === 'confirmed'
                               ? '#10b981'
                               : pass.confirmation_status === 'pending'
-                              ? '#f59e0b'
-                              : '#6b7280'
+                                ? '#f59e0b'
+                                : '#6b7280'
                             return (
                               <div key={pass.id} className="flex items-center gap-2">
-                                <span 
+                                <span
                                   className="inline-block h-3 w-3 rounded-full flex-shrink-0"
                                   style={{ backgroundColor: dotColor }}
                                 ></span>
@@ -703,7 +702,7 @@ ${confirmationUrl}
                                 else next.delete(guest.id)
                                 setSentMessages(next)
                               }}
-                              className="w-4 h-4 accent-wedding-forest"
+                              className="w-4 h-4 accent-admin-forest"
                             />
                             <span>Enviado</span>
                           </label>
@@ -719,7 +718,7 @@ ${confirmationUrl}
                                 }
                                 setSentMessages(prev => new Set([...prev, guest.id]))
                               }}
-                              className={`h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                              className={`h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
                               title="Enviar invitación"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -731,7 +730,7 @@ ${confirmationUrl}
                               href={reminderHref}
                               target="_blank"
                               rel="noreferrer"
-                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition"
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition"
                               title="Enviar recordatorio"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -741,7 +740,7 @@ ${confirmationUrl}
                             </a>
                             <button
                               onClick={() => openEditModal(guest)}
-                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-wedding-sage/20 transition"
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition"
                               title="Editar"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -788,15 +787,15 @@ ${confirmationUrl}
       {/* Gift Tracker with Tabs */}
       <div className="bg-white border border-gray-200">
         <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-          <h3 className="text-xl font-serif text-wedding-forest">Gestión de Regalos</h3>
+          <h3 className="text-xl font-serif text-admin-forest">Gestión de Regalos</h3>
           <div className="flex gap-2 text-xs font-medium">
             <button
               onClick={() => setGiftsTab('pending')}
-              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'pending' ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'pending' ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
             >Pendientes</button>
             <button
               onClick={() => setGiftsTab('completed')}
-              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'completed' ? 'bg-wedding-forest text-white border-wedding-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-wedding-forest/60'}`}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'completed' ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
             >Completados</button>
           </div>
         </div>
@@ -828,12 +827,12 @@ ${confirmationUrl}
       {/* Modal para agregar invitado */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start md:items-center justify-center overflow-y-auto">
-          <div className="bg-white w-full md:max-w-2xl md:m-4 min-h-screen md:min-h-0 md:max-h-[90vh] md:shadow-2xl md:border-2 border-wedding-sage/20 flex flex-col">
+          <div className="bg-white w-full md:max-w-2xl md:m-4 min-h-screen md:min-h-0 md:max-h-[90vh] md:shadow-2xl md:border-2 border-admin-sage/20 flex flex-col">
             {/* Header del Modal */}
-            <div className="bg-gradient-to-br from-wedding-sage/10 via-wedding-rose/10 to-wedding-purple/10 p-4 md:p-6 border-b border-wedding-sage/20 flex-shrink-0">
+            <div className="bg-gradient-to-br from-admin-sage/10 via-admin-rose/10 to-admin-purple/10 p-4 md:p-6 border-b border-admin-sage/20 flex-shrink-0">
               <div className="flex items-start md:items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl md:text-2xl font-serif text-wedding-forest tracking-wide">
+                  <h3 className="text-xl md:text-2xl font-serif text-admin-forest tracking-wide">
                     {isEditMode ? 'Editar Invitado' : 'Agregar Nuevo Invitado'}
                   </h3>
                   <p className="text-xs md:text-sm text-gray-600 mt-1 tracking-wide">
@@ -854,20 +853,19 @@ ${confirmationUrl}
               </div>
               {/* Decorative divider */}
               <div className="flex items-center justify-center mt-4">
-                <div className="h-px bg-wedding-forest/20 w-12"></div>
-                <svg className="w-4 h-4 mx-3 text-wedding-rose" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z"/>
+                <div className="h-px bg-admin-forest/20 w-12"></div>
+                <svg className="w-4 h-4 mx-3 text-admin-rose" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
                 </svg>
-                <div className="h-px bg-wedding-forest/20 w-12"></div>
+                <div className="h-px bg-admin-forest/20 w-12"></div>
               </div>
             </div>
             {/* Mensaje de éxito/error */}
             {message && (
-              <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${
-                message.type === 'success' 
-                  ? 'bg-wedding-sage/10 border-wedding-forest text-wedding-forest' 
+              <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${message.type === 'success'
+                  ? 'bg-admin-sage/10 border-admin-forest text-admin-forest'
                   : 'bg-red-50 border-red-500 text-red-700'
-              }`}>
+                }`}>
                 <p className="text-sm font-medium tracking-wide">{message.text}</p>
               </div>
             )}
@@ -875,7 +873,7 @@ ${confirmationUrl}
             <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-6 flex-1 overflow-y-auto">
               {/* Información del Invitado */}
               <div className="space-y-4">
-                <h4 className="text-base md:text-lg font-serif text-wedding-forest tracking-wide border-b border-gray-200 pb-2">
+                <h4 className="text-base md:text-lg font-serif text-admin-forest tracking-wide border-b border-gray-200 pb-2">
                   Información del Invitado
                 </h4>
                 <div>
@@ -888,7 +886,7 @@ ${confirmationUrl}
                     required
                     value={guestName}
                     onChange={(e) => handleGuestNameChange(e.target.value)}
-                    className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base"
+                    className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base"
                     placeholder="Ej: María García López"
                   />
                   <p className="text-xs text-gray-500 mt-1 italic">
@@ -908,9 +906,8 @@ ${confirmationUrl}
                         setGuestEmail(e.target.value)
                         setEmailError('')
                       }}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border ${
-                        emailError ? 'border-red-500' : 'border-gray-300'
-                      } focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base`}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border ${emailError ? 'border-red-500' : 'border-gray-300'
+                        } focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base`}
                       placeholder="correo@ejemplo.com"
                     />
                     {emailError && (
@@ -926,7 +923,7 @@ ${confirmationUrl}
                         id="countryCode"
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-20 md:w-28 flex-shrink-0 px-2 md:px-3 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all bg-white text-xs md:text-sm"
+                        className="w-20 md:w-28 flex-shrink-0 px-2 md:px-3 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all bg-white text-xs md:text-sm"
                       >
                         <option value="+593">🇪🇨 +593</option>
                         <option value="+52">🇲🇽 +52</option>
@@ -939,7 +936,7 @@ ${confirmationUrl}
                         required
                         value={guestPhone}
                         onChange={(e) => setGuestPhone(e.target.value)}
-                        className="flex-1 min-w-0 px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base"
+                        className="flex-1 min-w-0 px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base"
                         placeholder="1234567890"
                       />
                     </div>
@@ -952,13 +949,13 @@ ${confirmationUrl}
               {/* Pases */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                  <h4 className="text-base md:text-lg font-serif text-wedding-forest tracking-wide">
+                  <h4 className="text-base md:text-lg font-serif text-admin-forest tracking-wide">
                     Pases de Entrada
                   </h4>
                   <button
                     type="button"
                     onClick={addPass}
-                    className="flex items-center gap-1 px-2 md:px-3 py-1 text-xs md:text-sm text-wedding-rose hover:bg-wedding-rose/10 transition-colors tracking-wider uppercase font-medium"
+                    className="flex items-center gap-1 px-2 md:px-3 py-1 text-xs md:text-sm text-admin-rose hover:bg-admin-rose/10 transition-colors tracking-wider uppercase font-medium"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -969,7 +966,7 @@ ${confirmationUrl}
                 </div>
                 <div className="space-y-3">
                   {passes.map((pass, index) => (
-                    <div key={pass.id || `pass-${index}`} className="flex gap-2 md:gap-3 items-start bg-wedding-beige/20 p-3 md:p-4 border border-wedding-sage/10">
+                    <div key={pass.id || `pass-${index}`} className="flex gap-2 md:gap-3 items-start bg-admin-beige/20 p-3 md:p-4 border border-admin-sage/10">
                       <div className="flex-1 min-w-0">
                         <label className="block text-xs font-medium text-gray-600 mb-2 tracking-wider uppercase">
                           {index === 0 ? 'Invitado Principal *' : `Acompañante ${index} *`}
@@ -979,7 +976,7 @@ ${confirmationUrl}
                           required
                           value={pass.attendee_name}
                           onChange={(e) => updatePass(index, e.target.value)}
-                          className="w-full px-3 md:px-4 py-2 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all bg-white text-sm md:text-base"
+                          className="w-full px-3 md:px-4 py-2 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all bg-white text-sm md:text-base"
                           placeholder={index === 0 ? "Se completa automáticamente" : "Ej: Juan Pérez"}
                           disabled={index === 0}
                         />
@@ -1018,7 +1015,7 @@ ${confirmationUrl}
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 px-4 md:px-6 py-2 md:py-3 bg-wedding-forest text-white tracking-wider uppercase text-xs md:text-sm font-medium hover:bg-wedding-forest/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 px-4 md:px-6 py-2 md:py-3 bg-admin-forest text-white tracking-wider uppercase text-xs md:text-sm font-medium hover:bg-admin-forest/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
