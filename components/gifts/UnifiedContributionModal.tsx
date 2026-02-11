@@ -60,6 +60,9 @@ export default function UnifiedContributionModal({
   const [validationMessage, setValidationMessage] = useState('')
   const [transactionId, setTransactionId] = useState<string | null>(null)
 
+  // Flip State for Ecuador Card
+  const [isFlipped, setIsFlipped] = useState(false)
+
   // Payphone State
   const [payphoneScriptLoaded, setPayphoneScriptLoaded] = useState(false)
   const [paymentConfig, setPaymentConfig] = useState<any>(null)
@@ -855,104 +858,171 @@ export default function UnifiedContributionModal({
                   </div>
                 </div>
 
-                {/* Bank Details Card */}
+                {/* Bank Details Card with Flip Effect */}
                 {bankAccount && (
-                  <section className="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-stone-100">
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className="bg-primary/5 p-3 rounded-xl">
-                        <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h3 className="font-body text-lg font-bold text-gray-900 leading-tight">
-                          {bankAccount.bankName}
-                        </h3>
-                        <p className="text-gray-500 text-sm">{bankAccount.accountType || 'Cuenta de Ahorros'}</p>
-                      </div>
-                    </div>
+                  <div className="relative w-full perspective-1000 mb-12">
+                    <div
+                      className={`relative w-full transition-all duration-700 [transform-style:preserve-3d] ${isFlipped ? '[transform:rotateY(180deg)]' : ''
+                        }`}
+                    >
+                      {/* Front Face - Bank Details */}
+                      <div className="relative w-full bg-white rounded-2xl shadow-sm border border-stone-100 [backface-visibility:hidden]">
+                        <div className="p-6">
+                          <div className="flex items-center gap-4 mb-6">
+                            <div className="bg-primary/5 p-3 rounded-xl">
+                              <svg className="w-7 h-7 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 14v3m4-3v3m4-3v3M3 21h18M3 10h18M3 7l9-4 9 4M4 10h16v11H4V10z" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h3 className="font-body text-lg font-bold text-gray-900 leading-tight">
+                                {bankAccount.bankName}
+                              </h3>
+                              <p className="text-gray-500 text-sm">{bankAccount.accountType || 'Cuenta de Ahorros'}</p>
+                            </div>
+                          </div>
 
-                    <div className="h-px w-full bg-stone-100 mb-6" />
+                          <div className="h-px w-full bg-stone-100 mb-6" />
 
-                    <div className="space-y-6">
-                      {/* Account Number */}
-                      <div>
-                        <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
-                          Número de cuenta
-                        </label>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
-                            {bankAccount.accountNumber}
-                          </p>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              copyToClipboard(bankAccount.accountNumber)
-                            }}
-                            type="button"
-                            className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
-                          >
-                            <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                          </button>
+                          <div className="space-y-6">
+                            {/* Account Number */}
+                            <div>
+                              <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
+                                Número de cuenta
+                              </label>
+                              <div className="flex items-center justify-between">
+                                <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
+                                  {bankAccount.accountNumber}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    copyToClipboard(bankAccount.accountNumber)
+                                  }}
+                                  type="button"
+                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                >
+                                  <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Beneficiary Name */}
+                            <div>
+                              <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
+                                Beneficiario
+                              </label>
+                              <div className="flex items-center justify-between">
+                                <p className="text-lg font-body font-bold text-gray-900">
+                                  {bankAccount.accountName}
+                                </p>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    copyToClipboard(bankAccount.accountName)
+                                  }}
+                                  type="button"
+                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                >
+                                  <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                  </svg>
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* ID Number */}
+                            {bankAccount.identificationNumber && (
+                              <div>
+                                <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
+                                  C.I. / RUC
+                                </label>
+                                <div className="flex items-center justify-between">
+                                  <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
+                                    {bankAccount.identificationNumber}
+                                  </p>
+                                  <button
+                                    onClick={(e) => {
+                                      e.preventDefault()
+                                      copyToClipboard(bankAccount.identificationNumber!)
+                                    }}
+                                    type="button"
+                                    className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                  >
+                                    <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Beneficiary Name */}
-                      <div>
-                        <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
-                          Beneficiario
-                        </label>
-                        <div className="flex items-center justify-between">
-                          <p className="text-lg font-body font-bold text-gray-900">
-                            {bankAccount.accountName}
-                          </p>
-                          <button
-                            onClick={(e) => {
-                              e.preventDefault()
-                              copyToClipboard(bankAccount.accountName)
-                            }}
-                            type="button"
-                            className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                        {/* DeUna Button - Only for Ecuador */}
+                        {currency === 'USD' && (
+                          <div
+                            className={`absolute -bottom-5 left-0 right-0 flex justify-center z-20 transition-all duration-300 ${isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
                           >
-                            <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* ID Number */}
-                      {bankAccount.identificationNumber && (
-                        <div>
-                          <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
-                            C.I. / RUC
-                          </label>
-                          <div className="flex items-center justify-between">
-                            <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">
-                              {bankAccount.identificationNumber}
-                            </p>
                             <button
-                              onClick={(e) => {
-                                e.preventDefault()
-                                copyToClipboard(bankAccount.identificationNumber!)
-                              }}
-                              type="button"
-                              className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                              onClick={() => setIsFlipped(true)}
+                              className="group flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white"
                             >
-                              <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              <span className="font-body font-bold text-sm tracking-wide">DeUna!</span>
+                              <svg
+                                className="w-4 h-4 text-white group-hover:rotate-180 transition-transform duration-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                               </svg>
                             </button>
                           </div>
+                        )}
+
+                      </div>
+
+                      {/* Back Face - QR Code */}
+                      <div className="absolute top-0 left-0 w-full h-full bg-white rounded-2xl shadow-sm border border-stone-100 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6">
+
+                        <div className="relative w-full aspect-square max-w-[240px] rounded-xl overflow-hidden border-2 border-stone-100 mb-8">
+                          <Image
+                            src="/images/QRDEUNA.PNG"
+                            alt="QR DeUna"
+                            fill
+                            className="object-contain"
+                          />
                         </div>
-                      )}
+
+                        {/* Ocultar QR Button - Only for Ecuador */}
+                        <div
+                          className={`absolute -bottom-5 left-0 right-0 flex justify-center z-20 transition-all duration-300 ${!isFlipped ? 'opacity-0 pointer-events-none' : 'opacity-100 pointer-events-auto'}`}
+                        >
+                          <button
+                            onClick={() => setIsFlipped(false)}
+                            className="group flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white"
+                          >
+                            <span className="font-bold text-sm tracking-wide">Ocultar QR</span>
+                            <svg
+                              className="w-4 h-4 text-white group-hover:-rotate-180 transition-transform duration-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                          </button>
+                        </div>
+
+                      </div>
                     </div>
-                  </section>
+                  </div>
                 )}
 
                 {/* Upload Receipt Section */}

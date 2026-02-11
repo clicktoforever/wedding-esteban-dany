@@ -288,7 +288,7 @@ function ConfirmPaymentContent() {
             Entendido
           </button>
           <p className="mt-4 text-sm text-gray-500 text-center px-4 leading-normal">
-            Recibirás un mensaje por WhatsApp después de que los novios confirmen la recepción del regalo
+            Recibirás un correo electrónico después de que los novios confirmen la recepción del regalo
           </p>
         </div>
       </div>

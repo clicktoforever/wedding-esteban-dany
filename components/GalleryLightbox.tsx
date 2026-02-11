@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
+import { useUI } from '@/components/providers/UIProvider'
 
 interface GalleryImage {
   src: string
@@ -17,24 +18,28 @@ interface GalleryLightboxProps {
 export default function GalleryLightbox({ images }: GalleryLightboxProps) {
   const [isOpen, setIsOpen] = useState(false)
   const [currentIndex, setCurrentIndex] = useState(0)
+  const { setIsGalleryOpen } = useUI()
 
-  // Prevenir scroll cuando el lightbox está abierto
+  // Prevenir scroll cuando el lightbox está abierto y notificar el estado
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
+      setIsGalleryOpen(true)
     } else {
       document.body.style.overflow = 'unset'
+      setIsGalleryOpen(false)
     }
     return () => {
       document.body.style.overflow = 'unset'
+      setIsGalleryOpen(false)
     }
-  }, [isOpen])
+  }, [isOpen, setIsGalleryOpen])
 
   // Navegación con teclado
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isOpen) return
-      
+
       if (e.key === 'Escape') {
         setIsOpen(false)
       } else if (e.key === 'ArrowRight') {

@@ -17,7 +17,7 @@ const config: Config = {
         script: ['var(--font-great-vibes)', "Great Vibes", "cursive"],
       },
       colors: {
-        primary: "#5e665a", // Lavender - Updated to match design
+        primary: "#4d5d53", // Green - Updated TBD
         "primary-light": "#4A7A51",
         secondary: "#9E7BB5", // Lavender accent (darker for text/icons) - usado en confirmaciones
         accent: "#E6E6FA", // Light Lavender - para backgrounds suaves

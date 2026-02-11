@@ -1,7 +1,7 @@
 "use client"
 
 import Image from 'next/image'
-import { Map, Navigation, User, Clock, Car, Wine } from 'lucide-react'
+import { Map, Navigation, User, Clock, Car, Wine, Pin, MapPin } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 export default function EventDetails() {
@@ -58,18 +58,25 @@ export default function EventDetails() {
                                 href="https://waze.com/ul/h6rbnnqze2"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 bg-white/90 hover:bg-white text-gray-900 py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-colors"
+                                className="flex-1 bg-white/90 hover:bg-white text-gray-900 py-2.5 px-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-colors whitespace-nowrap"
                             >
-                                <Navigation className="w-4 h-4" />
+                                <div className="relative w-4 h-4 flex-shrink-0">
+                                    <Image
+                                        src="/icons/waze.svg"
+                                        alt="Waze"
+                                        fill
+                                        className="object-contain"
+                                    />
+                                </div>
                                 Ir con Waze
                             </a>
                             <a
                                 href="https://maps.app.goo.gl/9mZ4UAuoyY9vHsHs6?g_st=ic"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex-1 bg-primary/90 hover:bg-primary text-white py-2.5 px-4 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-colors border border-white/20"
+                                className="flex-1 bg-primary/90 hover:bg-primary text-white py-2.5 px-2 rounded-lg text-xs font-bold uppercase tracking-wide flex items-center justify-center gap-2 transition-colors border border-white/20 whitespace-nowrap"
                             >
-                                <Map className="w-4 h-4" />
+                                <MapPin className="w-4 h-4 flex-shrink-0" />
                                 Ir con Maps
                             </a>
                         </div>
@@ -78,15 +85,22 @@ export default function EventDetails() {
 
                 {/* Card 2: Dress Code */}
                 <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <h3 className="font-display text-xl text-center text-gray-800 mb-6 border-b border-gray-100 pb-4">
+                    <h3 className="font-display text-2xl text-center text-gray-800 mb-6 border-b border-gray-100 pb-4">
                         Código de Vestimenta: <span className="text-primary font-bold">Formal</span>
                     </h3>
 
                     <div className="flex gap-6">
                         {/* Ellas */}
                         <div className="flex-1 flex flex-col items-center">
-                            <div className="mb-3 p-3 bg-secondary/20 rounded-full">
-                                <User className="w-8 h-8 text-primary" />
+                            <div className="mb-3 p-3 bg-secondary/20 rounded-full overflow-hidden flex items-center justify-center">
+                                <div className="relative w-8 h-8">
+                                    <Image
+                                        src="/icons/dress.png"
+                                        alt="Vestido"
+                                        fill
+                                        className="object-contain mix-blend-multiply"
+                                    />
+                                </div>
                             </div>
                             <span className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-3">Ellas</span>
 
@@ -106,8 +120,15 @@ export default function EventDetails() {
 
                         {/* Ellos */}
                         <div className="flex-1 flex flex-col items-center">
-                            <div className="mb-3 p-3 bg-secondary/20 rounded-full">
-                                <User className="w-8 h-8 text-primary" />
+                            <div className="mb-3 p-3 bg-secondary/20 rounded-full overflow-hidden flex items-center justify-center">
+                                <div className="relative w-8 h-8">
+                                    <Image
+                                        src="/icons/traje.png"
+                                        alt="Traje"
+                                        fill
+                                        className="object-contain mix-blend-multiply"
+                                    />
+                                </div>
                             </div>
                             <span className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-3">Ellos</span>
 
