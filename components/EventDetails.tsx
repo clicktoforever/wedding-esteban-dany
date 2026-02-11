@@ -159,7 +159,7 @@ export default function EventDetails() {
                                 <Clock className="w-6 h-6 text-[#4a5951]" />
                             </div>
                             <div className="flex-grow">
-                                <h4 className="font-bold text-gray-800 mb-1">Horario</h4>
+                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Horario</h4>
                                 <div className="relative pl-3 border-l-2 border-[#4a5951]/20 space-y-2 py-1">
                                     <p className="text-sm text-gray-600">
                                         <span className="font-bold text-[#4a5951]">11:00 AM</span> — Ceremonia
@@ -177,7 +177,7 @@ export default function EventDetails() {
                                 <Car className="w-6 h-6 text-[#4a5951]" />
                             </div>
                             <div className="flex-grow">
-                                <h4 className="font-bold text-gray-800 mb-1">Estacionamiento</h4>
+                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Estacionamiento</h4>
                                 <p className="text-sm text-gray-600">
                                     Estacionamiento privado y seguridad para todos los invitados.
                                 </p>
@@ -190,7 +190,7 @@ export default function EventDetails() {
                                 <Wine className="w-6 h-6 text-[#4a5951]" />
                             </div>
                             <div className="flex-grow">
-                                <h4 className="font-bold text-gray-800 mb-1">Recepción Solo Adultos</h4>
+                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Recepción Solo Adultos</h4>
                                 <p className="text-sm text-gray-600 italic leading-relaxed">
                                     "Amamos a tus pequeños, pero queremos que esta noche te relajes y disfrutes con nosotros. Evento solo para adultos."
                                 </p>

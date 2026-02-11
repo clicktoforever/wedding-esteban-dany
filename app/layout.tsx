@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   },
   description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
   icons: {
-    icon: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
-    shortcut: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
-    apple: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4',
+    icon: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
+    shortcut: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
+    apple: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
   },
   openGraph: {
     title: 'Carlos & Dany - 11 de Abril 2026',

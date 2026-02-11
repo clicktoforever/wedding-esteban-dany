@@ -10,6 +10,7 @@ interface Pass {
   id: string
   attendee_name: string
   confirmation_status: 'pending' | 'confirmed' | 'declined'
+  isNew?: boolean
 }
 
 interface Guest {
@@ -58,11 +59,11 @@ export default function EditGuestModal({
       if (contentRef.current) {
         contentRef.current.scrollTop = 0
       }
-      
+
       // Extract country code from phone
       let extractedCode = '+';
       let phoneNumber = guest.phone || '';
-      
+
       if (phoneNumber.startsWith('+593')) {
         extractedCode = '+593';
         phoneNumber = phoneNumber.substring(4);
@@ -79,7 +80,7 @@ export default function EditGuestModal({
           phoneNumber = phoneNumber.substring(match[0].length);
         }
       }
-      
+
       setCountryCode(extractedCode);
       setFormData({
         name: guest.name,
@@ -122,7 +123,7 @@ export default function EditGuestModal({
   const updatePassName = (passId: string, name: string) => {
     setFormData(prev => ({
       ...prev,
-      passes: prev.passes.map(pass => 
+      passes: prev.passes.map(pass =>
         pass.id === passId ? { ...pass, attendee_name: name } : pass
       )
     }))
@@ -131,28 +132,63 @@ export default function EditGuestModal({
   const updatePassStatus = (passId: string, status: 'pending' | 'confirmed' | 'declined') => {
     setFormData(prev => ({
       ...prev,
-      passes: prev.passes.map(pass => 
+      passes: prev.passes.map(pass =>
         pass.id === passId ? { ...pass, confirmation_status: status } : pass
       )
     }))
   }
 
-  const handleDeletePass = async (passId: string) => {
+  const handleAddPass = () => {
+    const newPass: Pass = {
+      id: `new-${Date.now()}`,
+      attendee_name: '',
+      confirmation_status: 'pending',
+      isNew: true
+    }
+
+    setFormData(prev => ({
+      ...prev,
+      passes: [...prev.passes, newPass]
+    }))
+
+    // Scroll to bottom after a short delay to let react render
+    setTimeout(() => {
+      if (contentRef.current) {
+        contentRef.current.scrollTo({
+          top: contentRef.current.scrollHeight,
+          behavior: 'smooth'
+        })
+      }
+    }, 100)
+  }
+
+  const deletePass = async (passId: string) => {
+    // If it's a new pass (local only), just remove it from state
+    if (passId.toString().startsWith('new-')) {
+      setFormData(prev => ({
+        ...prev,
+        passes: prev.passes.filter(p => p.id !== passId)
+      }))
+      setPassToDelete(null)
+      return
+    }
+
+    // If it's an existing pass, delete from DB
     try {
       const supabase: any = createClient()
       const { error } = await supabase
         .from('passes')
         .delete()
         .eq('id', passId)
-      
+
       if (error) throw error
-      
+
       // Update local state
       setFormData(prev => ({
         ...prev,
         passes: prev.passes.filter(p => p.id !== passId)
       }))
-      
+
       setPassToDelete(null)
       onSuccess()
     } catch (error) {
@@ -163,7 +199,7 @@ export default function EditGuestModal({
 
   const confirmDeletePass = () => {
     if (passToDelete) {
-      handleDeletePass(passToDelete)
+      deletePass(passToDelete)
     }
   }
 
@@ -176,7 +212,7 @@ export default function EditGuestModal({
 
       // Update guest
       const phoneNumber = formData.phone ? `${countryCode}${formData.phone}` : null
-      const { error: guestError} = await supabase
+      const { error: guestError } = await supabase
         .from('guests')
         .update({
           name: formData.name,
@@ -187,8 +223,12 @@ export default function EditGuestModal({
 
       if (guestError) throw guestError
 
-      // Update passes
-      for (const pass of formData.passes) {
+      // Process passes
+      const existingPasses = formData.passes.filter(p => !p.isNew)
+      const newPasses = formData.passes.filter(p => p.isNew && p.attendee_name.trim() !== '')
+
+      // Update existing passes
+      for (const pass of existingPasses) {
         const { error: passError } = await supabase
           .from('passes')
           .update({
@@ -198,6 +238,19 @@ export default function EditGuestModal({
           .eq('id', pass.id)
 
         if (passError) throw passError
+      }
+
+      // Insert new passes
+      if (newPasses.length > 0) {
+        const { error: newPassesError } = await supabase
+          .from('passes')
+          .insert(newPasses.map(pass => ({
+            guest_id: guest.id,
+            attendee_name: pass.attendee_name,
+            confirmation_status: pass.confirmation_status
+          })))
+
+        if (newPassesError) throw newPassesError
       }
 
       onSuccess()
@@ -232,26 +285,26 @@ export default function EditGuestModal({
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
-      
+
       {/* Modal Container */}
-      <div 
+      <div
         className="fixed bottom-0 inset-x-0 md:inset-0 z-50 flex md:items-center md:justify-center"
         style={{
           transform: `translateY(${currentY}px)`,
           transition: isDragging ? 'none' : 'transform 0.3s ease-out'
         }}
       >
-        <div 
+        <div
           className="relative flex max-h-[90dvh] md:h-[90vh] w-full md:max-w-md flex-col bg-[#F9F7F2] shadow-2xl overflow-hidden rounded-t-2xl md:rounded-2xl animate-in slide-in-from-bottom md:fade-in duration-300"
           onClick={(e) => e.stopPropagation()}
           style={{ overscrollBehavior: 'contain' }}
         >
           {/* Handle Bar */}
-          <div 
+          <div
             className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-stone-300 rounded-full z-50 cursor-grab active:cursor-grabbing md:hidden"
             onTouchStart={handleTouchStart}
             onTouchMove={handleTouchMove}
@@ -264,7 +317,7 @@ export default function EditGuestModal({
               <h2 className="text-2xl font-serif font-bold text-stone-900">
                 Editar Invitado
               </h2>
-              <button 
+              <button
                 onClick={onClose}
                 className="w-8 h-8 flex items-center justify-center bg-stone-100 rounded-full text-stone-500 hover:text-stone-800 transition-colors"
               >
@@ -297,7 +350,7 @@ export default function EditGuestModal({
                           ...prev,
                           name: newName,
                           // Actualizar automáticamente el nombre del primer pase (titular)
-                          passes: prev.passes.map((pass, idx) => 
+                          passes: prev.passes.map((pass, idx) =>
                             idx === 0 ? { ...pass, attendee_name: newName } : pass
                           )
                         }));
@@ -361,7 +414,7 @@ export default function EditGuestModal({
                 <div className="flex flex-col gap-3">
                   {formData.passes.map((pass, index) => {
                     const isMainPass = index === 0;
-                    
+
                     return (
                       <SwipeableListItem
                         key={pass.id}
@@ -421,6 +474,16 @@ export default function EditGuestModal({
                     );
                   })}
                 </div>
+
+                {/* Add Pass Button */}
+                <button
+                  type="button"
+                  onClick={handleAddPass}
+                  className="mt-4 w-full py-4 border-2 border-dashed border-stone-300 rounded-2xl text-stone-500 hover:border-primary hover:text-primary transition-colors flex items-center justify-center gap-2 font-semibold"
+                >
+                  <span className="material-symbols-outlined text-[20px]">add</span>
+                  Agregar Acompañante
+                </button>
               </div>
             </form>
           </div>
