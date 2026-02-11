@@ -850,7 +850,7 @@ export default function UnifiedContributionModal({
                 <div className="mb-8 flex flex-col items-center">
                   <div className="w-24 h-24 relative mb-2">
                     <Image
-                      src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
+                      src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
                       alt="Logo Carlos & Dany"
                       fill
                       className="object-contain brightness-0 opacity-80"

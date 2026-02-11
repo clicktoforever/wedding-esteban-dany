@@ -53,7 +53,7 @@ export default async function Page() {
             <div className="absolute top-12 lg:top-16 left-1/2 transform -translate-x-1/2 z-10">
               <div className="w-24 h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
                 <Image
-                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
+                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
                   alt="Logo"
                   width={72}
                   height={72}
@@ -65,7 +65,7 @@ export default async function Page() {
             {/* Content - Names, Date, Countdown */}
             <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-56 lg:mt-64">
               <h1 className="font-serif text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
-                Carlos <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Dany
+                Dany <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Carlos
               </h1>
 
               <div className="w-16 lg:w-24 xl:w-32 h-0.5 bg-secondary rounded-full my-4 lg:my-6 shadow-sm transition-all duration-300"></div>
@@ -152,7 +152,7 @@ export default async function Page() {
             <div className="relative z-20 flex flex-col items-center pb-16 lg:pb-20 xl:pb-24 text-white">
               <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 border border-white/20 rounded-full flex items-center justify-center mb-2 lg:mb-3 backdrop-blur-sm bg-white/5 transition-all duration-300 shadow-lg">
                 <Image
-                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa8f6be604e914db985ee8198b13a85e4"
+                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
                   alt="Logo"
                   width={52}
                   height={52}
