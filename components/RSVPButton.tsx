@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useUI } from '@/components/providers/UIProvider'
 
 export default function RSVPButton() {
   const searchParams = useSearchParams()
@@ -10,6 +11,7 @@ export default function RSVPButton() {
   const [token, setToken] = useState<string>('')
   const [isLoading, setIsLoading] = useState(true)
   const [isFooterVisible, setIsFooterVisible] = useState(false)
+  const { isGalleryOpen } = useUI()
 
   useEffect(() => {
     // Capturar el token de la URL cuando carga la página
@@ -57,18 +59,21 @@ export default function RSVPButton() {
   // Si hay token guardado, usar ese; si no, usar un placeholder
   const confirmUrl = token ? `/confirm/${token}` : '/confirm/tu-codigo'
 
+  // Si la galería está abierta, ocultar el botón
+  if (isGalleryOpen) return null
+
   return (
     <Link
       href={confirmUrl}
       className={`bg-primary hover:bg-opacity-90 text-white font-bold rounded-full shadow-xl hover:shadow-2xl flex items-center justify-center transform transition-all duration-500 hover:scale-105 active:scale-95 ${isFooterVisible
-          ? 'w-14 h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 p-0'
-          : 'py-4 lg:py-5 xl:py-6 px-8 lg:px-10 xl:px-12 gap-2 lg:gap-3'
+        ? 'w-14 h-14 lg:w-16 lg:h-16 xl:w-18 xl:h-18 p-0'
+        : 'py-4 lg:py-5 xl:py-6 px-8 lg:px-10 xl:px-12 gap-2 lg:gap-3'
         }`}
       title={isFooterVisible ? 'Confirmar Asistencia' : undefined}
     >
       <svg className={`transition-all duration-500 ${isFooterVisible
-          ? 'w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8'
-          : 'w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7'
+        ? 'w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8'
+        : 'w-5 h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7'
         }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
