@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import Image from 'next/image'
+import { Plane, PartyPopper, ArrowRight, Check } from 'lucide-react'
 
 interface InstructionsModalProps {
   isOpen: boolean
@@ -49,161 +50,152 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
     }
   }
 
+  const handleNext = () => {
+    if (currentSlide < 2) {
+      goToSlide(currentSlide + 1)
+    } else {
+      onClose()
+    }
+  }
+
   if (!isOpen || !mounted) return null
 
   const modalContent = (
     <>
       {/* Backdrop */}
-      <div 
-        className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm animate-in fade-in duration-200"
+      <div
+        className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={onClose}
       />
-      
+
       {/* Modal */}
       <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-        <div 
-          className="relative w-full max-w-[500px] max-h-[75vh] bg-background-light overflow-hidden flex flex-col shadow-2xl rounded-2xl border border-gray-200 animate-in zoom-in-95 duration-300"
+        <div
+          className="relative w-full max-w-[400px] bg-white overflow-hidden flex flex-col shadow-2xl rounded-3xl animate-in zoom-in-95 duration-300"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Decorative gradient */}
-          <div className="absolute top-[-20%] left-[-20%] w-[140%] h-[50%] bg-gradient-to-b from-primary/5 to-transparent rounded-full blur-3xl pointer-events-none" />
-
           {/* Header */}
-          <div className="relative z-20 flex flex-col w-full bg-background-light">
-            {/* Close button */}
-            <button 
-              onClick={onClose}
-              className="absolute right-5 top-5 p-2 rounded-full text-primary hover:bg-gray-100 transition-colors z-30"
-            >
-              <span className="material-symbols-outlined text-[24px]">close</span>
-            </button>
-
-            {/* Title */}
-            <div className="flex flex-col items-center justify-center px-6 pt-6 pb-2 text-center">
-              <h1 className="text-neutral-text tracking-tight text-[20px] font-bold italic leading-tight pb-2 font-display whitespace-nowrap">
-                ¿Cómo hacerte presente?
-              </h1>
-              <p className="text-gray-600 text-xs font-normal leading-relaxed max-w-[280px]">
-                Sigue estos pasos para compartir con nosotros en este día especial.
-              </p>
-            </div>
+          <div className="relative z-20 flex w-full justify-end px-4 pt-4">
+            {/* Close button removed */}
           </div>
 
           {/* Carousel */}
-          <div 
+          <div
             ref={carouselRef}
             onScroll={handleScroll}
-            className="flex-1 w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar py-2 z-10"
+            className="flex-1 w-full overflow-x-auto snap-x snap-mandatory flex no-scrollbar z-10"
             style={{
               scrollBehavior: 'smooth',
               scrollbarWidth: 'none',
               msOverflowStyle: 'none'
             }}
           >
-            {/* Slide 1 */}
-            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-4 py-1">
-              <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-                <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fef239701b75245adb5a422193d961fb8" alt="Paso 1" width={80} height={80} className="w-full h-full object-contain" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">Explora nuestros sueños</h2>
-                <p className="text-xs text-gray-500 leading-relaxed max-w-[240px] font-sans font-normal">
-                  Navega por las tarjetas. Cada una representa una meta, un viaje o un rincón de nuestro futuro hogar. Selecciona la que más te inspire.
-                </p>
+            {/* Slide 1: EL PROPÓSITO */}
+            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
+              <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">
+                <Plane size={48} strokeWidth={1.5} />
+              </div>
+
+              <span className="inline-block px-3 py-1 mb-4 text-[10px] font-bold uppercase tracking-wider text-primary bg-primary/5 rounded-full border border-primary/10 font-body">
+                Aceptamos Tarjetas y Transferencias
+              </span>
+
+              <h2 className="text-2xl font-display font-bold text-gray-900 mb-3">
+                Suma a nuestros sueños
+              </h2>
+
+              <p className="text-gray-500 text-sm leading-relaxed max-w-[280px] font-body">
+                Elige un regalo y aporta la cantidad que quieras. Todo suma para nuestra nueva vida.
+              </p>
+            </div>
+
+            {/* Slide 2: LA RECOMPENSA */}
+            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
+              <div className="w-24 h-24 mb-4 relative drop-shadow-2xl animate-pulse-slow">
+                <Image
+                  src="/images/pwa/machicoin.webp"
+                  alt="Machi Coin"
+                  fill
+                  className="object-contain"
+                  unoptimized
+                />
+              </div>
+
+              <h2 className="text-2xl font-display font-bold text-gray-900 mb-3">
+                Gana Machi Coins
+              </h2>
+
+              <p className="text-gray-500 text-sm leading-relaxed max-w-[280px] mb-4 font-body">
+                Recibe monedas virtuales por cada aporte.
+              </p>
+
+              <div className="bg-yellow-50 border border-yellow-100 rounded-xl px-4 py-2">
+                <span className="text-yellow-700 font-bold text-lg font-body">
+                  $1 USD = 10 Monedas
+                </span>
               </div>
             </div>
 
-            {/* Slide 2 */}
-            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-4 py-1">
-              <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-                <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F39c2bf773bca4113ad8ac0fc88bc2afc" alt="Paso 2" width={80} height={80} className="w-full h-full object-contain" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">Suma tu granito de arena</h2>
-                <p className="text-xs text-gray-500 leading-relaxed max-w-[260px] font-sans font-normal">
-                  Al dar clic en &ldquo;Regalar&rdquo;, podrás escribirnos un mensaje y definir cuánto deseas aportar. Cualquier monto es recibido con inmensa gratitud. No tienes que comprar el regalo completo.
-                </p>
+            {/* Slide 3: LA DIVERSIÓN */}
+            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
+              <div className="w-24 h-24 mb-6 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 shadow-inner">
+                <PartyPopper size={48} strokeWidth={1.5} />
               </div>
-            </div>
 
-            {/* Slide 3 */}
-            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-4 py-1">
-              <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-5 flex flex-col items-center justify-start text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-                <div className="mt-2 mb-3 w-16 h-16 flex items-center justify-center shrink-0">
-                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb4effad617be42a0b7cf1833ab88c15f" alt="Paso 3" width={64} height={64} className="w-full h-full object-contain" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-4 italic shrink-0 font-display">Métodos Seguros</h2>
-                <div className="w-full flex flex-col gap-3 overflow-y-auto pr-1" style={{ scrollbarWidth: 'thin', scrollbarColor: '#d3c3db transparent' }}>
-                  {/* Ecuador */}
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-background-light/50 border border-gray-100 hover:border-primary/30 transition-colors">
-                    <div className="shadow-sm rounded-sm overflow-hidden h-6 w-8 flex items-center justify-center shrink-0">
-                      <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F64df22a18b8b43a4a5595d6d361c5a67" alt="Ecuador" width={32} height={24} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex flex-col items-start text-left">
-                      <span className="text-xs font-bold text-gray-800 uppercase tracking-wider font-sans">Ecuador ($ USD)</span>
-                      <span className="text-[11px] text-gray-500 font-normal">Todas las tarjetas crédito/débito (Payphone) o Transferencia Banco Pichincha/Guayaquil etc.</span>
-                    </div>
-                  </div>
-                  {/* Mexico */}
-                  <div className="flex items-start gap-3 p-3 rounded-xl bg-background-light/50 border border-gray-100 hover:border-primary/30 transition-colors">
-                    <div className="shadow-sm rounded-sm overflow-hidden h-6 w-8 flex items-center justify-center shrink-0">
-                      <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F1d9b808429724787af7bc584d9961030" alt="México" width={32} height={24} className="w-full h-full object-contain" />
-                    </div>
-                    <div className="flex flex-col items-start text-left">
-                      <span className="text-xs font-bold text-gray-800 uppercase tracking-wider font-sans">México ($ MXN)</span>
-                      <span className="text-[11px] text-gray-500 font-normal">Transferencia SPEI a nuestra cuenta mexicana</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+              <h2 className="text-2xl font-display font-bold text-gray-900 mb-3">
+                ¡Disfruta la fiesta! 🥂
+              </h2>
 
-            {/* Slide 4 */}
-            <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-4 py-1">
-              <div className="w-full h-full bg-white rounded-3xl border border-white/50 shadow-sm p-6 flex flex-col items-center justify-center text-center relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-                <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                  <Image src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F6b3ed7ebe67147e1ad06d3edc78458c0" alt="Paso 4" width={80} height={80} className="w-full h-full object-contain" />
-                </div>
-                <h2 className="text-xl font-bold text-gray-900 mb-2 italic font-display">¡Celebremos!</h2>
-                <p className="text-xs text-gray-500 leading-relaxed max-w-[260px] font-sans font-normal">
-                  Si elegiste transferencia, podrás subir la foto del comprobante ahí mismo. Si usaste tarjeta, es automático. Al final, recibirás una confirmación inmediata.
-                </p>
-              </div>
+              <p className="text-gray-500 text-sm leading-relaxed max-w-[280px] font-body">
+                Usa tus monedas para canjear premios, tragos y sorpresas el día de la boda.
+              </p>
             </div>
           </div>
 
-          {/* Footer with indicators and button */}
-          <div className="relative z-20 w-full bg-background-light pt-2 pb-8 px-6 flex flex-col gap-5">
-            {/* Slide indicators */}
-            <div className="flex w-full flex-row items-center justify-center gap-2.5 py-2">
-              {[0, 1, 2, 3].map((index) => (
+          {/* Footer controls */}
+          <div className="p-6 bg-white border-t border-gray-50">
+            {/* Indicators */}
+            <div className="flex justify-center gap-2 mb-6">
+              {[0, 1, 2].map((index) => (
                 <button
                   key={index}
                   onClick={() => goToSlide(index)}
-                  className={`rounded-full transition-all ${
-                    currentSlide === index 
-                      ? 'h-2 w-6 bg-primary shadow-sm shadow-primary/40' 
-                      : 'h-2 w-2 bg-secondary hover:bg-primary/30'
-                  }`}
-                  aria-label={`Ir a paso ${index + 1}`}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${currentSlide === index ? 'w-6 bg-primary' : 'w-1.5 bg-gray-200'
+                    }`}
+                  aria-label={`Ir a slide ${index + 1}`}
                 />
               ))}
             </div>
 
-            {/* CTA Button */}
-            <button 
-              onClick={onClose}
-              className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 active:scale-[0.98] transition-all duration-200 text-white text-sm font-semibold py-3 rounded-xl shadow-lg shadow-primary/20 font-sans"
+            {/* Main Action Button */}
+            <button
+              onClick={handleNext}
+              className="w-full py-3.5 rounded-xl font-bold flex items-center justify-center gap-2 transition-all transform active:scale-95 shadow-lg bg-primary text-white hover:bg-primary/90 shadow-primary/25"
             >
-              <span>Comenzar a Regalar</span>
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              {currentSlide === 2 ? (
+                <>
+                  <span>Comenzar a Regalar</span>
+                  <Check size={18} strokeWidth={2.5} />
+                </>
+              ) : (
+                <>
+                  <span>Siguiente</span>
+                  <ArrowRight size={18} strokeWidth={2.5} />
+                </>
+              )}
             </button>
           </div>
         </div>
+
+        <style jsx>{`
+            .animate-pulse-slow {
+                animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: .9; transform: scale(0.95); }
+            }
+        `}</style>
       </div>
     </>
   )

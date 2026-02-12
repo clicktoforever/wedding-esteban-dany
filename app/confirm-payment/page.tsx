@@ -5,6 +5,8 @@ import { useState, useEffect, Suspense } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+import confetti from 'canvas-confetti'
+
 function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -23,193 +25,129 @@ function ConfirmPaymentContent() {
   const isReview = status === 'review' || status === 'manual_review'
   const isError = status === 'error' || status === 'rejected'
 
-  // Success Page with Confetti
+  // Confetti Effect
+  useEffect(() => {
+    if (isApproved) {
+      const duration = 3 * 1000
+      const animationEnd = Date.now() + duration
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 100 } /* Increased zIndex */
+
+      const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min
+
+      const interval: any = setInterval(function () {
+        const timeLeft = animationEnd - Date.now()
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval)
+        }
+
+        const particleCount = 50 * (timeLeft / duration)
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+        })
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+        })
+      }, 250)
+
+      return () => clearInterval(interval)
+    }
+  }, [isApproved])
+
+  // Success Page with Gamification (Reward Card)
   if (isApproved) {
+    // Calculate Machi Coins (1 USD = 10 Coins)
+    // Parse amount string to number, remove non-numeric chars if any (though usually it's clean)
+    const numericAmount = parseFloat((amount || '0').replace(/[^0-9.]/g, '')) || 0
+    const machiCoins = Math.floor(numericAmount * 10)
+
     return (
-      <div className="bg-background-light text-primary font-body min-h-screen flex flex-col overflow-hidden relative">
-        {/* Confetti Layer */}
-        <div className="absolute inset-0 pointer-events-none overflow-hidden h-full w-full">
-          <div className="confetti-piece c-1"></div>
-          <div className="confetti-piece c-2"></div>
-          <div className="confetti-piece c-3"></div>
-          <div className="confetti-piece c-4"></div>
-          <div className="confetti-piece c-5"></div>
-          <div className="confetti-piece c-6"></div>
-          <div className="confetti-piece c-7"></div>
-          <div className="confetti-piece c-8"></div>
-          <div className="confetti-piece c-9"></div>
-          <div className="confetti-piece c-10"></div>
-        </div>
+      <div className="bg-background-light text-primary font-body min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden">
 
-        {/* Main Content */}
-        <main className="relative z-10 flex flex-col items-center justify-center flex-grow w-full max-w-md lg:max-w-2xl xl:max-w-4xl mx-auto px-6 lg:px-12 xl:px-20 py-8 lg:py-12 text-center">
-          {/* Icon Section */}
-          <div className="relative mb-8 lg:mb-12 animate-scale-in group">
-            {/* Decorative Glow */}
-            <div className="absolute inset-0 rounded-full bg-accent-light/20 blur-xl transform scale-150 animate-pulse-slow"></div>
+        {/* Main Content - Reward Card */}
+        <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-2xl p-8 text-center border-4 border-accent-lavender/50 animate-scale-in">
 
-            {/* Outer Gold Ring */}
-            <div className="relative flex items-center justify-center w-28 h-28 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full border-[3px] lg:border-4 border-accent-light bg-white shadow-xl shadow-accent-light/10 transition-all duration-300">
-              {/* Inner Green Check */}
-              <svg className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 text-primary transform transition-transform duration-700 group-hover:scale-110 group-hover:rotate-[10deg]" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-              </svg>
-            </div>
-
-            {/* Decorative Sparkles */}
-            <svg className="absolute -top-2 -right-2 w-5 h-5 lg:w-6 lg:h-6 text-accent-light animate-bounce" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-            <svg className="absolute bottom-0 -left-4 w-4 h-4 lg:w-5 lg:h-5 text-accent-light/60 animate-bounce delay-100" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-            </svg>
-          </div>
-
-          {/* Headline Block */}
-          <div className="space-y-4 lg:space-y-6 mb-8 lg:mb-10 animate-fade-in-up delay-200">
-            <h1 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium tracking-tight text-primary leading-tight transition-all duration-300">
+          {/* Header */}
+          <div className="mb-6 space-y-2">
+            <h1 className="font-display text-4xl md:text-5xl font-bold text-primary leading-tight">
               ¡Muchas Gracias,<br />
-              <span className="italic text-accent-light">{donorName || 'Amigo'}!</span>
+              <span className="text-secondary">{donorName || 'Amigo'}!</span>
             </h1>
-            <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-gray-600 font-medium leading-relaxed max-w-[320px] lg:max-w-md xl:max-w-lg mx-auto transition-all duration-300">
-              Tu generosidad nos ayuda a construir nuestro futuro juntos.
+            <p className="text-gray-500 text-lg font-medium">
+              Tu generosidad ya tiene recompensa.
             </p>
           </div>
 
-          {/* Gift Card */}
-          {(giftImage || giftName) && (
-            <div className="w-full max-w-md bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-100 mb-8 animate-fade-in-up delay-300">
-              {giftImage && (
-                <div className="relative w-full h-48">
-                  <Image
-                    src={giftImage}
-                    alt={giftName || 'Regalo'}
-                    fill
-                    className="object-cover"
-                    unoptimized
-                  />
-                </div>
-              )}
-              <div className="p-6">
-                {giftName && (
-                  <h3 className="text-xl font-bold text-gray-900 mb-4">{giftName}</h3>
-                )}
-                <div className="flex flex-col items-center py-4 border-t border-dashed border-gray-200">
-                  <span className="text-4xl lg:text-5xl font-bold text-primary">
-                    {amount || '$0.00'}
-                  </span>
-                  <span className="text-sm text-gray-400 mt-2 uppercase tracking-wider">
-                    Monto de Contribución
-                  </span>
-                </div>
-                {(clientTransactionId || transactionId) && (
-                  <div className="px-4 py-3 bg-gray-50 rounded-lg flex justify-between items-center text-sm mt-4">
-                    <span className="text-gray-500">ID de Transacción</span>
-                    <span className="font-mono font-bold text-gray-900">
-                      #{(clientTransactionId || transactionId || '').slice(0, 12)}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Divider */}
-          <div className="w-full flex items-center justify-center gap-4 lg:gap-6 mb-8 lg:mb-10 opacity-60 animate-fade-in-up delay-400">
-            <div className="h-[1px] w-12 lg:w-16 xl:w-20 bg-gradient-to-r from-transparent to-accent-light"></div>
-            <svg className="w-4 h-4 lg:w-5 lg:h-5 xl:w-6 xl:h-6 text-accent-light" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-            </svg>
-            <div className="h-[1px] w-12 lg:w-16 xl:w-20 bg-gradient-to-l from-transparent to-accent-light"></div>
+          {/* Hero Image (Golden Coin) */}
+          <div className="relative w-48 h-48 mx-auto mb-6 transform transition-transform duration-500 animate-coin-flip">
+            <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full animate-pulse-slow"></div>
+            <Image
+              src="/images/pwa/machicoin.webp"
+              alt="Machi Coin"
+              fill
+              className="object-contain drop-shadow-2xl"
+              unoptimized
+            />
           </div>
 
-          {/* Action Button */}
-          <Link
-            href="/gifts"
-            className="group relative w-full max-w-md overflow-hidden rounded-xl bg-primary text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 block animate-fade-in-up delay-500"
-          >
-            <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-            <div className="relative flex items-center justify-center gap-3 py-4 lg:py-5 xl:py-6 px-6 lg:px-8">
-              <svg className="w-6 h-6 lg:w-7 lg:h-7" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-              </svg>
-              <span className="font-bold text-lg lg:text-xl tracking-wide">Volver a Mesa de Regalos</span>
+          {/* Reward Info */}
+          <div className="mb-8 space-y-3">
+            <div className="inline-block bg-accent-lavender/50 px-6 py-2 rounded-full mb-2">
+              <span className="text-xl font-bold text-primary">
+                ¡Has desbloqueado <span className="text-secondary text-2xl">{machiCoins}</span> Machi Coins!
+              </span>
             </div>
-          </Link>
-        </main>
+            <p className="text-gray-600 leading-relaxed font-medium px-4">
+              Tienes saldo disponible para gastar en la fiesta.<br />
+              <span className="text-sm text-gray-400">(1 USD donado = 10 Machi Coins)</span>
+            </p>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-4">
+            <Link
+              href="https://machiboda.clicktoforever.com" /* Updated redirection */
+              className="block w-full py-4 bg-secondary hover:bg-secondary/90 text-white font-bold rounded-xl text-base shadow-lg shadow-secondary/30 transition-all transform hover:-translate-y-1 active:scale-95"
+            >
+              IR A GASTAR MIS MONEDAS
+            </Link>
+
+            <Link
+              href="/"
+              className="block w-full py-3 text-gray-400 font-bold hover:text-gray-600 transition-colors text-sm uppercase tracking-wider"
+            >
+              Volver al inicio
+            </Link>
+          </div>
+
+        </div>
 
         <style jsx>{`
-          .confetti-piece {
-            position: absolute;
-            top: -20px;
-            width: 10px;
-            height: 20px;
-            border-radius: 4px;
-            z-index: 0;
-            opacity: 0;
-          }
-          
-          .c-1 { left: 10%; background-color: #967bb6; animation: fall 4s linear infinite; animation-delay: 0s; }
-          .c-2 { left: 20%; background-color: #355E3B; width: 12px; height: 12px; border-radius: 50%; animation: fall 3s linear infinite; animation-delay: 1.5s; }
-          .c-3 { left: 35%; background-color: #E6E6FA; animation: fall 4s linear infinite; animation-delay: 0.5s; }
-          .c-4 { left: 50%; background-color: #967bb6; animation: fall 2.5s linear infinite; animation-delay: 2s; }
-          .c-5 { left: 65%; background-color: #355E3B; animation: fall 3s linear infinite; animation-delay: 1s; }
-          .c-6 { left: 80%; background-color: #967bb6; width: 15px; height: 15px; border-radius: 50%; animation: fall 2.5s linear infinite; animation-delay: 2.5s; }
-          .c-7 { left: 90%; background-color: #E6E6FA; animation: fall 4s linear infinite; animation-delay: 0.2s; }
-          .c-8 { left: 15%; background-color: #967bb6; animation: fall 3s linear infinite; animation-delay: 3s; }
-          .c-9 { left: 45%; background-color: #967bb6; width: 8px; height: 25px; animation: fall 3s linear infinite; animation-delay: 1.2s; }
-          .c-10 { left: 70%; background-color: #355E3B; animation: fall 4s linear infinite; animation-delay: 0.8s; }
-          
-          @keyframes fall {
-            0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(120vh) rotate(360deg); opacity: 0; }
-          }
-          
           .animate-scale-in {
             animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
           }
-          
-          .animate-fade-in-up {
-            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-          }
-          
-          .animate-pulse-slow {
+           .animate-pulse-slow {
             animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
           }
-          
-          .delay-100 {
-            animation-delay: 100ms;
+          .animate-coin-flip {
+            animation: coinFlip 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
           }
-          
-          .delay-200 {
-            animation-delay: 200ms;
-          }
-          
-          .delay-300 {
-            animation-delay: 300ms;
-          }
-          
-          .delay-400 {
-            animation-delay: 400ms;
-          }
-          
-          .delay-500 {
-            animation-delay: 500ms;
-          }
-          
           @keyframes scaleIn {
-            0% { transform: scale(0.8); opacity: 0; }
+            0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
           }
-          
-          @keyframes fadeInUp {
-            0% { transform: translateY(20px); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
+           @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: .8; }
           }
-          
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: .5; }
+          @keyframes coinFlip {
+            0% { transform: rotateY(0deg) scale(0.5); opacity: 0; }
+            50% { transform: rotateY(180deg) scale(1.1); opacity: 1; }
+            100% { transform: rotateY(360deg) scale(1); opacity: 1; }
           }
         `}</style>
       </div>
@@ -223,17 +161,17 @@ function ConfirmPaymentContent() {
         <div className="max-w-lg w-full">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-6">
             <div className="p-8 flex flex-col items-center text-center">
-              <div className="mb-6 bg-[#d3c3db]/20 p-4 rounded-full">
-                <svg className="w-12 h-12 text-[#d3c3db]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="mb-6 bg-yellow-50 p-4 rounded-full">
+                <svg className="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
 
-              <h1 className="text-3xl font-bold text-gray-900 mb-3">
-                Comprobante Recibido
+              <h1 className="text-4xl md:text-5xl font-display font-bold text-gray-900 mb-3">
+                Pago en proceso
               </h1>
-              <p className="text-gray-500 text-lg leading-relaxed mb-8">
-                Estamos verificando los detalles. Tu aporte está seguro, te avisaremos pronto.
+              <p className="text-gray-500 text-lg font-body leading-relaxed mb-8">
+                Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo
               </p>
 
               <div className="w-full border-t border-dashed border-gray-200 pt-6 space-y-4">
@@ -273,9 +211,9 @@ function ConfirmPaymentContent() {
               </div>
             </div>
 
-            <div className="bg-gray-50 px-8 py-4 flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-yellow-500 animate-pulse" />
-              <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">
+            <div className="bg-yellow-50 px-8 py-4 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
+              <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
                 En revisión manual
               </span>
             </div>
@@ -287,9 +225,7 @@ function ConfirmPaymentContent() {
           >
             Entendido
           </button>
-          <p className="mt-4 text-sm text-gray-500 text-center px-4 leading-normal">
-            Recibirás un correo electrónico después de que los novios confirmen la recepción del regalo
-          </p>
+
         </div>
       </div>
     )
