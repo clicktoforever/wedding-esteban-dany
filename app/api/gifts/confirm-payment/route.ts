@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { sendTransactionApprovedEmail } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -31,9 +32,11 @@ export async function GET(request: NextRequest) {
       .select(`
         id,
         donor_name,
+        donor_email,
         amount,
         status,
         gift_id,
+        created_at,
         gift:gifts (
           name,
           image_url,
@@ -45,9 +48,11 @@ export async function GET(request: NextRequest) {
         data: { 
           id: string;
           donor_name: string;
+          donor_email: string;
           amount: number;
           status: string;
           gift_id: string;
+          created_at: string;
           gift: {
             name: string;
             image_url: string | null;
@@ -65,6 +70,22 @@ export async function GET(request: NextRequest) {
       .eq('payphone_client_transaction_id', clientTransactionId)
       .eq('status', 'PENDING')
 
+      
+      // Enviar email de confirmación de forma asíncrona
+      if (transaction) {
+        sendTransactionApprovedEmail({
+          donorName: transaction.donor_name,
+          donorEmail: transaction.donor_email,
+          amount: transaction.amount,
+          transactionId: transaction.id,
+          transactionDate: transaction.created_at,
+          giftName: transaction.gift?.name,
+          giftImage: transaction.gift?.image_url || undefined,
+        }).catch((error) => {
+          console.error('Error sending approval email:', error)
+          // No bloqueamos el flujo si falla el email
+        })
+      }
     if (updateError) {
       console.error('Error updating transaction:', updateError)
     } else {

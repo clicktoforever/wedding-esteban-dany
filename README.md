@@ -142,6 +142,7 @@ NEXT_PUBLIC_BUILDER_API_KEY=your_builder_api_key
 
 - [SETUP.md](docs/SETUP.md) - Guía de configuración paso a paso
 - [ENV_VARS.md](docs/ENV_VARS.md) - Documentación de variables de entorno
+- [EMAIL_NOTIFICATIONS.md](docs/EMAIL_NOTIFICATIONS.md) - Sistema de notificaciones por email
 - [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Solución de problemas comunes
 
 ## 👰🤵 Para la Novia: Editar Landing Page

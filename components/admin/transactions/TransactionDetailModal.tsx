@@ -89,6 +89,28 @@ export default function TransactionDetailModal({
 
       if (giftUpdateError) throw giftUpdateError
 
+      // Enviar email de aprobación
+      try {
+        const emailResponse = await fetch('/api/gifts/send-approval-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            transactionId: transaction.id,
+          }),
+        });
+
+        if (!emailResponse.ok) {
+          console.error('Error sending approval email');
+        } else {
+          console.log('Approval email sent successfully');
+        }
+      } catch (emailError) {
+        console.error('Error sending approval email:', emailError);
+        // No bloqueamos si falla el email
+      }
+
       onUpdate()
       onClose()
     } catch (error) {

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server';
 import { GeminiReceiptValidator } from '@/lib/gemini-receipt-validator';
 import type { Database } from '@/lib/database.types';
 import { usdToMxn } from '@/lib/currency';
+import { sendTransactionApprovedEmail } from '@/lib/email';
 
 type Gift = Database['public']['Tables']['gifts']['Row'];
 type GiftTransaction = Database['public']['Tables']['gift_transactions']['Row'];
@@ -319,7 +320,53 @@ async function validateReceiptAsync(
 
     console.log(`Validation completed for transaction ${transactionId}: ${validationStatus}`);
 
-    // TODO: Enviar notificación al usuario (email/SMS)
+    // Enviar email si fue aprobado
+    if (validationStatus === 'APPROVED') {
+      // Obtener datos completos de la transacción para el email
+      const { data: fullTransaction } = await supabase
+        .from('gift_transactions')
+        .select(`
+          id,
+          donor_name,
+          donor_email,
+          amount,
+          created_at,
+          gift:gifts (
+            name,
+            image_url
+          )
+        `)
+        .eq('id', transactionId)
+        .single() as {
+          data: {
+            id: string;
+            donor_name: string;
+            donor_email: string;
+            amount: number;
+            created_at: string;
+            gift: {
+              name: string;
+              image_url: string | null;
+            } | null;
+          } | null
+        };
+
+      if (fullTransaction) {
+        sendTransactionApprovedEmail({
+          donorName: fullTransaction.donor_name,
+          donorEmail: fullTransaction.donor_email,
+          amount: fullTransaction.amount,
+          transactionId: fullTransaction.id,
+          transactionDate: fullTransaction.created_at,
+          giftName: fullTransaction.gift?.name,
+          giftImage: fullTransaction.gift?.image_url || undefined,
+        }).catch((error) => {
+          console.error(`[${transactionId}] Error sending approval email:`, error)
+          // No bloqueamos el flujo si falla el email
+        });
+      }
+    }
+
     // TODO: Si es manual_review, notificar a admin
 
   } catch (error: any) {
