@@ -283,6 +283,112 @@ NEXT_PUBLIC_BUILDER_API_KEY=f1a0b2c3d4e5f6g7h8i9j0k1l2m3n4o5
 
 ---
 
+### SMTP_HOST
+
+**Descripción**: Servidor SMTP para envío de correos electrónicos de notificación
+
+**Formato**: String (hostname o IP)
+
+**Ejemplo**:
+```env
+SMTP_HOST=smtp.resend.com
+```
+
+**🚨 Seguridad**: Variable **PRIVADA** - no uses prefijo `NEXT_PUBLIC_`
+
+**Usos**:
+- Envío de emails de confirmación cuando se aprueba una transacción
+- Notificaciones a donantes sobre Machi Coins
+
+---
+
+### SMTP_PORT
+
+**Descripción**: Puerto del servidor SMTP
+
+**Formato**: Número (comúnmente 587 para TLS, 465 para SSL)
+
+**Ejemplo**:
+```env
+SMTP_PORT=587
+```
+
+**Notas**:
+- Puerto 587: Recomendado (TLS/STARTTLS)
+- Puerto 465: SSL directo
+- ⚠️ Evitar puerto 25: Suele estar bloqueado por anti-spam
+
+---
+
+### SMTP_USERNAME
+
+**Descripción**: Usuario para autenticación en el servidor SMTP
+
+**Formato**: String
+
+**Ejemplo**:
+```env
+SMTP_USERNAME=resend
+```
+
+**🚨 Seguridad**: Mantener privado
+
+---
+
+### SMTP_PASSWORD
+
+**Descripción**: Contraseña o API key para autenticación SMTP
+
+**Formato**: String (puede ser API key)
+
+**Ejemplo**:
+```env
+SMTP_PASSWORD=re_cNYrN1ZN_PApzzJfRi27tdCLE2syiyzVM
+```
+
+**🚨 CRÍTICO**: Esta es la credencial más sensible:
+- ❌ NUNCA la expongas en código cliente
+- ❌ NUNCA la subas a Git
+- ❌ NUNCA la compartas en mensajes/emails
+- ✅ Solo úsala en API Routes server-side
+- ✅ Guárdala en password manager
+
+**Usos**: Autenticación para envío de emails vía Resend
+
+---
+
+### SMTP_FROM_EMAIL
+
+**Descripción**: Dirección de email desde la cual se envían las notificaciones
+
+**Formato**: Email address válido
+
+**Ejemplo**:
+```env
+SMTP_FROM_EMAIL=invitacion@clicktoforever.com
+```
+
+**Requisitos**:
+- Debe ser un dominio verificado en Resend
+- Debe tener registros SPF/DKIM configurados para mejor entregabilidad
+
+---
+
+### SMTP_FROM_NAME
+
+**Descripción**: Nombre que aparece como remitente en los emails
+
+**Formato**: String
+
+**Ejemplo**:
+```env
+SMTP_FROM_NAME=Carlos & Dany
+```
+
+**Uso**: Mejora la apariencia profesional y reconocimiento del email
+
+---
+
 ## Configuración por Entorno
 
 ### Desarrollo Local (`.env.local`)
