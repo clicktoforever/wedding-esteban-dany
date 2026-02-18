@@ -51,7 +51,7 @@ export default function WhatsAppMessageModal({
             `Nos emociona invitarte a nuestro gran día. Hemos preparado una invitación especial solo para ti.\n\n` +
             `🔓 *Para activar tu enlace, por favor respóndenos con un emoji o un "Hola".*\n\n` +
             `Una vez que lo hagas, toca aquí para ver tus pases:\n` +
-            `💌 https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+            `💌 https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Esperamos tu confirmación!\n` +
             `Con cariño, *Carlos y Dany* 💍`
     }
@@ -61,7 +61,7 @@ export default function WhatsAppMessageModal({
             `Se acerca nuestra boda y no sería lo mismo sin ti. Te hemos reservado un lugar especial.\n\n` +
             `👉 *Respóndenos con un 🥂 o tu emoji favorito para activar tu invitación digital.*\n\n` +
             `Entra aquí para ver los detalles:\n` +
-            `💌 https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+            `💌 https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Nos vemos pronto!\n` +
             `*Carlos y Dany*`
     }
@@ -70,16 +70,15 @@ export default function WhatsAppMessageModal({
         return `¡Hola ${guest.name}! 💌\n\n` +
             `Te recordamos que la fecha límite para confirmar tu asistencia es el 10 de marzo. 📅\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
-            `https://estebanydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+            `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Tu presencia es muy importante para nosotros! 💕✨`
     }
 
     const getClosingMessage = () => {
-        return `Hola *${guest.name}*, esperamos que estés muy bien. 👋\n\n` +
-            `Te escribimos porque necesitamos cerrar la lista final de invitados para la comida y la logística de la boda.\n\n` +
-            `Al no recibir tu confirmación, *entendemos que esta vez no te será posible acompañarnos*. Lo sentimos mucho, ya que nos hubiera encantado celebrar contigo, pero la logística nos exige entregar los números finales hoy.\n\n` +
-            `Te tendremos presente en nuestro brindar a la distancia.\n\n` +
-            `Un abrazo 🥂,\n` +
+        return `Hola *${guest.name}*, esperamos que estés bien. 👋\n\n` +
+            `Hoy debemos cerrar la lista final de nuestra boda. Al no recibir tu confirmación, *entendemos que en esta ocasión no podrás acompañarnos*.\n\n` +
+            `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. 🥂\n\n` +
+            `Un abrazo,\n` +
             `*Carlos y Dany*`
     }
 

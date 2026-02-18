@@ -8,32 +8,32 @@ export interface PayPhonePaymentRequest {
   clientTransactionId: string // Unique transaction ID per payment
   currency: string // "USD" for Ecuador
   storeId: string // Your PayPhone Store ID
-  
+
   // Tax breakdown
   amountWithTax?: number // Amount with tax in cents
   tax?: number // Tax amount in cents
   service?: number // Service fee in cents
   tip?: number // Tip amount in cents
-  
+
   // Customer information (optional but recommended)
   email?: string
   phoneNumber?: string // Format: +593999999999
   documentId?: string // ID number
   identificationType?: 1 | 2 | 3 // 1=Cédula, 2=RUC, 3=Pasaporte
-  
+
   // Transaction details
   reference?: string // Reference description
   optionalParameter?: string
-  
+
   // URLs for callbacks
   cancellationUrl?: string // URL to redirect on cancellation
   responseUrl?: string // URL to redirect after payment
-  
+
   // Location data (optional)
   lat?: string
   lng?: string
   timeZone?: number // e.g., -5 for Ecuador
-  
+
   // UI preferences
   lang?: 'es' | 'en' // Language
   defaultMethod?: 'card' | 'payphone' // Default payment method
@@ -72,7 +72,81 @@ export interface PayPhoneConfirmationResponse {
 }
 
 /**
- * Creates a PayPhone payment request
+ * Configuration for the PayPhone Payment Button Box (Frontend Widget)
+ * Documentation: https://www.docs.payphone.app/cajita-de-pagos-payphone
+ */
+export interface PayPhoneWidgetConfig {
+  token: string
+  clientTransactionId: string
+  amount: number // Total amount in cents
+  amountWithoutTax: number // Base amount in cents
+  amountWithTax: number // Taxable base amount in cents (Commission)
+  tax: number // Tax amount in cents (IVA)
+  service?: number
+  tip?: number
+  currency: string
+  storeId: string
+  reference: string
+  redirectUrl?: string // URL to redirect after payment
+  email?: string
+  phoneNumber?: string
+  documentId?: string
+}
+
+/**
+ * Creates the configuration for the PayPhone Button Box widget
+ * Includes calculation of taxes and commission structure:
+ * - Base Amount: Original gift amount (0% tax)
+ * - Commission: 5% of Base Amount (Taxable base)
+ * - Tax (IVA): 15% of Commission
+ * @param params - Payment parameters
+ * @returns Widget configuration object
+ */
+export function createPayPhoneWidgetConfig(params: {
+  amount: number // Amount in dollars
+  reference: string
+  clientTransactionId: string
+  redirectUrl?: string
+  email?: string
+  phoneNumber?: string
+  documentId?: string
+}): PayPhoneWidgetConfig {
+  const token = process.env.PAYPHONE_TOKEN
+  const storeId = process.env.PAYPHONE_STORE_ID
+
+  if (!token) throw new Error('PAYPHONE_TOKEN is not configured')
+  if (!storeId) throw new Error('PAYPHONE_STORE_ID is not configured')
+
+  // Calculate totals in cents
+  const baseAmount = Math.round(params.amount * 100) // Gift amount (0% tax)
+  const amountWithTax = Math.round(baseAmount * 0.05) // Commission amount (5% - Taxable base)
+  const tax = Math.round(amountWithTax * 0.15) // Tax amount (15% of commission)
+
+  const totalAmount = baseAmount + amountWithTax + tax
+
+  const config: PayPhoneWidgetConfig = {
+    token,
+    storeId,
+    clientTransactionId: params.clientTransactionId,
+    amount: totalAmount,
+    amountWithoutTax: baseAmount,
+    amountWithTax: amountWithTax,
+    tax: tax,
+    currency: 'USD',
+    reference: params.reference,
+  }
+
+  if (params.redirectUrl) config.redirectUrl = params.redirectUrl
+  if (params.email) config.email = params.email
+  if (params.phoneNumber) config.phoneNumber = params.phoneNumber
+  if (params.documentId) config.documentId = params.documentId
+
+  return config
+}
+
+/**
+ * Creates a PayPhone payment request (Server-to-Server API)
+ * @deprecated Use createPayPhoneWidgetConfig for frontend widget implementation
  * @param config - Payment configuration
  * @returns PayPhone API request payload
  */
@@ -86,7 +160,7 @@ export function createPayPhonePayment(config: {
   cancellationUrl?: string
 }): PayPhonePaymentRequest {
   const amountInCents = Math.round(config.amount * 100)
-  
+
   const payload: PayPhonePaymentRequest = {
     amount: amountInCents,
     amountWithoutTax: amountInCents, // Assuming no tax for gifts
@@ -100,11 +174,11 @@ export function createPayPhonePayment(config: {
   if (config.donorEmail) {
     payload.email = config.donorEmail
   }
-  
+
   if (config.responseUrl) {
     payload.responseUrl = config.responseUrl
   }
-  
+
   if (config.cancellationUrl) {
     payload.cancellationUrl = config.cancellationUrl
   }
@@ -122,11 +196,11 @@ export async function preparePayPhonePayment(
 ): Promise<PayPhonePaymentResponse> {
   const token = process.env.PAYPHONE_TOKEN
   const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com'
-  
+
   if (!token) {
     throw new Error('PAYPHONE_TOKEN is not configured')
   }
-  
+
   if (!paymentData.storeId) {
     throw new Error('PAYPHONE_STORE_ID is not configured')
   }
@@ -137,7 +211,7 @@ export async function preparePayPhonePayment(
     amount: paymentData.amount,
     clientTransactionId: paymentData.clientTransactionId
   })
-  
+
   try {
     const response = await fetch(`${apiUrl}/api/button/Prepare`, {
       method: 'POST',
@@ -147,15 +221,15 @@ export async function preparePayPhonePayment(
       },
       body: JSON.stringify(paymentData),
     })
-    
+
     const responseText = await response.text()
     console.log('PayPhone API Response Status:', response.status)
     console.log('PayPhone API Response:', responseText.substring(0, 500))
-    
+
     if (!response.ok) {
       throw new Error(`PayPhone API error: ${response.status} - ${responseText}`)
     }
-    
+
     const result: PayPhonePaymentResponse = JSON.parse(responseText)
     return result
   } catch (error) {
@@ -176,28 +250,28 @@ export async function confirmPayPhonePayment(
 ): Promise<PayPhoneConfirmationResponse> {
   const token = process.env.PAYPHONE_TOKEN?.trim()
   const apiUrl = process.env.PAYPHONE_API_URL || 'https://pay.payphonetodoesposible.com'
-  
+
   if (!token) {
     throw new Error('PAYPHONE_TOKEN is not configured')
   }
-  
+
   try {
     console.log('Confirming PayPhone payment:', { transactionId, clientTransactionId })
-    
+
     // Wait 2 seconds before confirming (PayPhone may need time to process)
     await new Promise(resolve => setTimeout(resolve, 2000))
-    
+
     const body = {
       id: parseInt(transactionId) || 0,
       clientTxId: clientTransactionId,
     }
-    
+
     console.log('Request URL:', `${apiUrl}/api/button/V2/Confirm`)
     console.log('Request body:', JSON.stringify(body))
     console.log('Token present:', !!token)
     console.log('Token length:', token?.length)
     console.log('Token first 20 chars:', token?.substring(0, 20))
-    
+
     const response = await fetch(`${apiUrl}/api/button/V2/Confirm`, {
       method: 'POST',
       headers: {
@@ -206,16 +280,16 @@ export async function confirmPayPhonePayment(
       },
       body: JSON.stringify(body),
     })
-    
+
     console.log('Response status:', response.status)
     console.log('Response headers:', Object.fromEntries(response.headers.entries()))
-    
+
     if (!response.ok) {
       const errorText = await response.text()
       console.error('PayPhone confirmation failed:', { status: response.status, error: errorText.substring(0, 500) })
       throw new Error(`PayPhone confirmation error: ${response.status}`)
     }
-    
+
     const result: PayPhoneConfirmationResponse = await response.json()
     console.log('PayPhone confirmation result:', result)
     return result
@@ -254,10 +328,10 @@ export function centsToDollars(cents: number): number {
 export function formatCurrency(amount: number, country?: string | null): string {
   const locale = country === 'MX' ? 'es-MX' : 'es-EC'
   const currency = country === 'MX' ? 'MXN' : 'USD'
-  
+
   // Convert USD to MXN if needed (1 USD = 20 MXN)
   const displayAmount = country === 'MX' ? amount * 20 : amount
-  
+
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: currency,
