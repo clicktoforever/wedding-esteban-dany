@@ -54,7 +54,7 @@ export default function NewGuestModal({
   const updatePassName = useCallback((index: number, name: string) => {
     setFormData(prev => ({
       ...prev,
-      passes: prev.passes.map((pass, i) => 
+      passes: prev.passes.map((pass, i) =>
         i === index ? { ...pass, name } : pass
       )
     }))
@@ -159,38 +159,31 @@ export default function NewGuestModal({
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
-      
+
       {/* Modal Container */}
-      <div 
+      <div
         className="fixed bottom-0 inset-x-0 md:inset-0 z-50 flex md:items-center md:justify-center"
         style={{
           transform: `translateY(${currentY}px)`,
           transition: isDragging ? 'none' : 'transform 0.3s ease-out'
         }}
       >
-        <div 
+        <div
           className="relative flex max-h-[90dvh] md:h-[90vh] w-full md:max-w-md flex-col bg-[#F9F7F2] shadow-2xl overflow-hidden rounded-t-2xl md:rounded-2xl animate-in slide-in-from-bottom md:fade-in duration-300"
           onClick={(e) => e.stopPropagation()}
           style={{ overscrollBehavior: 'contain' }}
         >
-          {/* Handle Bar */}
-          <div 
-            className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-stone-300 rounded-full z-50 cursor-grab active:cursor-grabbing md:hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          />
 
           {/* Header */}
           <header className="flex items-center justify-between px-6 py-5 bg-[#F9F7F2] sticky top-0 z-20 border-b border-stone-200/50 pt-8 md:pt-5">
             <div className="flex items-center gap-4">
-              <button 
+              <button
                 onClick={onClose}
-                className="group flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-stone-100 transition-colors" 
+                className="group flex items-center justify-center p-2 -ml-2 rounded-full hover:bg-stone-100 transition-colors"
                 type="button"
               >
                 <span className="material-symbols-outlined text-stone-500 group-hover:text-primary transition-colors">
@@ -301,7 +294,7 @@ export default function NewGuestModal({
                 {/* Passes List */}
                 <div className="space-y-3">
                   {formData.passes.map((pass, index) => (
-                    <div 
+                    <div
                       key={index}
                       className="relative overflow-hidden rounded-2xl bg-white border-2 border-accent-lavender shadow-soft transition-all duration-300 transform hover:scale-[1.01]"
                     >
@@ -310,7 +303,7 @@ export default function NewGuestModal({
                           <p className="text-[10px] font-bold uppercase tracking-wider text-primary">Titular</p>
                         </div>
                       )}
-                      
+
                       <div className="p-4 flex items-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-stone-100 flex items-center justify-center text-primary font-bold shrink-0">
                           {index === 0 ? (

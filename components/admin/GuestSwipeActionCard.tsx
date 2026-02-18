@@ -25,25 +25,24 @@ interface GuestSwipeActionCardProps {
   status: 'confirmed' | 'pending' | 'declined'
   onCardClick: () => void
   onSendWhatsApp: () => void
-  onSendReminder: () => void
 }
 
-const SWIPE_THRESHOLD = 100
-const OPEN_POSITION = -150
+
+const SWIPE_THRESHOLD = 50
+const OPEN_POSITION = -80
 
 export default function GuestSwipeActionCard({
   guest,
   status,
   onCardClick,
   onSendWhatsApp,
-  onSendReminder,
 }: GuestSwipeActionCardProps) {
   const [isOpen, setIsOpen] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const x = useMotionValue(0)
-  
+
   // Transform for smooth visual feedback
-  const opacity = useTransform(x, [-150, -100, 0], [1, 0.7, 0])
+  const opacity = useTransform(x, [-80, -40, 0], [1, 0.7, 0])
 
   const getStatusBadge = (status: string) => {
     const badges = {
@@ -117,34 +116,16 @@ export default function GuestSwipeActionCard({
     onSendWhatsApp()
   }
 
-  const handleReminderClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    setIsOpen(false)
-    onSendReminder()
-  }
-
   const badge = getStatusBadge(status)
   const totalPasses = guest.passes.length
 
   return (
     <div className="relative w-full overflow-hidden rounded-2xl">
       {/* Background Layer - Action Buttons */}
-      <motion.div 
+      <motion.div
         className="absolute inset-0 flex items-center justify-end pr-0"
         style={{ opacity }}
       >
-        {/* Send Reminder Button */}
-        <button
-          onClick={handleReminderClick}
-          className="h-full w-20 flex flex-col items-center justify-center gap-1.5 bg-[#a098a3] hover:bg-[#8f8692] transition-colors touch-manipulation"
-          aria-label="Enviar recordatorio"
-        >
-          <Bell className="w-6 h-6 text-white" strokeWidth={2} />
-          <span className="text-[10px] font-medium text-white uppercase tracking-wide">
-            Recordar
-          </span>
-        </button>
-
         {/* WhatsApp Button */}
         <button
           onClick={handleWhatsAppClick}
@@ -181,11 +162,10 @@ export default function GuestSwipeActionCard({
       >
         <div className="flex items-center space-x-4 flex-1 min-w-0">
           {/* Avatar */}
-          <div className={`h-12 w-12 flex-shrink-0 rounded-full flex items-center justify-center font-display font-bold text-lg ${
-            status === 'confirmed'
-              ? 'bg-stone-100 text-primary'
-              : 'bg-stone-100 text-stone-600'
-          }`}>
+          <div className={`h-12 w-12 flex-shrink-0 rounded-full flex items-center justify-center font-display font-bold text-lg ${status === 'confirmed'
+            ? 'bg-stone-100 text-primary'
+            : 'bg-stone-100 text-stone-600'
+            }`}>
             {getInitials(guest.name)}
           </div>
 
@@ -209,29 +189,27 @@ export default function GuestSwipeActionCard({
 
         {/* Notification Status Icon */}
         <div className="flex flex-col items-end flex-shrink-0 ml-3">
-          <div 
-            className={`w-8 h-8 rounded-full flex items-center justify-center ${
-              guest.notified_whatsapp 
-                ? 'bg-green-100' 
-                : 'bg-gray-100'
-            }`}
+          <div
+            className={`w-8 h-8 rounded-full flex items-center justify-center ${guest.notified_whatsapp
+              ? 'bg-green-100'
+              : 'bg-gray-100'
+              }`}
             title={guest.notified_whatsapp ? 'Notificado por WhatsApp' : 'No notificado'}
           >
-            <svg 
-              className={`w-5 h-5 ${
-                guest.notified_whatsapp 
-                  ? 'text-green-600' 
-                  : 'text-gray-400'
-              }`}
-              fill="none" 
-              stroke="currentColor" 
+            <svg
+              className={`w-5 h-5 ${guest.notified_whatsapp
+                ? 'text-green-600'
+                : 'text-gray-400'
+                }`}
+              fill="none"
+              stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                strokeWidth={2} 
-                d="M5 13l4 4L19 7" 
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
               />
             </svg>
           </div>

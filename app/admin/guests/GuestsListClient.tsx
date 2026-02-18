@@ -10,6 +10,7 @@ import GuestDetailModal from '@/components/admin/GuestDetailModal'
 import NewGuestModal from '@/components/admin/NewGuestModal'
 import EditGuestModal from '@/components/admin/EditGuestModal'
 import GuestSwipeActionCard from '@/components/admin/GuestSwipeActionCard'
+import WhatsAppMessageModal from '@/components/admin/WhatsAppMessageModal'
 
 interface Pass {
   id: string
@@ -42,6 +43,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const [showDetailModal, setShowDetailModal] = useState(false)
   const [showNewModal, setShowNewModal] = useState(false)
   const [showEditModal, setShowEditModal] = useState(false)
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false)
 
   const refreshData = () => {
     router.refresh()
@@ -275,26 +277,21 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
       return
     }
 
+    setSelectedGuest(guest)
+    setShowWhatsAppModal(true)
+  }
+
+  const handleConfirmSendWhatsApp = (message: string) => {
+    if (!selectedGuest || !selectedGuest.phone) return
+
     // Clean phone number (remove spaces, dashes, etc.)
-    const cleanPhone = guest.phone.replace(/[\s\-()]/g, '')
-
-    // Count passes
-    const totalPasses = guest.passes.length
-    const pasesText = totalPasses === 1 ? 'pase' : 'pases'
-
-    // Custom message for the guest
-    const message = encodeURIComponent(
-      `¡Hola ${guest.name}! 👋✨\n\n` +
-      `Estamos muy emocionados porque cada vez falta menos para nuestro gran día y no nos imaginamos celebrarlo sin ti.\n\n` +
-      `Hemos preparado una invitación muy especial para ti. En este enlace encontrarás tus pases asignados y todos los detalles de nuestra boda:\n\n` +
-      `💌 https://Carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-      `Por favor entra para confirmar tu asistencia, ¡nos haría muy felices contar contigo!\n\n` +
-      `Con cariño, Carlos y Dany 💍`
-    )
+    const cleanPhone = selectedGuest.phone.replace(/[\s\-()]/g, '')
 
     // Open WhatsApp
-    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
     window.open(whatsappUrl, '_blank')
+
+    setShowWhatsAppModal(false)
 
     // Mark as notified in database (run in background)
     void (async () => {
@@ -303,7 +300,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         const { error } = await supabase
           .from('guests')
           .update({ notified_whatsapp: true })
-          .eq('id', guest.id)
+          .eq('id', selectedGuest.id)
         if (error) {
           console.error('Error updating notified status:', error)
         } else {
@@ -315,33 +312,6 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
     })()
   }
 
-  const handleSendReminder = async (guest: Guest) => {
-    try {
-      if (!guest.phone) {
-        alert('Este invitado no tiene número de WhatsApp')
-        return
-      }
-
-      // Clean phone number
-      const cleanPhone = guest.phone.replace(/[\s\-()]/g, '')
-
-      // Reminder message
-      const message = encodeURIComponent(
-        `¡Hola ${guest.name}! 💌\n\n` +
-        `Te recordamos que la fecha límite para confirmar tu asistencia es el 10 de marzo. 📅\n\n` +
-        `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
-        `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-        `¡Tu presencia es muy importante para nosotros! 💕✨`
-      )
-
-      // Open WhatsApp with reminder message
-      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${message}`
-      window.open(whatsappUrl, '_blank')
-    } catch (error) {
-      console.error('Error sending reminder:', error)
-      alert('Error al enviar el recordatorio')
-    }
-  }
 
   return (
     <div className="bg-[#F9F7F2] text-text-main-light font-sans transition-colors duration-300 antialiased pb-24 min-h-screen">
@@ -389,8 +359,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           <button
             onClick={() => setFilter('all')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'all'
-                ? 'bg-primary text-white'
-                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
               }`}
           >
             Todos ({guests.length})
@@ -398,8 +368,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           <button
             onClick={() => setFilter('pending')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'pending'
-                ? 'bg-primary text-white'
-                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
               }`}
           >
             Pendientes ({counts.pending})
@@ -407,8 +377,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           <button
             onClick={() => setFilter('confirmed')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'confirmed'
-                ? 'bg-primary text-white'
-                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
               }`}
           >
             Confirmados ({counts.confirmed})
@@ -416,8 +386,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           <button
             onClick={() => setFilter('sent')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'sent'
-                ? 'bg-primary text-white'
-                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
               }`}
           >
             Enviados ({counts.sent})
@@ -425,8 +395,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           <button
             onClick={() => setFilter('not-sent')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'not-sent'
-                ? 'bg-primary text-white'
-                : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
               }`}
           >
             No enviados ({counts.notSent})
@@ -445,7 +415,6 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
                 status={status}
                 onCardClick={() => handleGuestClick(guest)}
                 onSendWhatsApp={() => handleSendWhatsApp(guest)}
-                onSendReminder={() => handleSendReminder(guest)}
               />
             )
           })}
@@ -495,6 +464,13 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         guest={selectedGuest}
         onSuccess={refreshData}
         onDelete={handleDeleteGuest}
+      />
+
+      <WhatsAppMessageModal
+        isOpen={showWhatsAppModal}
+        onClose={() => setShowWhatsAppModal(false)}
+        guest={selectedGuest}
+        onSend={handleConfirmSendWhatsApp}
       />
     </div>
   )
