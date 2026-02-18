@@ -22,8 +22,8 @@ export default function RSVPButton() {
       sessionStorage.setItem('wedding_guest_token', urlToken)
       setToken(urlToken)
 
-      // Limpiar la URL removiendo el parámetro token para mejor UX
-      router.replace('/', { scroll: false })
+      // Ya no limpiamos la URL para evitar problemas en móviles al recargar o cambiar de navegador
+      // router.replace('/', { scroll: false })
     } else {
       // Verificar si ya existe un token guardado en la sesión
       const savedToken = sessionStorage.getItem('wedding_guest_token')

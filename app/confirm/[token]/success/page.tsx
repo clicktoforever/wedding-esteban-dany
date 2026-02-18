@@ -25,7 +25,7 @@ export default function ConfirmationSuccessPage() {
         <div className="relative mb-8 lg:mb-12 animate-scale-in group">
           {/* Decorative Glow */}
           <div className="absolute inset-0 rounded-full bg-accent-light/20 blur-xl transform scale-150 animate-pulse-slow"></div>
-          
+
           {/* Outer Gold Ring */}
           <div className="relative flex items-center justify-center w-28 h-28 lg:w-36 lg:h-36 xl:w-40 xl:h-40 rounded-full border-[3px] lg:border-4 border-accent-light bg-white shadow-xl shadow-accent-light/10 transition-all duration-300">
             {/* Inner Green Check */}
@@ -46,7 +46,7 @@ export default function ConfirmationSuccessPage() {
         {/* Headline Block */}
         <div className="space-y-4 lg:space-y-6 mb-10 lg:mb-12 animate-fade-in-up delay-200">
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-medium tracking-tight text-primary leading-tight transition-all duration-300">
-            ¡Qué emoción!<br/>
+            ¡Qué emoción!<br />
             <span className="italic text-accent-light">Ya tienes tu pase.</span>
           </h1>
           <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-gray-600 font-medium leading-relaxed max-w-[320px] lg:max-w-md xl:max-w-lg mx-auto transition-all duration-300">
@@ -76,11 +76,11 @@ export default function ConfirmationSuccessPage() {
             className="group relative w-full overflow-hidden rounded-xl bg-primary text-white shadow-lg shadow-primary/25 transition-all duration-300 hover:shadow-xl hover:shadow-primary/40 hover:-translate-y-1 active:scale-95 block"
           >
             <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
-            <div className="relative flex items-center justify-center gap-3 py-4 lg:py-5 xl:py-6 px-6 lg:px-8">
-              <svg className="w-6 h-6 lg:w-7 lg:h-7 text-accent-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="relative flex items-center justify-center gap-2 py-3 px-6 lg:px-8">
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
               </svg>
-              <span className="font-bold text-lg lg:text-xl tracking-wide">Ir a la Mesa de Regalos</span>
+              <span className="font-bold text-base lg:text-lg tracking-wide">Ir a la Mesa de Regalos</span>
             </div>
           </Link>
 
