@@ -303,13 +303,6 @@ export default function EditGuestModal({
           onClick={(e) => e.stopPropagation()}
           style={{ overscrollBehavior: 'contain' }}
         >
-          {/* Handle Bar */}
-          <div
-            className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-stone-300 rounded-full z-50 cursor-grab active:cursor-grabbing md:hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          />
 
           {/* Header */}
           <div className="sticky top-0 z-40 bg-[#F9F7F2] border-b border-stone-200/50 px-6 pt-8 pb-4 flex flex-col gap-4">

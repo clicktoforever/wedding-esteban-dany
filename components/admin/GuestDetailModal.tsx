@@ -82,10 +82,10 @@ export default function GuestDetailModal({
 
   const getTimeAgo = (dateString?: string) => {
     if (!dateString) return 'Actualizado recientemente'
-    
+
     const updatedDate = new Date(dateString)
     const now = new Date()
-    
+
     // Convertir a timezone Ecuador (GMT-5)
     const ecuadorTime = new Date(now.toLocaleString('en-US', { timeZone: 'America/Guayaquil' }))
     const diffMs = ecuadorTime.getTime() - updatedDate.getTime()
@@ -93,12 +93,12 @@ export default function GuestDetailModal({
     const diffMins = Math.floor(diffSecs / 60)
     const diffHours = Math.floor(diffMins / 60)
     const diffDays = Math.floor(diffHours / 24)
-    
+
     if (diffSecs < 60) return 'Actualizado hace unos segundos'
     if (diffMins < 60) return `Actualizado hace ${diffMins} ${diffMins === 1 ? 'minuto' : 'minutos'}`
     if (diffHours < 24) return `Actualizado hace ${diffHours} ${diffHours === 1 ? 'hora' : 'horas'}`
     if (diffDays < 30) return `Actualizado hace ${diffDays} ${diffDays === 1 ? 'día' : 'días'}`
-    
+
     const diffMonths = Math.floor(diffDays / 30)
     return `Actualizado hace ${diffMonths} ${diffMonths === 1 ? 'mes' : 'meses'}`
   }
@@ -137,16 +137,16 @@ export default function GuestDetailModal({
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
-      
+
       {/* Modal Container */}
-      <div 
+      <div
         className="fixed bottom-0 inset-x-0 z-50 md:inset-0 md:flex md:items-center md:justify-center md:p-4"
       >
-        <div 
+        <div
           className="relative flex max-h-[90dvh] md:h-[90vh] w-full md:max-w-md flex-col bg-[#F9F7F2] shadow-2xl overflow-hidden rounded-t-2xl md:rounded-[32px] animate-in slide-in-from-bottom duration-300"
           onClick={(e) => e.stopPropagation()}
           style={{
@@ -155,17 +155,10 @@ export default function GuestDetailModal({
             overscrollBehavior: 'contain'
           }}
         >
-          {/* Handle Bar */}
-          <div 
-            className="absolute top-3 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-stone-300 rounded-full z-50 cursor-grab active:cursor-grabbing md:hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          />
 
           {/* Header */}
           <div className="sticky top-0 z-40 bg-[#F9F7F2] border-b border-stone-200/50 px-4 py-3 flex items-center justify-between pt-8 md:pt-3">
-            <button 
+            <button
               onClick={onClose}
               className="flex items-center text-primary group/nav transition-opacity active:opacity-60"
             >
@@ -180,20 +173,19 @@ export default function GuestDetailModal({
           </div>
 
           {/* Scrollable Content */}
-          <div 
-            ref={contentRef} 
+          <div
+            ref={contentRef}
             className="flex-1 overflow-y-auto p-5 pb-32"
             style={{ overscrollBehavior: 'contain' }}
           >
             {/* Status Badge */}
             <div className="flex flex-col items-center justify-center pt-2 mb-6">
-              <div className={`relative flex items-center gap-2 text-white px-6 py-3 rounded-full shadow-lg ring-4 ring-white/50 ${
-                mainStatus === 'confirmed' 
-                  ? 'bg-green-600 shadow-green-600/25' 
-                  : mainStatus === 'pending' 
-                  ? 'bg-yellow-500 shadow-yellow-500/25' 
-                  : 'bg-stone-400 shadow-stone-400/25'
-              }`}>
+              <div className={`relative flex items-center gap-2 text-white px-6 py-3 rounded-full shadow-lg ring-4 ring-white/50 ${mainStatus === 'confirmed'
+                  ? 'bg-green-600 shadow-green-600/25'
+                  : mainStatus === 'pending'
+                    ? 'bg-yellow-500 shadow-yellow-500/25'
+                    : 'bg-stone-400 shadow-stone-400/25'
+                }`}>
                 <span className="material-symbols-outlined text-[22px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                   {mainStatus === 'confirmed' ? 'check_circle' : mainStatus === 'pending' ? 'schedule' : 'cancel'}
                 </span>
@@ -287,7 +279,7 @@ export default function GuestDetailModal({
               {guest.passes.map((pass, index) => {
                 const passBadge = getStatusBadge(pass.confirmation_status)
                 return (
-                  <div 
+                  <div
                     key={pass.id}
                     className="bg-white rounded-xl px-4 py-3 shadow-sm border border-transparent hover:border-stone-200 transition-colors flex items-center justify-between group/comp"
                   >

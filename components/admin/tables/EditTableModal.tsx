@@ -48,7 +48,7 @@ export default function EditTableModal({ isOpen, onClose, table, onSuccess, onDe
   const handleDelete = async () => {
     try {
       const supabase = createClient()
-      
+
       // First, unassign all guests from this table
       await (supabase
         .from('guests')
@@ -75,28 +75,24 @@ export default function EditTableModal({ isOpen, onClose, table, onSuccess, onDe
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-[#131514]/30 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:items-center sm:justify-center pointer-events-none">
-        <div 
+        <div
           className="w-full max-w-md bg-[#fbf8f0] rounded-t-[32px] sm:rounded-[32px] shadow-2xl overflow-hidden flex flex-col relative animate-in slide-in-from-bottom duration-300 pointer-events-auto max-h-[85vh]"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Handle */}
-          <div className="flex justify-center pt-3 pb-1 sm:hidden">
-            <div className="h-1.5 w-12 rounded-full bg-stone-300/60" />
-          </div>
 
           {/* Header */}
           <div className="flex items-center justify-between px-6 pt-4 pb-2">
             <h2 className="text-[#495a51] text-2xl font-bold leading-tight tracking-tight">
               Editar Mesa
             </h2>
-            <button 
+            <button
               onClick={onClose}
               className="flex items-center justify-center w-10 h-10 rounded-full hover:bg-black/5 transition-colors text-[#6b7566]"
             >

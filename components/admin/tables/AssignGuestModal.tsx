@@ -8,7 +8,7 @@ interface Guest {
   name: string
   email: string | null
   phone: string | null
-  hasConfirmedPasses: boolean   
+  hasConfirmedPasses: boolean
 }
 
 interface AssignGuestModalProps {
@@ -39,7 +39,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
     } else {
       const query = searchQuery.toLowerCase()
       setFilteredGuests(
-        guests.filter(guest => 
+        guests.filter(guest =>
           guest.name.toLowerCase().includes(query) ||
           guest.email?.toLowerCase().includes(query) ||
           guest.phone?.includes(query)
@@ -132,28 +132,24 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-[#131514]/30 backdrop-blur-[2px]"
         onClick={onClose}
       />
 
       {/* Bottom Sheet */}
       <div className="fixed inset-0 z-50 flex items-end justify-center pointer-events-none">
-        <div 
+        <div
           className="w-full max-w-md bg-[#fbf8f0] rounded-t-2xl shadow-2xl max-h-[85vh] flex flex-col overflow-hidden animate-in slide-in-from-bottom duration-300 pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Handle */}
-          <div className="flex-none pt-3 pb-1 flex justify-center w-full">
-            <div className="h-1.5 w-12 rounded-full bg-[#dfe2e0]" />
-          </div>
 
           {/* Header */}
           <div className="flex-none px-6 pb-2 pt-2 flex items-center justify-between">
             <h2 className="text-[#495a51] text-xl font-bold leading-tight tracking-tight flex-1">
               Asignar a {tableName}
             </h2>
-            <button 
+            <button
               onClick={onClose}
               className="flex items-center justify-center w-8 h-8 rounded-full hover:bg-black/5 transition-colors"
             >
@@ -206,23 +202,21 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
               <div className="px-6 py-4 space-y-3">
                 {filteredGuests.map((guest) => {
                   const isSelected = selectedGuests.has(guest.id)
-                  
+
                   return (
                     <button
                       key={guest.id}
                       onClick={() => toggleGuest(guest.id)}
-                      className={`w-full flex items-center justify-between gap-4 p-3 rounded-xl border-2 transition-all ${
-                        isSelected 
-                          ? 'bg-[#495a51]/5 border-[#495a51]' 
+                      className={`w-full flex items-center justify-between gap-4 p-3 rounded-xl border-2 transition-all ${isSelected
+                          ? 'bg-[#495a51]/5 border-[#495a51]'
                           : 'bg-white border-transparent hover:border-[#d3c3db]'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-3 overflow-hidden">
-                        <div className={`size-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${
-                          isSelected 
-                            ? 'bg-[#495a51] text-white' 
+                        <div className={`size-11 rounded-full flex items-center justify-center text-sm font-bold shrink-0 ${isSelected
+                            ? 'bg-[#495a51] text-white'
                             : 'bg-[#d3c3db]/20 text-[#495a51]'
-                        }`}>
+                          }`}>
                           {guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex flex-col items-start text-left truncate">
@@ -235,11 +229,10 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
                           </div>
                         </div>
                       </div>
-                      <div className={`shrink-0 size-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                        isSelected 
-                          ? 'bg-[#495a51] border-[#495a51]' 
+                      <div className={`shrink-0 size-8 rounded-full border-2 flex items-center justify-center transition-all ${isSelected
+                          ? 'bg-[#495a51] border-[#495a51]'
                           : 'bg-white border-gray-300'
-                      }`}>
+                        }`}>
                         {isSelected && (
                           <span className="material-symbols-outlined text-white text-[18px]">check</span>
                         )}

@@ -44,21 +44,17 @@ export default function NewTableModal({ isOpen, onClose, onSuccess }: NewTableMo
   return (
     <>
       {/* Backdrop */}
-      <div 
+      <div
         className="fixed inset-0 z-50 bg-[#131514]/30 backdrop-blur-sm animate-in fade-in duration-300"
         onClick={onClose}
       />
 
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
-        <div 
+        <div
           className="w-full max-w-[360px] bg-[#fbf8f0] rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-300 pointer-events-auto"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Handle bar */}
-          <div className="w-full flex justify-center pt-3 pb-1">
-            <div className="w-12 h-1 rounded-full bg-stone-300" />
-          </div>
 
           {/* Header */}
           <div className="px-6 pt-2 pb-4 text-center">
