@@ -138,7 +138,7 @@ export default function EventDetails() {
                                 <div className="w-5 h-5 rounded-full bg-gray-800 shadow-sm ring-1 ring-gray-200"></div>
                             </div>
                             <div className="text-[10px] text-gray-400 text-center mt-1 leading-tight">
-                                Traje formal<br />(Evitar gris ceniza)
+                                Traje formal<br />(Evitar gris humo)
                             </div>
                         </div>
                     </div>
@@ -162,10 +162,7 @@ export default function EventDetails() {
                                 <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Horario</h4>
                                 <div className="relative pl-3 border-l-2 border-[#4a5951]/20 space-y-2 py-1">
                                     <p className="text-sm text-gray-600">
-                                        <span className="font-bold text-[#4a5951]">11:00 AM</span> — Ceremonia
-                                    </p>
-                                    <p className="text-sm text-gray-600">
-                                        <span className="font-bold text-[#4a5951]">12:00 PM</span> — Recepción
+                                        <span className="font-bold text-[#4a5951]">11:30 AM</span> — Ceremonia y Recepción
                                     </p>
                                 </div>
                             </div>

@@ -75,11 +75,10 @@ export default function WhatsAppMessageModal({
     }
 
     const getClosingMessage = () => {
-        return `Hola *${guest.name}*, esperamos que estés muy bien. 👋\n\n` +
-            `Te escribimos porque necesitamos cerrar la lista final de invitados para la comida y la logística de la boda.\n\n` +
-            `Al no recibir tu confirmación, *entendemos que esta vez no te será posible acompañarnos*. Lo sentimos mucho, ya que nos hubiera encantado celebrar contigo, pero la logística nos exige entregar los números finales hoy.\n\n` +
-            `Te tendremos presente en nuestro brindar a la distancia.\n\n` +
-            `Un abrazo 🥂,\n` +
+        return `Hola *${guest.name}*, esperamos que estés bien. 👋\n\n` +
+            `Hoy debemos cerrar la lista final de nuestra boda. Al no recibir tu confirmación, *entendemos que en esta ocasión no podrás acompañarnos*.\n\n` +
+            `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. 🥂\n\n` +
+            `Un abrazo,\n` +
             `*Carlos y Dany*`
     }
 

@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import {
   generateClientTransactionId,
   formatCurrency,
+  createPayPhoneWidgetConfig,
 } from '@/lib/payphone'
 
 export const dynamic = 'force-dynamic'
@@ -119,28 +120,26 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Prepare PayPhone widget data
+    // Prepare PayPhone widget data using centralized helper (Best Practice)
     // El monto en PayPhone debe estar en centavos y sin decimales
-    const amountInCents = Math.round(amount * 100)
 
     // Construct redirect URL for after payment
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
     const redirectUrl = `${baseUrl}/confirm-payment`
 
+    const paymentConfig = createPayPhoneWidgetConfig({
+      amount: amount, // Amount in dollars (conversion and tax calc handled in helper)
+      reference: `Regalo: ${gift.name} - ${donorName}`,
+      clientTransactionId,
+      redirectUrl,
+      email: donorEmail,
+    })
+
     // Return data for PayPhone widget
     return NextResponse.json({
       success: true,
       transactionId: transaction.id,
-      paymentConfig: {
-        token: process.env.PAYPHONE_TOKEN || '',
-        clientTransactionId,
-        amount: amountInCents,
-        amountWithoutTax: amountInCents,
-        currency: 'USD',
-        storeId: process.env.PAYPHONE_STORE_ID || '',
-        reference: `Regalo: ${gift.name} - ${donorName}`,
-        redirectUrl,
-      },
+      paymentConfig,
       message: 'Transaction created successfully',
     })
 
