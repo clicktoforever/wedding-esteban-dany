@@ -8,163 +8,157 @@ type Gift = Database['public']['Tables']['gifts']['Row']
 
 interface GiftCardProps {
   gift: Gift
-  onPurchase?: (giftId: string) => Promise<void>
   onContribute?: (gift: Gift) => void
-  disabled: boolean
 }
 
-export default function GiftCard({ gift, onPurchase, onContribute, disabled }: GiftCardProps) {
-  const isPurchased = gift.is_purchased
+export default function GiftCard({ gift, onContribute }: GiftCardProps) {
   const isCrowdfunding = gift.is_crowdfunding
   const isCompleted = gift.status === 'COMPLETED'
-  const progressPercentage = isCrowdfunding && gift.total_amount > 0
-    ? (gift.collected_amount / gift.total_amount) * 100
+  const totalAmount = gift.total_amount ?? 0
+  const collectedAmount = gift.collected_amount ?? 0
+  const progressPercentage = isCrowdfunding && totalAmount > 0
+    ? (collectedAmount / totalAmount) * 100
     : 0
-  const remainingAmount = gift.total_amount - gift.collected_amount
+  const remainingAmount = totalAmount - collectedAmount
+  const hasContributions = collectedAmount > 0
+  
+  // Use contributor_count if available, otherwise fallback to 0
+  const contributorCount = gift.contributor_count || 0
+
+  // Varied heights for masonry effect - use gift id to determine height
+  const giftIdNumber = typeof gift.id === 'string' ? parseInt(gift.id, 10) : gift.id
+  const heightIndex = giftIdNumber % 4
 
   return (
     <div
-      className={`card-elegant ${
-        (isPurchased || isCompleted) ? 'opacity-50' : ''
+      className={`bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 ${
+        isCompleted ? 'opacity-90 grayscale' : ''
       }`}
     >
       {/* Image */}
-      <div className="relative aspect-[4/3] bg-wedding-beige/30 overflow-hidden group">
+      <div className={`relative bg-gray-100 overflow-hidden group ${
+        heightIndex === 0 ? 'h-48 min-h-[12rem]' :
+        heightIndex === 1 ? 'h-56 min-h-[14rem]' :
+        heightIndex === 2 ? 'h-60 min-h-[15rem]' :
+        'h-72 min-h-[18rem]'
+      }`}>
         {gift.image_url ? (
           <Image
             src={gift.image_url}
             alt={gift.name}
             fill
+            unoptimized
             className={`object-cover transition-transform duration-500 ${
-              (isPurchased || isCompleted) ? '' : 'group-hover:scale-110'
+              isCompleted ? '' : 'group-hover:scale-105'
             }`}
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            sizes="(max-width: 640px) 100vw, 50vw"
+            priority={giftIdNumber % 4 === 0}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-wedding-sage/30">
-            <svg className="w-20 h-20" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2L2 7v10c0 5.5 3.8 10.7 10 12 6.2-1.3 10-6.5 10-12V7l-10-5zm0 18.5c-4.8-1.1-8-5.3-8-9.5V8.2l8-4.7 8 4.7V11c0 4.2-3.2 8.4-8 9.5z"/>
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
             </svg>
           </div>
         )}
         
-        {(isPurchased || isCompleted) && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center backdrop-blur-sm">
-            <div className="bg-white px-6 py-3 text-sm tracking-wider uppercase font-semibold text-gray-700">
-              {isCompleted ? '✓ Completado' : '✓ Apartado'}
-            </div>
-          </div>
-        )}
-
-        {gift.category && !(isPurchased || isCompleted) && (
-          <div className="absolute top-4 left-4">
-            <span className="bg-wedding-lavender/90 backdrop-blur-sm px-4 py-1 text-xs tracking-wider uppercase font-medium text-wedding-forest">
+        {/* Category Badge */}
+        {gift.category && (
+          <div className="absolute top-3 right-3">
+            <span className="bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-semibold text-[#4c5851] shadow-sm uppercase tracking-wide">
               {gift.category}
             </span>
           </div>
         )}
 
-        {/* Crowdfunding Badge */}
-        {isCrowdfunding && !isCompleted && (
-          <div className="absolute top-4 right-4">
-            <span className="bg-wedding-rose/90 backdrop-blur-sm px-3 py-1 text-xs tracking-wider uppercase font-medium text-white flex items-center gap-1">
+        {/* Completed Badge */}
+        {isCompleted && (
+          <div className="absolute top-3 left-3">
+            <span className="bg-[#E6B34A] text-white px-3 py-1.5 rounded-full text-xs font-semibold shadow-lg flex items-center gap-1">
               <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
               </svg>
-              Contribución
+              ¡Completado!
             </span>
           </div>
         )}
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <h3 className="text-xl font-serif text-wedding-forest mb-3">
+      <div className="p-5">
+        {/* Contributors Count */}
+        {hasContributions && !isCompleted && contributorCount > 0 && (
+          <div className="flex items-center gap-1.5 text-sm text-[#666666] mb-3 font-sans">
+            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+            </svg>
+            <span>
+              {contributorCount} {contributorCount === 1 ? 'invitado ha' : 'invitados han'} colaborado
+            </span>
+          </div>
+        )}
+
+        {/* Title */}
+        <h3 className="font-serif text-xl text-[#3d3d3d] mb-2 leading-snug font-medium">
           {gift.name}
         </h3>
         
+        {/* Description */}
         {gift.description && (
-          <p className="text-sm text-gray-600 mb-4 line-clamp-2 leading-relaxed">
+          <p className="text-sm text-[#666666] mb-4 line-clamp-2 leading-relaxed font-sans">
             {gift.description}
           </p>
         )}
 
-        {/* Crowdfunding Progress */}
-        {isCrowdfunding ? (
-          <div className="mb-6 space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-600">Progreso</span>
-              <span className="text-sm font-bold text-wedding-forest">
-                {progressPercentage.toFixed(0)}%
+        {/* Progress Section */}
+        {!isCompleted && isCrowdfunding && (
+          <div className="mb-5 space-y-2.5">
+            {/* Always show collected and remaining amounts */}
+            <div className="flex items-center justify-between text-sm font-sans">
+              <span className="text-[#926978]">
+                Recaudado: <span className="font-semibold text-[#926978]">{formatCurrency(collectedAmount)}</span>
+              </span>
+              <span className="text-[#926978]">
+                Faltan: <span className="font-semibold text-[#926978]">{formatCurrency(remainingAmount)}</span>
               </span>
             </div>
-            <div className="w-full bg-gray-200 h-2.5 overflow-hidden">
-              <div
-                className="bg-gradient-to-r from-wedding-sage to-wedding-forest h-full transition-all duration-500"
-                style={{ width: `${Math.min(progressPercentage, 100)}%` }}
-              />
-            </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-gray-600">
-                {formatCurrency(gift.collected_amount)}
-              </span>
-              <span className="font-bold text-wedding-purple">
-                {formatCurrency(gift.total_amount)}
-              </span>
-            </div>
-            {!isCompleted && remainingAmount > 0 && (
-              <div className="bg-wedding-beige/30 px-4 py-2 text-center">
-                <p className="text-xs text-gray-600">
-                  Faltan <span className="font-semibold text-wedding-rose">{formatCurrency(remainingAmount)}</span>
-                </p>
+            
+            {/* Show "be the first" message only when there are no contributions */}
+            {!hasContributions && (
+              <div className="text-center">
+                <span className="inline-flex items-center gap-1 text-xs text-gray-500">
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+                  </svg>
+                  Sé el primero en colaborar
+                </span>
+              </div>
+            )}
+            
+            {/* Show progress bar only when there are contributions */}
+            {hasContributions && (
+              <div className="w-full bg-[#d3c3db]/30 h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#d3c3db] h-full transition-all duration-500 rounded-full"
+                  style={{ width: `${Math.min(progressPercentage, 100)}%` }}
+                />
               </div>
             )}
           </div>
-        ) : (
-          gift.price && (
-            <p className="text-2xl font-serif text-wedding-purple mb-6">
-              ${gift.price.toLocaleString('es-MX', { minimumFractionDigits: 2 })}
-            </p>
-          )
         )}
 
-        <div className="space-y-2">
-          {gift.store_url && !(isPurchased || isCompleted) && (
-            <a
-              href={gift.store_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block text-center border-2 border-gray-300 text-gray-600 py-3 px-4 text-sm tracking-wider uppercase font-medium transition-all duration-300 hover:bg-gray-50"
-            >
-              Ver en Tienda
-            </a>
-          )}
-          
-          {/* Contribution Button - Always use PayPhone flow */}
-          <button
-            onClick={() => onContribute?.(gift)}
-            disabled={disabled || isCompleted}
-            className={`w-full py-3 px-4 text-sm tracking-wider uppercase font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-              isCompleted
-                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                : 'btn-primary'
-            }`}
-          >
-            {isCompleted ? (
-              '✓ Completado'
-            ) : (
-              <>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/>
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clipRule="evenodd"/>
-                </svg>
-                Aportar
-              </>
-            )}
-          </button>
-
-        </div>
+        {/* Action Button */}
+        <button
+          onClick={() => onContribute?.(gift)}
+          disabled={isCompleted}
+          className={`w-full py-3 px-4 rounded-lg text-sm font-medium transition-all duration-300 font-sans ${
+            isCompleted
+              ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              : 'border-2 border-[#4c5851] text-[#4c5851] hover:bg-[#4c5851] hover:text-white'
+          }`}
+        >
+          {isCompleted ? '✓ Completado' : 'Colaborar'}
+        </button>
       </div>
     </div>
   )

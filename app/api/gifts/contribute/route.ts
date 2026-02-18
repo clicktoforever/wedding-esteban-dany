@@ -10,17 +10,18 @@ export const dynamic = 'force-dynamic'
 interface ContributeRequest {
   giftId: string
   donorName: string
+  donorEmail: string
   amount: number
-  donorEmail?: string
+  message?: string
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body: ContributeRequest = await request.json()
-    const { giftId, donorName, amount, donorEmail } = body
+    const { giftId, donorName, donorEmail, amount, message } = body
 
     // Validate input
-    if (!giftId || !donorName || !amount || amount <= 0) {
+    if (!giftId || !donorName || !donorEmail || !amount || amount <= 0) {
       return NextResponse.json(
         { error: 'Missing or invalid required fields' },
         { status: 400 }
@@ -45,7 +46,7 @@ export async function POST(request: NextRequest) {
       is_crowdfunding: boolean | null
       status: string
     } | null
-    
+
     if (giftResult.error || !gift) {
       return NextResponse.json(
         { error: 'Gift not found' },
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     // Auto-enable crowdfunding if not set and has price
     const giftTotal = gift.total_amount || gift.price || 0
     const giftCollected = gift.collected_amount || 0
-    
+
     if (giftTotal <= 0) {
       return NextResponse.json(
         { error: 'Gift does not have a valid price' },
@@ -68,7 +69,6 @@ export async function POST(request: NextRequest) {
     if (!gift.is_crowdfunding && gift.price) {
       await supabase
         .from('gifts')
-        // @ts-expect-error - Supabase type inference issue
         .update({
           is_crowdfunding: true,
           total_amount: gift.price,
@@ -89,16 +89,7 @@ export async function POST(request: NextRequest) {
     // Calculate remaining amount
     const remainingAmount = giftTotal - giftCollected
 
-    // Validate contribution amount
-    if (amount > remainingAmount) {
-      return NextResponse.json(
-        {
-          error: `Amount exceeds remaining balance. Remaining: ${formatCurrency(remainingAmount)}`,
-          remainingAmount,
-        },
-        { status: 400 }
-      )
-    }
+
 
     // Generate unique client transaction ID
     const clientTransactionId = generateClientTransactionId(giftId)
@@ -106,13 +97,14 @@ export async function POST(request: NextRequest) {
     // Create transaction record with PENDING status
     const transactionResult = await supabase
       .from('gift_transactions')
-      // @ts-expect-error - Supabase type inference issue
       .insert({
         gift_id: giftId,
         donor_name: donorName,
+        donor_email: donorEmail,
         amount: amount,
         status: 'PENDING',
         payphone_client_transaction_id: clientTransactionId,
+        message: message || null,
       })
       .select()
       .single()
@@ -131,18 +123,23 @@ export async function POST(request: NextRequest) {
     // El monto en PayPhone debe estar en centavos y sin decimales
     const amountInCents = Math.round(amount * 100)
 
+    // Construct redirect URL for after payment
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+    const redirectUrl = `${baseUrl}/confirm-payment`
+
     // Return data for PayPhone widget
     return NextResponse.json({
       success: true,
       transactionId: transaction.id,
       paymentConfig: {
         token: process.env.PAYPHONE_TOKEN || '',
-        clientTxId: clientTransactionId,
+        clientTransactionId,
         amount: amountInCents,
         amountWithoutTax: amountInCents,
         currency: 'USD',
         storeId: process.env.PAYPHONE_STORE_ID || '',
         reference: `Regalo: ${gift.name} - ${donorName}`,
+        redirectUrl,
       },
       message: 'Transaction created successfully',
     })
@@ -150,7 +147,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error in contribute endpoint:', error)
     return NextResponse.json(
-      { 
+      {
         error: 'Internal server error',
         details: error instanceof Error ? error.message : 'Unknown error'
       },

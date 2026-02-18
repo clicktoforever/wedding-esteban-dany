@@ -1,17 +1,15 @@
 'use client'
-
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import type { Database } from '@/lib/database.types'
-
+import AdminStats from '@/components/admin/AdminStats'
+import GiftProgressCard from '@/components/admin/GiftProgressCard'
 type Guest = Database['public']['Tables']['guests']['Row']
 type Pass = Database['public']['Tables']['passes']['Row']
 type Gift = Database['public']['Tables']['gifts']['Row']
-
 interface GuestWithPasses extends Guest {
   passes: Pass[]
 }
-
 interface Stats {
   total_guests: number
   total_passes: number
@@ -19,9 +17,10 @@ interface Stats {
   declined_passes: number
   pending_passes: number
   total_gifts: number
-  purchased_gifts: number
+  completed_gifts: number
+  total_contributions?: number
+  approved_contributions?: number
 }
-
 interface AdminDashboardProps {
   readonly stats: Stats
   readonly guests: GuestWithPasses[]
@@ -42,37 +41,93 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const [passes, setPasses] = useState<Array<{ id?: string, attendee_name: string }>>([{ attendee_name: '' }])
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
   const [emailError, setEmailError] = useState<string>('')
-
+  const [searchTerm, setSearchTerm] = useState('')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined'>('all')
+  const [sentMessages, setSentMessages] = useState<Set<string>>(new Set())
+  const [guestList, setGuestList] = useState<GuestWithPasses[]>(guests)
+  const [expandedCardId, setExpandedCardId] = useState<string | null>(null)
+  const [giftsTab, setGiftsTab] = useState<'pending' | 'completed'>('pending')
+  // New components
+  // Lazy imports at top of file
+  // Mantener la lista en sync con datos reales si llegan desde servidor
+  useEffect(() => {
+    if (guests.length) {
+      setGuestList(guests)
+    }
+  }, [guests])
   const validateEmail = (email: string): boolean => {
     if (!email) return true // Email is optional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     return emailRegex.test(email)
   }
-
-  const confirmationRate = stats.total_passes > 0 
-    ? ((stats.confirmed_passes / stats.total_passes) * 100).toFixed(1)
-    : '0.0'
-
-  const giftsPurchasedRate = stats.total_gifts > 0
-    ? ((stats.purchased_gifts / stats.total_gifts) * 100).toFixed(1)
-    : '0.0'
-
+  const getOverallStatus = (guest: GuestWithPasses): 'confirmed' | 'pending' | 'declined' => {
+    const statuses = guest.passes.map(p => p.confirmation_status)
+    if (statuses.every(s => s === 'confirmed')) return 'confirmed'
+    if (statuses.every(s => s === 'declined')) return 'declined'
+    return 'pending'
+  }
+  const statusStyles: Record<'confirmed' | 'pending' | 'declined', { label: string; classes: string }> = {
+    confirmed: { label: 'Confirmado', classes: 'bg-emerald-100 text-emerald-800 border border-emerald-200' },
+    pending: { label: 'Pendiente', classes: 'bg-amber-100 text-amber-800 border border-amber-200' },
+    declined: { label: 'Declinado', classes: 'bg-rose-100 text-rose-800 border border-rose-200' },
+  }
+  const getCompanionBadge = (guest: GuestWithPasses) => {
+    const count = Math.max(guest.passes.length - 1, 0)
+    if (count === 0) return null
+    const names = guest.passes.slice(1).map(c => c.attendee_name).join(', ')
+    return { count, tooltip: names }
+  }
+  // Función para generar el mensaje de WhatsApp inicial
+  const generateWhatsAppMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
+    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
+    return `¡Hola ${guest.name}! 💐✨
+Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
+🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
+${confirmationUrl}
+¡Esperamos contar con tu presencia! 💕`
+  }
+  // Función para generar el mensaje de recordatorio
+  const generateReminderMessage = (guest: GuestWithPasses) => {
+    const passCount = guest.passes.length
+    const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
+    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
+    return `¡Hola ${guest.name}! 💌
+Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
+Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
+${confirmationUrl}
+¡Tu presencia es muy importante para nosotros! 💕✨`
+  }
+  const getWhatsAppLink = (guest: GuestWithPasses, type: 'invite' | 'reminder') => {
+    if (!guest.phone) return '#'
+    const phoneNumber = guest.phone.replace(/[^0-9]/g, '')
+    const message = type === 'reminder' ? generateReminderMessage(guest) : generateWhatsAppMessage(guest)
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`
+  }
+  // Filtrar invitados según búsqueda y estado
+  const filteredGuests = guestList.filter(guest => {
+    // Filtro por búsqueda
+    const matchesSearch = guest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      guest.passes.some(pass => pass.attendee_name.toLowerCase().includes(searchTerm.toLowerCase()))
+    if (!matchesSearch) return false
+    // Filtro por estado
+    if (statusFilter === 'all') return true
+    return guest.passes.some(pass => pass.confirmation_status === statusFilter)
+  })
   const addPass = () => {
     setPasses([...passes, { attendee_name: '' }])
   }
-
   const removePass = (index: number) => {
     if (index > 0) { // No permitir eliminar el pase principal (índice 0)
       setPasses(passes.filter((_, i) => i !== index))
     }
   }
-
   const updatePass = (index: number, value: string) => {
     const newPasses = [...passes]
     newPasses[index].attendee_name = value
     setPasses(newPasses)
   }
-
   // Actualizar automáticamente el primer pase con el nombre del invitado
   const handleGuestNameChange = (value: string) => {
     setGuestName(value)
@@ -81,19 +136,16 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
     newPasses[0].attendee_name = value
     setPasses(newPasses)
   }
-
   const openEditModal = (guest: GuestWithPasses) => {
     setIsEditMode(true)
     setEditingGuestId(guest.id)
     setGuestName(guest.name)
     setGuestEmail(guest.email || '')
-    
     // Parsear teléfono para separar código de país
     const phone = guest.phone || ''
     // Buscar códigos de país conocidos primero
     const knownCodes = ['+593', '+52', '+57']
     const foundCode = knownCodes.find(code => phone.startsWith(code))
-    
     if (foundCode) {
       setCountryCode(foundCode)
       setGuestPhone(phone.substring(foundCode.length))
@@ -113,11 +165,9 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
       setCountryCode('+52')
       setGuestPhone(phone)
     }
-    
     setPasses(guest.passes.map(p => ({ id: p.id, attendee_name: p.attendee_name })))
     setIsModalOpen(true)
   }
-
   const openAddModal = () => {
     setIsEditMode(false)
     setEditingGuestId(null)
@@ -128,23 +178,17 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
     setPasses([{ attendee_name: '' }])
     setIsModalOpen(true)
   }
-
   const handleDeleteGuest = async () => {
     if (!guestToDelete) return
-
     try {
       const response = await fetch(`/api/guests/${guestToDelete}`, {
         method: 'DELETE',
       })
-
       if (!response.ok) {
         throw new Error('Error al eliminar invitado')
       }
-
+      setGuestList(prev => prev.filter(g => g.id !== guestToDelete))
       setMessage({ type: 'success', text: 'Invitado eliminado exitosamente' })
-      setTimeout(() => {
-        globalThis.location.reload()
-      }, 1500)
     } catch (error) {
       console.error('Error al eliminar invitado:', error)
       setMessage({ type: 'error', text: 'Error al eliminar invitado. Intenta nuevamente.' })
@@ -153,74 +197,59 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
       setGuestToDelete(null)
     }
   }
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
     setMessage(null)
     setEmailError('')
-
     // Validar email si está presente
     if (guestEmail && !validateEmail(guestEmail)) {
       setEmailError('Por favor ingresa un correo electrónico válido')
       setIsSubmitting(false)
       return
     }
-
     try {
       const supabase = createClient()
       const fullPhone = countryCode + guestPhone
-
       if (isEditMode && editingGuestId) {
         // Actualizar invitado existente
         const { error: guestError } = await supabase
           .from('guests')
-          // @ts-ignore - Supabase types inference issue
           .update({
             name: guestName,
             email: guestEmail || null,
             phone: fullPhone,
           })
           .eq('id', editingGuestId)
-
         if (guestError) throw guestError
-
         // Obtener pases existentes
         const existingPassIds = passes.filter(p => p.id).map(p => p.id!)
         const newPasses = passes.filter(p => !p.id && p.attendee_name.trim())
-
         // Eliminar pases que ya no están (excepto el principal)
         const { data: allPasses } = await supabase
           .from('passes')
           .select('id')
           .eq('guest_id', editingGuestId)
-
         if (allPasses && allPasses.length > 0) {
           const passesToDelete = allPasses
             .filter((p: { id: string }, index: number) => index > 0) // No eliminar el primer pase (principal)
             .filter((p: { id: string }) => !existingPassIds.includes(p.id))
-
           if (passesToDelete.length > 0) {
             const { error: deleteError } = await supabase
               .from('passes')
               .delete()
               .in('id', passesToDelete.map((p: { id: string }) => p.id))
-
             if (deleteError) throw deleteError
           }
         }
-
         // Actualizar pases existentes
         for (const pass of passes.filter(p => p.id)) {
           const { error: updateError } = await supabase
             .from('passes')
-            // @ts-ignore - Supabase types inference issue
             .update({ attendee_name: pass.attendee_name.trim() })
             .eq('id', pass.id!)
-
           if (updateError) throw updateError
         }
-
         // Insertar nuevos pases
         if (newPasses.length > 0) {
           const { error: insertError } = await supabase
@@ -232,16 +261,13 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                 confirmation_status: 'pending' as const,
               })) as any
             )
-
           if (insertError) throw insertError
         }
-
         setMessage({ type: 'success', text: 'Invitado actualizado exitosamente' })
       } else {
         // Crear nuevo invitado
         const { data: guestData, error: guestError } = await supabase
           .from('guests')
-          // @ts-ignore - Supabase types inference issue
           .insert({
             name: guestName,
             email: guestEmail || null,
@@ -249,37 +275,30 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
           })
           .select()
           .single()
-
         if (guestError || !guestData) throw guestError || new Error('No se pudo crear el invitado')
-
+        // Cast needed due to Supabase type inference issue
+        const guest = guestData as { id: string }
         const passesToInsert = passes
           .filter(pass => pass.attendee_name.trim())
           .map(pass => ({
-            // @ts-ignore - Supabase types inference issue
-            guest_id: guestData.id,
+            guest_id: guest.id,
             attendee_name: pass.attendee_name.trim(),
             confirmation_status: 'pending' as const,
           }))
-
         if (passesToInsert.length > 0) {
           const { error: passesError } = await supabase
             .from('passes')
-            // @ts-ignore - Supabase types inference issue
             .insert(passesToInsert)
-
           if (passesError) throw passesError
         }
-
         setMessage({ type: 'success', text: 'Invitado agregado exitosamente' })
       }
-      
       // Resetear formulario
       setGuestName('')
       setGuestEmail('')
       setCountryCode('+52')
       setGuestPhone('')
       setPasses([{ attendee_name: '' }])
-      
       // Cerrar modal después de 2 segundos
       setTimeout(() => {
         setIsModalOpen(false)
@@ -288,7 +307,6 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
         setMessage(null)
         globalThis.location.reload()
       }, 2000)
-
     } catch (error) {
       console.error('Error al guardar invitado:', error)
       setMessage({ type: 'error', text: 'Error al guardar invitado. Intenta nuevamente.' })
@@ -296,11 +314,9 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
       setIsSubmitting(false)
     }
   }
-
   const exportToExcel = () => {
     // Preparar datos para exportar
     const rows: string[][] = []
-    
     // Encabezados
     rows.push([
       'Invitado',
@@ -308,10 +324,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
       'Tel\u00e9fono',
       'Nombre Asistente',
       'Estado',
-      'Restricciones Diet\u00e9ticas',
-      'Notas'
     ])
-
     // Datos de cada invitado y sus pases
     guests.forEach(guest => {
       guest.passes.forEach(pass => {
@@ -320,327 +333,506 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
           'declined': 'Declinado',
           'pending': 'Pendiente'
         }
-        
         rows.push([
           guest.name,
           guest.email || '',
           guest.phone || '',
           pass.attendee_name,
-          statusMap[pass.confirmation_status as keyof typeof statusMap] || pass.confirmation_status,
-          pass.dietary_restrictions || '',
-          pass.notes || ''
+          statusMap[pass.confirmation_status as keyof typeof statusMap] || pass.confirmation_status
         ])
       })
     })
-
     // Convertir a CSV
-    const csvContent = rows.map(row => 
+    const csvContent = rows.map(row =>
       row.map(cell => {
         // Escapar comillas dobles y envolver en comillas si contiene comas o saltos de l\u00ednea
         const cellStr = String(cell).replaceAll('"', '""')
-        return cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"') 
-          ? `"${cellStr}"` 
+        return cellStr.includes(',') || cellStr.includes('\n') || cellStr.includes('"')
+          ? `"${cellStr}"`
           : cellStr
       }).join(',')
     ).join('\n')
-
     // Agregar BOM para que Excel reconozca UTF-8
     const BOM = '\uFEFF'
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' })
     const link = document.createElement('a')
     const url = URL.createObjectURL(blob)
-    
     link.setAttribute('href', url)
     link.setAttribute('download', `invitados_boda_${new Date().toISOString().split('T')[0]}.csv`)
     link.style.visibility = 'hidden'
-    
     document.body.appendChild(link)
     link.click()
     link.remove()
   }
-
   return (
     <div className="space-y-8">
-      {/* Progress Overview */}
-      <div className="bg-white border border-gray-200 p-8">
-        <h2 className="text-2xl font-serif text-wedding-forest mb-8">
-          Estado de Confirmaciones
-        </h2>
-        
-        <div className="space-y-6">
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Confirmados</span>
-              <span className="text-sm font-medium text-wedding-forest">{stats.confirmed_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-wedding-sage transition-all duration-500"
-                style={{ width: `${confirmationRate}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Pendientes</span>
-              <span className="text-sm font-medium text-amber-600">{stats.pending_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-amber-400 transition-all duration-500"
-                style={{ width: `${(stats.pending_passes / stats.total_passes * 100) || 0}%` }}
-              ></div>
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm tracking-wider uppercase text-gray-600">Declinados</span>
-              <span className="text-sm font-medium text-gray-500">{stats.declined_passes} de {stats.total_passes}</span>
-            </div>
-            <div className="w-full h-3 bg-gray-100">
-              <div 
-                className="h-full bg-gray-400 transition-all duration-500"
-                style={{ width: `${(stats.declined_passes / stats.total_passes * 100) || 0}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
+      {/* Safelist Tailwind colors for status dots to ensure rendering */}
+      <div className="hidden">
+        <span className="bg-emerald-500"></span>
+        <span className="bg-amber-400"></span>
+        <span className="bg-gray-400"></span>
       </div>
-
-      {/* Guests Table */}
-      <div className="bg-white border border-gray-200 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 bg-wedding-beige/30 flex justify-between items-center flex-wrap gap-4">
-          <h2 className="text-2xl font-serif text-wedding-forest">
-            Lista de Invitados
-          </h2>
-          <div className="flex gap-3">
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-rose text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-rose/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              <span>Agregar Invitado</span>
-            </button>
-            <button
-              onClick={exportToExcel}
-              className="flex items-center gap-2 px-6 py-3 bg-wedding-forest text-white tracking-wider uppercase text-sm font-medium hover:bg-wedding-forest/90 transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Descargar Excel</span>
-            </button>
+      {/* Admin Stats Panel */}
+      <div className="bg-white border border-gray-200 p-5 md:p-8">
+        <AdminStats
+          totalGuests={stats.total_guests}
+          confirmedPasses={stats.confirmed_passes}
+          totalPasses={stats.total_passes}
+          gifts={gifts.map(g => ({ collected_amount: g.collected_amount }))}
+        />
+      </div>
+      {/* Guests List */}
+      <div className="bg-white border border-gray-200 overflow-hidden flex flex-col">
+        <div className="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-gray-200">
+          <div className="p-6 pb-4 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-2xl font-serif text-admin-forest">Lista de Invitados</h2>
+            </div>
+            <div className="flex gap-3 flex-wrap">
+              <button
+                onClick={() => setIsModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-admin-rose text-white tracking-wider uppercase text-xs font-medium hover:bg-admin-rose/90 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v12m6-6H6" />
+                </svg>
+                <span>Agregar</span>
+              </button>
+              <button
+                onClick={exportToExcel}
+                className="flex items-center gap-2 px-4 py-2 bg-admin-forest text-white tracking-wider uppercase text-xs font-medium hover:bg-admin-forest/90 transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <span>Excel</span>
+              </button>
+            </div>
           </div>
+          {/* Barra sticky de búsqueda y filtros */}
+          <div className="px-6 pb-4 flex flex-col md:flex-row md:items-center gap-3">
+            <div className="flex-1 relative">
+              <input
+                type="text"
+                placeholder="Buscar por nombre o acompañante"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full px-4 py-2 pl-10 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm"
+              />
+              <svg className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            {/* Mobile: Combobox */}
+            <div className="md:hidden">
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'confirmed' | 'pending' | 'declined')}
+                className="w-full px-3 py-2 border border-gray-300 bg-white text-sm focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20"
+              >
+                <option value="all">Todos</option>
+                <option value="confirmed">Confirmados</option>
+                <option value="pending">Pendientes</option>
+                <option value="declined">Declinados</option>
+              </select>
+            </div>
+            <div></div>
+            {/* Desktop: Tabs */}
+            <div className="hidden md:flex gap-2 text-xs font-medium">
+              {[
+                { key: 'all', label: 'Todos' },
+                { key: 'confirmed', label: 'Confirmados' },
+                { key: 'pending', label: 'Pendientes' },
+                { key: 'declined', label: 'Declinados' },
+              ].map(tab => (
+                <button
+                  key={tab.key}
+                  onClick={() => setStatusFilter(tab.key as 'all' | 'confirmed' | 'pending' | 'declined')}
+                  className={`px-3 py-2 rounded-full border transition-colors ${statusFilter === tab.key ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          {/* Resumen removido por solicitud */}
         </div>
-        
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
-              <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Invitado Principal
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Acompañantes
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Estado
-                </th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Contacto
-                </th>
-                <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                  Acciones
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {guests.map(guest => {
-                const confirmedCount = guest.passes.filter(p => p.confirmation_status === 'confirmed').length
-                const declinedCount = guest.passes.filter(p => p.confirmation_status === 'declined').length
-                const pendingCount = guest.passes.filter(p => p.confirmation_status === 'pending').length
-
-                return (
-                  <tr key={guest.id} className="hover:bg-wedding-beige/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="text-sm font-serif text-wedding-forest">
-                        {guest.name}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-1">
-                        {guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="space-y-1">
-                        {guest.passes.map(pass => (
-                          <div key={pass.id} className="text-sm text-gray-600">
-                            {pass.attendee_name}
-                          </div>
-                        ))}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex flex-col gap-2">
-                        {confirmedCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-wedding-sage/20 text-wedding-forest uppercase tracking-wider w-fit">
-                            ✓ {confirmedCount} confirmado{confirmedCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {pendingCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-amber-100 text-amber-700 uppercase tracking-wider w-fit">
-                            ⏳ {pendingCount} pendiente{pendingCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                        {declinedCount > 0 && (
-                          <span className="inline-flex items-center px-3 py-1 text-xs font-medium bg-gray-100 text-gray-600 uppercase tracking-wider w-fit">
-                            ✗ {declinedCount} declinado{declinedCount > 1 ? 's' : ''}
-                          </span>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-gray-500 space-y-1">
-                        {guest.email && <div className="truncate max-w-xs">{guest.email}</div>}
-                        {guest.phone && <div>{guest.phone}</div>}
-                        {!guest.email && !guest.phone && <span className="text-gray-400">-</span>}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
-                        <button
-                          onClick={() => openEditModal(guest)}
-                          className="p-2 text-wedding-forest hover:bg-wedding-forest/10 transition-colors rounded"
-                          title="Editar invitado"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setGuestToDelete(guest.id)
-                            setShowDeleteConfirm(true)
-                          }}
-                          className="p-2 text-red-500 hover:bg-red-50 transition-colors rounded"
-                          title="Eliminar invitado"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    </td>
+        <div className="p-4 pt-2 flex-1">
+          <div className="text-sm text-gray-600 mb-3">Mostrando {filteredGuests.length} de {guestList.length} invitados</div>
+          {/* Desktop Table */}
+          <div className="hidden md:block border border-gray-200">
+            <div className="overflow-auto max-h-[640px]">
+              <table className="min-w-full text-sm">
+                <thead className="bg-white sticky top-0 z-10 backdrop-blur border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Invitado</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Acompañantes</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Contacto</th>
+                    <th className="px-4 py-3 text-left font-semibold text-gray-700">Estado</th>
+                    <th className="px-4 py-3 text-center font-semibold text-gray-700">WhatsApp</th>
+                    <th className="px-4 py-3 text-right font-semibold text-gray-700">Acciones</th>
                   </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        
-        {guests.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg font-serif">No hay invitados registrados aún</p>
+                </thead>
+                <tbody>
+                  {filteredGuests.map((guest, idx) => {
+                    const badge = getCompanionBadge(guest)
+                    const statusKey = getOverallStatus(guest)
+                    const { classes, label } = statusStyles[statusKey]
+                    const hasPhone = Boolean(guest.phone)
+                    const isSent = sentMessages.has(guest.id)
+                    const inviteHref = getWhatsAppLink(guest, 'invite')
+                    const reminderHref = getWhatsAppLink(guest, 'reminder')
+                    return (
+                      <tr key={guest.id} className={`border-b ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'} hover:bg-admin-beige/30 transition-colors`}>
+                        <td className="px-4 py-3 align-top">
+                          <div className="font-serif text-admin-forest text-sm">{guest.name}</div>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-gray-600">
+                            <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
+                            {badge && (
+                              <span
+                                className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-admin-sage/20 text-admin-forest border border-admin-sage/30"
+                                title={badge.tooltip}
+                              >
+                                +{badge.count}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          <div className="space-y-1 text-xs text-gray-700">
+                            {guest.passes.slice(1).map(pass => (
+                              <div key={pass.id} className="flex items-center gap-2">
+                                <span
+                                  className={`inline-block h-3 w-3 rounded-full flex-shrink-0 ${pass.confirmation_status === 'confirmed'
+                                      ? 'bg-emerald-500'
+                                      : pass.confirmation_status === 'pending'
+                                        ? 'bg-amber-400'
+                                        : 'bg-gray-400'
+                                    }`}
+                                ></span>
+                                <span>{pass.attendee_name}</span>
+                              </div>
+                            ))}
+                            {guest.passes.length <= 1 && (
+                              <span className="text-gray-400">Sin acompañantes</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top text-gray-600">
+                          <div className="space-y-1 text-xs">
+                            {guest.email && <div className="truncate max-w-xs">{guest.email}</div>}
+                            {guest.phone && <div>{guest.phone}</div>}
+                            {!guest.email && !guest.phone && <span className="text-gray-400">Sin contacto</span>}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          <span className={`inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold ${classes}`}>
+                            {label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 align-top">
+                          {hasPhone ? (
+                            <div className="flex items-center justify-center gap-3 text-gray-600">
+                              <label className="flex items-center gap-2 text-xs">
+                                <input
+                                  type="checkbox"
+                                  checked={isSent}
+                                  onChange={(e) => {
+                                    const next = new Set(sentMessages)
+                                    if (e.target.checked) next.add(guest.id)
+                                    else next.delete(guest.id)
+                                    setSentMessages(next)
+                                  }}
+                                  className="w-4 h-4 accent-admin-forest"
+                                />
+                                <span>Enviado</span>
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <a
+                                  href={inviteHref}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  onClick={(e) => {
+                                    if (isSent) {
+                                      e.preventDefault()
+                                      return
+                                    }
+                                    setSentMessages(prev => new Set([...prev, guest.id]))
+                                  }}
+                                  className={`p-2 rounded hover:bg-admin-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                                  title="Enviar invitación"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 11 13" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 15 22 11 13 2 9z" />
+                                  </svg>
+                                </a>
+                                <a
+                                  href={reminderHref}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="p-2 rounded hover:bg-admin-sage/20 transition"
+                                  title="Enviar recordatorio"
+                                >
+                                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A3.8 3.8 0 0118 13V9c0-3.1-1.6-5.3-4-5.9V2a2 2 0 10-4 0v1.1C7.6 3.7 6 5.9 6 9v4c0 1-.4 2-1.6 2.6L3 17h5" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21a2 2 0 004 0" />
+                                  </svg>
+                                </a>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">Sin teléfono</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 align-top text-right">
+                          <div className="flex justify-end gap-2 text-gray-600">
+                            <button
+                              onClick={() => openEditModal(guest)}
+                              className="p-2 rounded hover:bg-admin-sage/20 transition"
+                              title="Editar invitado"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M15.5 3.5l5 5" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setGuestToDelete(guest.id)
+                                setShowDeleteConfirm(true)
+                              }}
+                              className="p-2 rounded hover:bg-red-50 text-red-600 transition"
+                              title="Eliminar invitado"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a1 1 0 011-1h6a1 1 0 011 1v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
           </div>
-        )}
-      </div>
-
-      {/* Gifts Tables */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {/* Available Gifts */}
-        <div className="bg-white border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200 bg-wedding-rose/20">
-            <h3 className="text-xl font-serif text-wedding-forest">
-              Regalos Disponibles
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => !g.is_purchased).length} artículos
-            </p>
-          </div>
-          <div className="p-6 max-h-96 overflow-y-auto">
-            <div className="space-y-3">
-              {gifts.filter(g => !g.is_purchased).map(gift => (
-                <div key={gift.id} className="flex justify-between items-start pb-3 border-b border-gray-100 last:border-0">
-                  <div className="flex-1">
-                    <p className="text-sm font-medium text-gray-800">{gift.name}</p>
-                    {gift.category && (
-                      <p className="text-xs text-gray-500 mt-1">{gift.category}</p>
-                    )}
-                  </div>
-                  {gift.price && (
-                    <p className="text-sm font-serif text-wedding-purple ml-4">
-                      ${gift.price.toLocaleString('es-MX')}
-                    </p>
+          {/* Mobile Cards */}
+          <div className="md:hidden space-y-3">
+            {filteredGuests.map(guest => {
+              const statusKey = getOverallStatus(guest)
+              const { classes, label } = statusStyles[statusKey]
+              const badge = getCompanionBadge(guest)
+              const hasPhone = Boolean(guest.phone)
+              const isSent = sentMessages.has(guest.id)
+              const isOpen = expandedCardId === guest.id
+              const inviteHref = getWhatsAppLink(guest, 'invite')
+              const reminderHref = getWhatsAppLink(guest, 'reminder')
+              return (
+                <div key={guest.id} className="border border-gray-200 bg-white shadow-sm">
+                  <button
+                    onClick={() => setExpandedCardId(isOpen ? null : guest.id)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="text-left flex-1 min-w-0">
+                      <div className="font-serif text-admin-forest truncate">{guest.name}</div>
+                      <div className="text-xs text-gray-500 flex items-center gap-2 mt-1">
+                        <span>{guest.passes.length} pase{guest.passes.length === 1 ? '' : 's'}</span>
+                        {badge && (
+                          <span
+                            className="inline-flex items-center px-2 py-0.5 text-[11px] rounded-full bg-admin-sage/20 text-admin-forest border border-admin-sage/30"
+                            title={badge.tooltip}
+                          >
+                            +{badge.count}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <span
+                      className="inline-flex items-center px-3 py-1 rounded-full text-[11px] font-semibold flex-shrink-0"
+                      style={{
+                        backgroundColor: statusKey === 'confirmed' ? '#d1fae5' : statusKey === 'pending' ? '#fef3c7' : '#fee2e2',
+                        color: statusKey === 'confirmed' ? '#065f46' : statusKey === 'pending' ? '#92400e' : '#991b1b',
+                        border: statusKey === 'confirmed' ? '1px solid #a7f3d0' : statusKey === 'pending' ? '1px solid #fde68a' : '1px solid #fecaca'
+                      }}
+                    >
+                      {label}
+                    </span>
+                  </button>
+                  {isOpen && (
+                    <div className="border-t border-gray-100 px-4 py-3 space-y-3">
+                      <div className="text-xs text-gray-600 space-y-1">
+                        {guest.email && <div className="truncate">{guest.email}</div>}
+                        {guest.phone && <div>{guest.phone}</div>}
+                        {!guest.email && !guest.phone && <span className="text-gray-400">Sin contacto</span>}
+                      </div>
+                      <div className="text-xs text-gray-700">
+                        <div className="font-semibold mb-1">Acompañantes</div>
+                        <div className="space-y-1">
+                          {guest.passes.slice(1).map(pass => {
+                            const dotColor = pass.confirmation_status === 'confirmed'
+                              ? '#10b981'
+                              : pass.confirmation_status === 'pending'
+                                ? '#f59e0b'
+                                : '#6b7280'
+                            return (
+                              <div key={pass.id} className="flex items-center gap-2">
+                                <span
+                                  className="inline-block h-3 w-3 rounded-full flex-shrink-0"
+                                  style={{ backgroundColor: dotColor }}
+                                ></span>
+                                <span>{pass.attendee_name}</span>
+                              </div>
+                            )
+                          })}
+                          {guest.passes.length <= 1 && (
+                            <span className="text-xs text-gray-400">Sin acompañantes</span>
+                          )}
+                        </div>
+                      </div>
+                      {hasPhone ? (
+                        <div className="flex items-center gap-2 text-xs">
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={isSent}
+                              onChange={(e) => {
+                                const next = new Set(sentMessages)
+                                if (e.target.checked) next.add(guest.id)
+                                else next.delete(guest.id)
+                                setSentMessages(next)
+                              }}
+                              className="w-4 h-4 accent-admin-forest"
+                            />
+                            <span>Enviado</span>
+                          </label>
+                          <div className="flex-1 flex justify-end gap-2">
+                            <a
+                              href={inviteHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => {
+                                if (isSent) {
+                                  e.preventDefault()
+                                  return
+                                }
+                                setSentMessages(prev => new Set([...prev, guest.id]))
+                              }}
+                              className={`h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition ${isSent ? 'opacity-50 pointer-events-none cursor-not-allowed' : ''}`}
+                              title="Enviar invitación"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 11 13" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 2 15 22 11 13 2 9z" />
+                              </svg>
+                            </a>
+                            <a
+                              href={reminderHref}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition"
+                              title="Enviar recordatorio"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.4-1.4A3.8 3.8 0 0118 13V9c0-3.1-1.6-5.3-4-5.9V2a2 2 0 10-4 0v1.1C7.6 3.7 6 5.9 6 9v4c0 1-.4 2-1.6 2.6L3 17h5" />
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 21a2 2 0 004 0" />
+                              </svg>
+                            </a>
+                            <button
+                              onClick={() => openEditModal(guest)}
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-admin-sage/20 transition"
+                              title="Editar"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5M15.5 3.5l5 5" />
+                              </svg>
+                            </button>
+                            <button
+                              onClick={() => {
+                                setGuestToDelete(guest.id)
+                                setShowDeleteConfirm(true)
+                              }}
+                              className="h-10 w-10 inline-flex items-center justify-center rounded-md border border-gray-200 hover:bg-red-50 text-red-600 transition"
+                              title="Eliminar"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-1 12a2 2 0 01-2 2H8a2 2 0 01-2-2L5 7m5 4v6m4-6v6M9 7h6m-7 0V5a1 1 0 011-1h6a1 1 0 011 1v2" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-gray-400">Sin teléfono</span>
+                      )}
+                    </div>
                   )}
                 </div>
-              ))}
-              {gifts.filter(g => !g.is_purchased).length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  Todos los regalos han sido apartados
-                </p>
+              )
+            })}
+          </div>
+          {filteredGuests.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              {guestList.length === 0 ? (
+                <p className="text-lg font-serif">No hay invitados registrados aún</p>
+              ) : (
+                <div>
+                  <p className="text-lg font-serif">No se encontraron invitados</p>
+                  <p className="text-sm mt-2">Ajusta la búsqueda o el filtro de estado</p>
+                </div>
               )}
             </div>
+          )}
+        </div>
+      </div>
+      {/* Gift Tracker with Tabs */}
+      <div className="bg-white border border-gray-200">
+        <div className="px-4 md:px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+          <h3 className="text-xl font-serif text-admin-forest">Gestión de Regalos</h3>
+          <div className="flex gap-2 text-xs font-medium">
+            <button
+              onClick={() => setGiftsTab('pending')}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'pending' ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
+            >Pendientes</button>
+            <button
+              onClick={() => setGiftsTab('completed')}
+              className={`px-3 py-1.5 rounded-full border ${giftsTab === 'completed' ? 'bg-admin-forest text-white border-admin-forest' : 'bg-white text-gray-700 border-gray-200 hover:border-admin-forest/60'}`}
+            >Completados</button>
           </div>
         </div>
-
-        {/* Purchased Gifts */}
-        <div className="bg-white border border-gray-200 overflow-hidden">
-          <div className="p-6 border-b border-gray-200 bg-wedding-sage/10">
-            <h3 className="text-xl font-serif text-wedding-forest">
-              Regalos Apartados
-            </h3>
-            <p className="text-sm text-gray-600 mt-1">
-              {gifts.filter(g => g.is_purchased).length} artículos
-            </p>
-          </div>
-          <div className="p-6 max-h-96 overflow-y-auto">
-            <div className="space-y-3">
-              {gifts.filter(g => g.is_purchased).map(gift => (
-                <div key={gift.id} className="pb-3 border-b border-gray-100 last:border-0">
-                  <div className="flex justify-between items-start mb-1">
-                    <p className="text-sm font-medium text-gray-800">{gift.name}</p>
-                    {gift.price && (
-                      <p className="text-sm font-serif text-wedding-sage ml-4">
-                        ${gift.price.toLocaleString('es-MX')}
-                      </p>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500">
-                    {gift.purchased_at && (() => {
-                      const date = new Date(gift.purchased_at)
-                      // Format using UTC to ensure consistency between server and client
-                      return new Intl.DateTimeFormat('es-MX', {
-                        day: 'numeric',
-                        month: 'short',
-                        year: 'numeric',
-                        timeZone: 'UTC'
-                      }).format(date)
-                    })()}
-                  </p>
-                </div>
-              ))}
-              {gifts.filter(g => g.is_purchased).length === 0 && (
-                <p className="text-sm text-gray-400 text-center py-8">
-                  Aún no hay regalos apartados
-                </p>
-              )}
-            </div>
+        <div className="px-4 md:px-6 py-4 max-h-[28rem] overflow-y-auto">
+          <div className="space-y-3">
+            {(giftsTab === 'pending' ? gifts.filter(g => g.status !== 'COMPLETED') : gifts.filter(g => g.status === 'COMPLETED')).map(gift => (
+              <GiftProgressCard
+                key={gift.id}
+                id={gift.id}
+                name={gift.name}
+                category={gift.category}
+                target_amount={Number(gift.total_amount ?? gift.price ?? 0)}
+                current_amount={Number(gift.collected_amount ?? 0)}
+                onEdit={(id) => {
+                  // Placeholder: open edit flow for gift
+                  console.log('Editar regalo', id)
+                }}
+                onViewContributions={(id) => {
+                  console.log('Ver aportaciones', id)
+                }}
+              />
+            ))}
+            {(giftsTab === 'pending' ? gifts.filter(g => g.status !== 'COMPLETED').length === 0 : gifts.filter(g => g.status === 'COMPLETED').length === 0) && (
+              <p className="text-sm text-gray-400 text-center py-8">{giftsTab === 'pending' ? 'Todos los regalos han sido completados' : 'Aún no hay regalos completados'}</p>
+            )}
           </div>
         </div>
       </div>
-
       {/* Modal para agregar invitado */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-start md:items-center justify-center overflow-y-auto">
-          <div className="bg-white w-full md:max-w-2xl md:m-4 min-h-screen md:min-h-0 md:max-h-[90vh] md:shadow-2xl md:border-2 border-wedding-sage/20 flex flex-col">
+          <div className="bg-white w-full md:max-w-2xl md:m-4 min-h-screen md:min-h-0 md:max-h-[90vh] md:shadow-2xl md:border-2 border-admin-sage/20 flex flex-col">
             {/* Header del Modal */}
-            <div className="bg-gradient-to-br from-wedding-sage/10 via-wedding-rose/10 to-wedding-purple/10 p-4 md:p-6 border-b border-wedding-sage/20 flex-shrink-0">
+            <div className="bg-gradient-to-br from-admin-sage/10 via-admin-rose/10 to-admin-purple/10 p-4 md:p-6 border-b border-admin-sage/20 flex-shrink-0">
               <div className="flex items-start md:items-center justify-between gap-2">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-xl md:text-2xl font-serif text-wedding-forest tracking-wide">
+                  <h3 className="text-xl md:text-2xl font-serif text-admin-forest tracking-wide">
                     {isEditMode ? 'Editar Invitado' : 'Agregar Nuevo Invitado'}
                   </h3>
                   <p className="text-xs md:text-sm text-gray-600 mt-1 tracking-wide">
@@ -659,36 +851,31 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                   </svg>
                 </button>
               </div>
-
               {/* Decorative divider */}
               <div className="flex items-center justify-center mt-4">
-                <div className="h-px bg-wedding-forest/20 w-12"></div>
-                <svg className="w-4 h-4 mx-3 text-wedding-rose" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z"/>
+                <div className="h-px bg-admin-forest/20 w-12"></div>
+                <svg className="w-4 h-4 mx-3 text-admin-rose" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2L14 8L20 10L14 12L12 18L10 12L4 10L10 8Z" />
                 </svg>
-                <div className="h-px bg-wedding-forest/20 w-12"></div>
+                <div className="h-px bg-admin-forest/20 w-12"></div>
               </div>
             </div>
-
             {/* Mensaje de éxito/error */}
             {message && (
-              <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${
-                message.type === 'success' 
-                  ? 'bg-wedding-sage/10 border-wedding-forest text-wedding-forest' 
+              <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${message.type === 'success'
+                  ? 'bg-admin-sage/10 border-admin-forest text-admin-forest'
                   : 'bg-red-50 border-red-500 text-red-700'
-              }`}>
+                }`}>
                 <p className="text-sm font-medium tracking-wide">{message.text}</p>
               </div>
             )}
-
             {/* Formulario */}
             <form onSubmit={handleSubmit} className="p-4 md:p-6 space-y-6 flex-1 overflow-y-auto">
               {/* Información del Invitado */}
               <div className="space-y-4">
-                <h4 className="text-base md:text-lg font-serif text-wedding-forest tracking-wide border-b border-gray-200 pb-2">
+                <h4 className="text-base md:text-lg font-serif text-admin-forest tracking-wide border-b border-gray-200 pb-2">
                   Información del Invitado
                 </h4>
-
                 <div>
                   <label htmlFor="guestName" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase">
                     Nombre Completo *
@@ -699,14 +886,13 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                     required
                     value={guestName}
                     onChange={(e) => handleGuestNameChange(e.target.value)}
-                    className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base"
+                    className="w-full px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base"
                     placeholder="Ej: María García López"
                   />
                   <p className="text-xs text-gray-500 mt-1 italic">
                     Se creará un pase automático con este nombre
                   </p>
                 </div>
-
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
                     <label htmlFor="guestEmail" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase">
@@ -720,16 +906,14 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                         setGuestEmail(e.target.value)
                         setEmailError('')
                       }}
-                      className={`w-full px-3 md:px-4 py-2 md:py-3 border ${
-                        emailError ? 'border-red-500' : 'border-gray-300'
-                      } focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base`}
+                      className={`w-full px-3 md:px-4 py-2 md:py-3 border ${emailError ? 'border-red-500' : 'border-gray-300'
+                        } focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base`}
                       placeholder="correo@ejemplo.com"
                     />
                     {emailError && (
                       <p className="text-xs text-red-600 mt-1">{emailError}</p>
                     )}
                   </div>
-
                   <div className="w-full">
                     <label htmlFor="guestPhone" className="block text-xs md:text-sm font-medium text-gray-700 mb-2 tracking-wider uppercase break-words">
                       Teléfono *
@@ -739,7 +923,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                         id="countryCode"
                         value={countryCode}
                         onChange={(e) => setCountryCode(e.target.value)}
-                        className="w-20 md:w-28 flex-shrink-0 px-2 md:px-3 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all bg-white text-xs md:text-sm"
+                        className="w-20 md:w-28 flex-shrink-0 px-2 md:px-3 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all bg-white text-xs md:text-sm"
                       >
                         <option value="+593">🇪🇨 +593</option>
                         <option value="+52">🇲🇽 +52</option>
@@ -752,7 +936,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                         required
                         value={guestPhone}
                         onChange={(e) => setGuestPhone(e.target.value)}
-                        className="flex-1 min-w-0 px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all text-sm md:text-base"
+                        className="flex-1 min-w-0 px-3 md:px-4 py-2 md:py-3 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all text-sm md:text-base"
                         placeholder="1234567890"
                       />
                     </div>
@@ -762,17 +946,16 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                   </div>
                 </div>
               </div>
-
               {/* Pases */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between border-b border-gray-200 pb-2">
-                  <h4 className="text-base md:text-lg font-serif text-wedding-forest tracking-wide">
+                  <h4 className="text-base md:text-lg font-serif text-admin-forest tracking-wide">
                     Pases de Entrada
                   </h4>
                   <button
                     type="button"
                     onClick={addPass}
-                    className="flex items-center gap-1 px-2 md:px-3 py-1 text-xs md:text-sm text-wedding-rose hover:bg-wedding-rose/10 transition-colors tracking-wider uppercase font-medium"
+                    className="flex items-center gap-1 px-2 md:px-3 py-1 text-xs md:text-sm text-admin-rose hover:bg-admin-rose/10 transition-colors tracking-wider uppercase font-medium"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -781,10 +964,9 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                     <span className="sm:hidden">Agregar</span>
                   </button>
                 </div>
-
                 <div className="space-y-3">
                   {passes.map((pass, index) => (
-                    <div key={pass.id || `pass-${index}`} className="flex gap-2 md:gap-3 items-start bg-wedding-beige/20 p-3 md:p-4 border border-wedding-sage/10">
+                    <div key={pass.id || `pass-${index}`} className="flex gap-2 md:gap-3 items-start bg-admin-beige/20 p-3 md:p-4 border border-admin-sage/10">
                       <div className="flex-1 min-w-0">
                         <label className="block text-xs font-medium text-gray-600 mb-2 tracking-wider uppercase">
                           {index === 0 ? 'Invitado Principal *' : `Acompañante ${index} *`}
@@ -794,7 +976,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                           required
                           value={pass.attendee_name}
                           onChange={(e) => updatePass(index, e.target.value)}
-                          className="w-full px-3 md:px-4 py-2 border border-gray-300 focus:border-wedding-forest focus:ring-2 focus:ring-wedding-forest/20 outline-none transition-all bg-white text-sm md:text-base"
+                          className="w-full px-3 md:px-4 py-2 border border-gray-300 focus:border-admin-forest focus:ring-2 focus:ring-admin-forest/20 outline-none transition-all bg-white text-sm md:text-base"
                           placeholder={index === 0 ? "Se completa automáticamente" : "Ej: Juan Pérez"}
                           disabled={index === 0}
                         />
@@ -813,12 +995,10 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                     </div>
                   ))}
                 </div>
-
                 <p className="text-xs text-gray-500 italic">
-                  * Los pases se crearán con estado "Pendiente" por defecto
+                  * Los pases se crearán con estado Pendiente por defecto
                 </p>
               </div>
-
               {/* Botones */}
               <div className="flex flex-col sm:flex-row gap-3 pt-4 border-t border-gray-200">
                 <button
@@ -835,7 +1015,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full sm:flex-1 px-4 md:px-6 py-2 md:py-3 bg-wedding-forest text-white tracking-wider uppercase text-xs md:text-sm font-medium hover:bg-wedding-forest/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full sm:flex-1 px-4 md:px-6 py-2 md:py-3 bg-admin-forest text-white tracking-wider uppercase text-xs md:text-sm font-medium hover:bg-admin-forest/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <>
@@ -859,7 +1039,6 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
           </div>
         </div>
       )}
-
       {/* Modal de confirmación de eliminación */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -879,19 +1058,16 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
                 </p>
               </div>
             </div>
-
             <div className="mb-6 p-4 bg-red-50 border-l-4 border-red-500">
               <p className="text-sm text-red-800">
                 <strong>Advertencia:</strong> Se eliminará el invitado y todos sus pases asociados. Esta acción es permanente y no se puede revertir.
               </p>
             </div>
-
             {message?.type === 'error' && (
               <div className="mb-4 p-3 bg-red-100 border-l-4 border-red-500">
                 <p className="text-sm text-red-700">{message.text}</p>
               </div>
             )}
-
             <div className="flex gap-3">
               <button
                 onClick={() => {

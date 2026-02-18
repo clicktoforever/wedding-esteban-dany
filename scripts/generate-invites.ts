@@ -9,7 +9,6 @@ const supabase = createClient<Database>(supabaseUrl, supabaseServiceKey)
 
 interface AttendeeInput {
   name: string
-  dietaryRestrictions?: string
 }
 
 interface GuestInput {
@@ -40,7 +39,6 @@ async function generateInvite(guestInput: GuestInput) {
     const passesData = guestInput.attendees.map(attendee => ({
       guest_id: guest.id,
       attendee_name: attendee.name,
-      dietary_restrictions: attendee.dietaryRestrictions,
     }))
 
     const { error: passesError } = await supabase
@@ -54,7 +52,7 @@ async function generateInvite(guestInput: GuestInput) {
     // Generate URLs
     const confirmUrl = `https://yourdomain.com/confirm/${guest.access_token}`
     const message = encodeURIComponent(
-      `¡Hola! Te invitamos a la boda de Esteban y Dany 💍\n\nConfirma tu asistencia aquí: ${confirmUrl}\n\n¡Esperamos contar con tu presencia!`
+      `¡Hola! Te invitamos a la boda de Carlos y Dany 💍\n\nConfirma tu asistencia aquí: ${confirmUrl}\n\n¡Esperamos contar con tu presencia!`
     )
     const whatsappUrl = `https://wa.me/${guestInput.phone?.replace(/[^0-9]/g, '')}?text=${message}`
 
@@ -85,29 +83,27 @@ async function generateInvite(guestInput: GuestInput) {
 // Example usage - You can modify this array with your guest list
 const guestsToInvite: GuestInput[] = [
   {
-    mainGuestName: 'Carlos Maldonado',
-    email: 'user@example.com',
+    mainGuestName: 'Usuario Prueba 1',
+    email: 'usuario1@example.com',
     phone: '+520000000000',
     attendees: [
-      { name: 'Carlos Maldonado' },
-      { name: 'Daniela López' },
-      { name: 'Lupita Maldonado' },
+      { name: 'Usuario Prueba 1' },
+      { name: 'Acompañante 1' },
     ],
   },
   {
-    mainGuestName: 'María García',
-    email: 'maria@example.com',
-    phone: '+521234567891',
+    mainGuestName: 'Usuario Prueba 2',
+    email: 'usuario2@example.com',
+    phone: '+520000000001',
     attendees: [
-      { name: 'María García' },
-      { name: 'Pedro García' },
+      { name: 'Usuario Prueba 2' },
     ],
   },
 ]
 
 // Main execution
 async function main() {
-  console.log('🎉 Generador de Invitaciones - Boda Esteban & Dany')
+  console.log('🎉 Generador de Invitaciones - Boda Carlos & Dany')
   console.log('═══════════════════════════════════════════════\n')
 
   if (!supabaseUrl || !supabaseServiceKey) {

@@ -1,4 +1,4 @@
-# 💍 Wedding Invitation Platform - Esteban & Dany
+# 💍 Wedding Invitation Platform - Carlos & Dany
 
 Aplicación web full-stack serverless para gestionar invitaciones de boda con sistema de confirmaciones personalizado y mesa de regalos. Construida con Next.js 14, Supabase, Builder.io y deployada en Vercel.
 
@@ -22,7 +22,7 @@ Aplicación web full-stack serverless para gestionar invitaciones de boda con si
 ## 📁 Arquitectura del Proyecto
 
 ```
-wedding-esteban-dany/
+wedding-Carlos-dany/
 ├── app/
 │   ├── layout.tsx              # Layout principal con fuentes
 │   ├── globals.css             # Estilos globales de Tailwind
@@ -142,6 +142,7 @@ NEXT_PUBLIC_BUILDER_API_KEY=your_builder_api_key
 
 - [SETUP.md](docs/SETUP.md) - Guía de configuración paso a paso
 - [ENV_VARS.md](docs/ENV_VARS.md) - Documentación de variables de entorno
+- [EMAIL_NOTIFICATIONS.md](docs/EMAIL_NOTIFICATIONS.md) - Sistema de notificaciones por email
 - [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Solución de problemas comunes
 
 ## 👰🤵 Para la Novia: Editar Landing Page
@@ -180,4 +181,4 @@ MIT License - Uso libre para proyectos personales
 
 ---
 
-**Hecho con ❤️ para Esteban & Dany**
+**Hecho con ❤️ para Carlos & Dany**

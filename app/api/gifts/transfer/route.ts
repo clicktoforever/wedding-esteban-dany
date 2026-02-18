@@ -1,0 +1,485 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { GeminiReceiptValidator } from '@/lib/gemini-receipt-validator';
+import type { Database } from '@/lib/database.types';
+import { usdToMxn } from '@/lib/currency';
+import { sendTransactionApprovedEmail } from '@/lib/email';
+
+type Gift = Database['public']['Tables']['gifts']['Row'];
+type GiftTransaction = Database['public']['Tables']['gift_transactions']['Row'];
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
+/**
+ * POST /api/gifts/transfer
+ * Procesa una transferencia bancaria con comprobante
+ */
+export async function POST(request: NextRequest) {
+  try {
+    const formData = await request.formData();
+
+    const giftId = formData.get('giftId') as string;
+    const donorName = formData.get('donorName') as string;
+    const donorEmail = formData.get('donorEmail') as string;
+    const amount = Number.parseFloat(formData.get('amount') as string); // En USD
+    const displayAmount = Number.parseFloat(formData.get('displayAmount') as string); // En moneda original
+    const displayCurrency = formData.get('displayCurrency') as 'USD' | 'MXN';
+    const country = formData.get('country') as 'EC' | 'MX';
+    const message = formData.get('message') as string | null;
+    const receiptFile = formData.get('receipt') as File;
+
+    // Validaciones
+    if (!giftId || !donorName || !donorEmail || !amount || !displayAmount || !country || !receiptFile) {
+      return NextResponse.json(
+        { success: false, error: 'Datos incompletos' },
+        { status: 400 }
+      );
+    }
+
+    if (!['EC', 'MX'].includes(country)) {
+      return NextResponse.json(
+        { success: false, error: 'País no válido' },
+        { status: 400 }
+      );
+    }
+
+    if (amount <= 0) {
+      return NextResponse.json(
+        { success: false, error: 'Monto inválido' },
+        { status: 400 }
+      );
+    }
+
+    // Validar tipo y tamaño de archivo
+    if (!receiptFile.type.startsWith('image/')) {
+      return NextResponse.json(
+        { success: false, error: 'Solo se permiten imágenes' },
+        { status: 400 }
+      );
+    }
+
+    if (receiptFile.size > 5 * 1024 * 1024) { // 5MB
+      return NextResponse.json(
+        { success: false, error: 'La imagen no debe superar 5MB' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+
+    // 1. Verificar que el regalo existe y tiene saldo disponible
+    const { data: gift, error: giftError } = await supabase
+      .from('gifts')
+      .select('id, name, total_amount, collected_amount, status')
+      .eq('id', giftId)
+      .single<Gift>();
+
+    if (giftError || !gift) {
+      return NextResponse.json(
+        { success: false, error: 'Regalo no encontrado' },
+        { status: 404 }
+      );
+    }
+
+    const remainingAmount = (gift.total_amount ?? 0) - (gift.collected_amount ?? 0);
+
+
+
+    // 2. Convertir archivo a buffer
+    const arrayBuffer = await receiptFile.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    // 3. Subir comprobante a Supabase Storage
+    const fileExt = receiptFile.name.split('.').pop() || 'jpg';
+    const fileName = `${giftId}_${Date.now()}.${fileExt}`;
+    const filePath = `receipts/${country}/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('wedding-assets')
+      .upload(filePath, buffer, {
+        contentType: receiptFile.type,
+        upsert: false
+      });
+
+    if (uploadError) {
+      console.error('Error uploading receipt:', uploadError);
+      return NextResponse.json(
+        { success: false, error: 'Error al subir el comprobante' },
+        { status: 500 }
+      );
+    }
+
+    // Obtener URL pública
+    const { data: { publicUrl } } = supabase.storage
+      .from('wedding-assets')
+      .getPublicUrl(filePath);
+
+    // 3.5. Validar si el comprobante ya existe (detectar duplicados)
+    const receiptHash = Buffer.from(buffer).toString('base64').substring(0, 50); // Hash simple del archivo
+
+    const { data: existingTransactions } = await supabase
+      .from('gift_transactions')
+      .select('id, status')
+      .eq('receipt_url', publicUrl)
+      .limit(1);
+
+    if (existingTransactions && existingTransactions.length > 0) {
+      // Comprobante duplicado encontrado - pasar a revisión manual
+      const { data: duplicateTransaction, error: dupError } = await supabase
+        .from('gift_transactions')
+        .insert({
+          gift_id: giftId,
+          donor_name: donorName.trim(),
+          message: message?.trim() || null,
+          amount,
+          payment_method: country === 'EC' ? ('transfer_ec' as const) : ('transfer_mx' as const),
+          country,
+          receipt_url: publicUrl,
+          receipt_filename: fileName,
+          status: 'MANUAL_REVIEW' as const // Pasar a revisión manual por duplicado
+        } as any)
+        .select()
+        .single<GiftTransaction>();
+
+      if (dupError) {
+        return NextResponse.json(
+          { success: false, error: 'Error al procesar la transacción' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        status: 'manual_review',
+        message: 'Este comprobante parece ser una copia. Se requiere revisión manual para validarlo.',
+        transactionId: duplicateTransaction.id,
+        data: {
+          donorName,
+          amount,
+          country,
+          giftName: gift.name
+        }
+      });
+    }
+
+    // 4. Crear registro inicial de transacción
+    const { data: transaction, error: transactionError } = await supabase
+      .from('gift_transactions')
+      .insert({
+        gift_id: giftId,
+        donor_name: donorName.trim(),
+        donor_email: donorEmail.trim(),
+        message: message?.trim() || null,
+        amount,
+        payment_method: country === 'EC' ? ('transfer_ec' as const) : ('transfer_mx' as const),
+        country,
+        receipt_url: publicUrl,
+        receipt_filename: fileName,
+        status: 'PROCESSING' as const
+      } as any)
+      .select()
+      .single<GiftTransaction>();
+
+    if (transactionError) {
+      console.error('Error creating transaction:', transactionError);
+      return NextResponse.json(
+        { success: false, error: 'Error al crear la transacción' },
+        { status: 500 }
+      );
+    }
+
+    // 5. Validar con Gemini API (SÍNCRONO para que Vercel espere)
+    // Pasar displayAmount para que Gemini valide contra el monto en el comprobante
+    console.log(`[${transaction.id}] Starting SYNCHRONOUS validation`);
+
+    await validateReceiptAsync(
+      transaction.id,
+      buffer,
+      country,
+      displayAmount, // Monto en la moneda original del comprobante
+      giftId,
+      supabase
+    );
+
+    console.log(`[${transaction.id}] Validation completed, fetching updated transaction`);
+
+    // 6. Obtener el estado actualizado de la transacción
+    const { data: updatedTransaction, error: fetchError } = await supabase
+      .from('gift_transactions')
+      .select('status')
+      .eq('id', transaction.id)
+      .single() as {
+        data: { status: string } | null;
+        error: any
+      };
+
+    if (fetchError) {
+      console.error(`[${transaction.id}] Error fetching updated transaction:`, fetchError);
+    }
+
+    const finalStatus = updatedTransaction?.status || 'PROCESSING';
+    console.log(`[${transaction.id}] Final status: ${finalStatus}`);
+
+    // 7. Respuesta con resultado de validación
+    return NextResponse.json({
+      success: true,
+      status: finalStatus.toLowerCase(),
+      message: finalStatus === 'APPROVED'
+        ? 'Tu transferencia ha sido verificada exitosamente'
+        : finalStatus === 'REJECTED'
+          ? 'Tu comprobante no pudo ser verificado. Revisa los datos.'
+          : finalStatus === 'MANUAL_REVIEW'
+            ? 'Tu comprobante está en revisión manual. Te notificaremos pronto.'
+            : 'Tu comprobante está siendo procesado',
+      transactionId: transaction.id,
+      data: {
+        donorName,
+        amount,
+        country,
+        giftName: gift.name
+      }
+    });
+
+  } catch (error) {
+    console.error('Error processing transfer:', error);
+    return NextResponse.json(
+      { success: false, error: 'Error al procesar la transferencia' },
+      { status: 500 }
+    );
+  }
+}
+
+/**
+ * Valida el comprobante con Gemini de forma asíncrona
+ */
+async function validateReceiptAsync(
+  transactionId: string,
+  imageBuffer: Buffer,
+  country: 'EC' | 'MX',
+  expectedAmount: number,
+  giftId: string,
+  supabase: any
+) {
+  console.log(`[${transactionId}] Starting validation - Country: ${country}, Expected: ${expectedAmount}`);
+
+  try {
+    console.log(`[${transactionId}] Initializing Gemini validator...`);
+    const validator = new GeminiReceiptValidator();
+    console.log(`[${transactionId}] Validator initialized, calling validateReceipt...`);
+
+    const result = await validator.validateReceipt(
+      imageBuffer,
+      country,
+      expectedAmount,
+      transactionId
+    );
+
+    console.log(`[${transactionId}] Gemini response received:`, JSON.stringify({
+      isValid: result.validation.isValid,
+      confidence: result.validation.confidence,
+      matchesAccount: result.validation.matchesAccount,
+      matchesAmount: result.validation.matchesAmount,
+      extractedAmount: result.extractedData.amount
+    }));
+
+    const needsReview = validator.needsManualReview(result.validation);
+
+    let validationStatus: 'APPROVED' | 'MANUAL_REVIEW' | 'REJECTED';
+
+    if (needsReview) {
+      validationStatus = 'MANUAL_REVIEW';
+    } else if (result.validation.isValid) {
+      validationStatus = 'APPROVED';
+      // Nota: El trigger trigger_update_gift_collected_amount se encargará
+      // automáticamente de actualizar gifts.collected_amount cuando
+      // el status cambie a APPROVED
+    } else {
+      validationStatus = 'REJECTED';
+    }
+
+    // Actualizar transacción con resultados de validación
+    // El trigger se activará automáticamente si status = 'APPROVED'
+    await supabase
+      .from('gift_transactions')
+      .update({
+        status: validationStatus,
+        extracted_recipient_name: result.extractedData.recipientName,
+        extracted_account: result.extractedData.recipientAccount,
+        extracted_amount: result.extractedData.amount,
+        extracted_currency: result.extractedData.currency,
+        extracted_date: result.extractedData.transactionDate,
+        extracted_reference: result.extractedData.referenceNumber,
+        extracted_bank: result.extractedData.bankName,
+        validation_confidence: result.validation.confidence,
+        validation_errors: result.validation.errors || [],
+        validated_at: new Date().toISOString(),
+        approved_at: validationStatus === 'APPROVED' ? new Date().toISOString() : null
+      })
+      .eq('id', transactionId);
+
+    console.log(`Validation completed for transaction ${transactionId}: ${validationStatus}`);
+
+    // Enviar email si fue aprobado
+    if (validationStatus === 'APPROVED') {
+      // Obtener datos completos de la transacción para el email
+      const { data: fullTransaction } = await supabase
+        .from('gift_transactions')
+        .select(`
+          id,
+          donor_name,
+          donor_email,
+          amount,
+          created_at,
+          gift:gifts (
+            name,
+            image_url
+          )
+        `)
+        .eq('id', transactionId)
+        .single() as {
+          data: {
+            id: string;
+            donor_name: string;
+            donor_email: string;
+            amount: number;
+            created_at: string;
+            gift: {
+              name: string;
+              image_url: string | null;
+            } | null;
+          } | null
+        };
+
+      if (fullTransaction) {
+        sendTransactionApprovedEmail({
+          donorName: fullTransaction.donor_name,
+          donorEmail: fullTransaction.donor_email,
+          amount: fullTransaction.amount,
+          transactionId: fullTransaction.id,
+          transactionDate: fullTransaction.created_at,
+          giftName: fullTransaction.gift?.name,
+          giftImage: fullTransaction.gift?.image_url || undefined,
+        }).catch((error) => {
+          console.error(`[${transactionId}] Error sending approval email:`, error)
+          // No bloqueamos el flujo si falla el email
+        });
+      }
+    }
+
+    // TODO: Si es manual_review, notificar a admin
+
+  } catch (error: any) {
+    console.error(`[${transactionId}] ===== ERROR IN ASYNC VALIDATION =====`);
+    console.error(`[${transactionId}] Error type:`, error?.constructor?.name);
+    console.error(`[${transactionId}] Error message:`, error?.message);
+    console.error(`[${transactionId}] Error stack:`, error?.stack);
+    console.error(`[${transactionId}] Full error:`, JSON.stringify(error, null, 2));
+
+    // Distinguir tipos de error
+    const errorMessage = error?.message || 'Error desconocido';
+
+    if (errorMessage.includes('INVALID_IMAGE:')) {
+      // Imagen no es un comprobante válido - RECHAZAR inmediatamente
+      const cleanMessage = errorMessage.replace('INVALID_IMAGE:', '');
+
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'REJECTED',
+          validation_errors: [cleanMessage]
+        })
+        .eq('id', transactionId);
+
+      console.error(`[${transactionId}] Transaction REJECTED - Invalid image`);
+
+    } else if (errorMessage.includes('TIMEOUT:') || errorMessage.includes('TECHNICAL_ERROR:')) {
+      // Error técnico o timeout - MANUAL_REVIEW
+      const cleanMessage = errorMessage.replace(/^(TIMEOUT:|TECHNICAL_ERROR:)/, '');
+
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'MANUAL_REVIEW',
+          validation_errors: [cleanMessage, error?.stack || 'No stack trace']
+        })
+        .eq('id', transactionId);
+
+      console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to technical error`);
+
+    } else {
+      // Error desconocido - MANUAL_REVIEW por seguridad
+      await supabase
+        .from('gift_transactions')
+        .update({
+          status: 'MANUAL_REVIEW',
+          validation_errors: [`Error al procesar: ${errorMessage}`, error?.stack || 'No stack trace']
+        })
+        .eq('id', transactionId);
+
+      console.error(`[${transactionId}] Transaction marked as MANUAL_REVIEW due to unknown error`);
+    }
+  }
+}
+
+/**
+ * GET /api/gifts/transfer?transactionId=xxx
+ * Consulta el estado de validación de una transferencia
+ */
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const transactionId = searchParams.get('transactionId');
+
+    if (!transactionId) {
+      return NextResponse.json(
+        { success: false, error: 'transactionId requerido' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = await createClient();
+
+    const { data: transaction, error } = await supabase
+      .from('gift_transactions')
+      .select(`
+        id,
+        donor_name,
+        amount,
+        payment_method,
+        country,
+        status,
+        validation_confidence,
+        validation_errors,
+        extracted_recipient_name,
+        extracted_amount,
+        validated_at,
+        created_at,
+        gifts (
+          id,
+          name
+        )
+      `)
+      .eq('id', transactionId)
+      .single();
+
+    if (error || !transaction) {
+      return NextResponse.json(
+        { success: false, error: 'Transacción no encontrada' },
+        { status: 404 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      transaction
+    });
+
+  } catch (error) {
+    console.error('Error fetching transaction:', error);
+    return NextResponse.json(
+      { success: false, error: 'Error al consultar la transacción' },
+      { status: 500 }
+    );
+  }
+}

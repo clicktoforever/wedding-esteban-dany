@@ -12,7 +12,20 @@ const nextConfig = {
         hostname: 'api.builder.io',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cleeumrziseyvctsfxxx.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'lh3.googleusercontent.com',
+        pathname: '/**',
+      },
     ],
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
     return [

@@ -41,7 +41,7 @@ export async function createClientWithToken(token: string) {
   const supabase = await createClient()
   
   // Set the token in the session for RLS policies
-  // @ts-ignore - Supabase type inference issue
+  // @ts-ignore - set_config is a built-in PostgreSQL function not in generated types
   await supabase.rpc('set_config', {
     setting: 'app.current_token',
     value: token

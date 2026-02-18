@@ -48,7 +48,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
 
 **Ejemplo**:
 ```env
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY0...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByb2plY3RpZCIsInJvbGUiOiJhbm9uIi...
 ```
 
 **⚠️ Seguridad**: Esta clave es **pública** pero está protegida por Row Level Security (RLS). Solo permite operaciones autorizadas por las políticas RLS.
@@ -72,7 +72,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 **Ejemplo**:
 ```env
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjQ...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByb2plY3RpZCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUi...
 ```
 
 **🚨 CRÍTICO**: Esta clave debe mantenerse **COMPLETAMENTE SECRETA**:
@@ -87,6 +87,168 @@ SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhY
 - **NO** se usa en la app Next.js en runtime
 
 **Permisos**: Acceso completo a todas las tablas sin restricciones RLS
+
+---
+
+### SUPABASE_PROJECT_ID
+
+**Descripción**: ID del proyecto Supabase usado para generar types TypeScript desde el schema
+
+**Formato**: String de 20 caracteres (ejemplo: `abcdefghijklmnopqrst`)
+
+**Dónde obtenerlo**:
+1. Ve a [supabase.com/dashboard](https://supabase.com/dashboard)
+2. Selecciona tu proyecto
+3. El ID está en la URL: `https://supabase.com/dashboard/project/[PROJECT_ID]`
+4. O en Settings → General → Reference ID
+
+**Ejemplo**:
+```env
+SUPABASE_PROJECT_ID=cleeumrziseyvctsfxxx
+```
+
+**⚠️ Seguridad**: 
+- ❌ NO incluir en `package.json` hardcodeado
+- ✅ Usar variable de entorno en `.env.local`
+- ✅ Está excluido de Git (en `.env.local`)
+
+**Usos**:
+- Script `npm run generate-types` (regenera `lib/database.types.ts`)
+- **NO** se usa en la app Next.js en runtime
+
+**Comando**:
+```bash
+npm run generate-types
+```
+
+Este comando ejecuta `scripts/generate-types.sh` que lee el `SUPABASE_PROJECT_ID` de `.env.local` y genera los types actualizados.
+
+---
+
+### GEMINI_API_KEY
+
+**Descripción**: API Key de Google Gemini para validación automática de comprobantes de transferencia bancaria
+
+**Formato**: String alfanumérico (ejemplo: `AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q`)
+
+**Dónde obtenerla**:
+1. Ve a [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Inicia sesión con tu cuenta de Google
+3. Click en "Get API Key" o "Create API Key"
+4. Copia la clave generada
+
+**Ejemplo**:
+```env
+GEMINI_API_KEY=AIzaSy... (Tu API Key de Google AI Studio)
+```
+
+**🎁 Tier Gratuito**:
+- ✅ 15 requests/minuto GRATIS
+- ✅ 1,500 requests/día GRATIS
+- ✅ No requiere tarjeta de crédito
+- ✅ Modelo: `gemini-1.5-flash`
+
+**🚨 Seguridad**: Esta clave debe mantenerse **PRIVADA**:
+- ❌ NUNCA la expongas en código cliente
+- ❌ NUNCA uses el prefijo `NEXT_PUBLIC_`
+- ✅ Solo úsala en API Routes server-side
+
+**Usos**:
+- Validación automática de comprobantes de transferencia (EC y MX)
+- OCR y extracción de datos de imágenes
+- `/api/gifts/transfer` (endpoint de validación)
+
+**Permisos**: Acceso a Gemini API para procesamiento de imágenes
+
+---
+
+### BANK_ACCOUNT_EC_NAME
+
+**Descripción**: Nombre del titular de la cuenta bancaria de Ecuador
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NAME=Nombre del Titular
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_EC_NUMBER
+
+**Descripción**: Número de cuenta bancaria de Ecuador
+
+**Formato**: String numérico
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_NUMBER=1234567890
+```
+
+**Uso**: Validación de comprobantes de transferencia
+
+---
+
+### BANK_ACCOUNT_EC_TYPE
+
+**Descripción**: Tipo de cuenta bancaria de Ecuador
+
+**Formato**: String (Ahorros, Corriente, etc.)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_TYPE=Ahorros
+```
+
+**Uso**: Información adicional para validación de comprobantes
+
+---
+
+### BANK_ACCOUNT_EC_ID
+
+**Descripción**: Número de cédula del titular de la cuenta de Ecuador
+
+**Formato**: String numérico (10 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_EC_ID=1000000000
+```
+
+**Uso**: Validación adicional de identidad del titular
+
+---
+
+### BANK_ACCOUNT_MX_NAME
+
+**Descripción**: Nombre del titular de la tarjeta bancaria de México
+
+**Formato**: String (nombre completo)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_NAME=Nombre del Titular MX
+```
+
+**Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
+
+---
+
+### BANK_ACCOUNT_MX_CARD
+
+**Descripción**: Número de tarjeta bancaria de México (Santander)
+
+**Formato**: String numérico (16 dígitos)
+
+**Ejemplo**:
+```env
+BANK_ACCOUNT_MX_CARD=5579000000000000
+```
+
+**Uso**: Validación de comprobantes de transferencia/depósito a tarjeta
 
 ---
 
@@ -118,6 +280,112 @@ NEXT_PUBLIC_BUILDER_API_KEY=f1a0b2c3d4e5f6g7h8i9j0k1l2m3n4o5
 - 25,000 requests/mes
 - 5 modelos
 - 1 usuario editor
+
+---
+
+### SMTP_HOST
+
+**Descripción**: Servidor SMTP para envío de correos electrónicos de notificación
+
+**Formato**: String (hostname o IP)
+
+**Ejemplo**:
+```env
+SMTP_HOST=smtp.resend.com
+```
+
+**🚨 Seguridad**: Variable **PRIVADA** - no uses prefijo `NEXT_PUBLIC_`
+
+**Usos**:
+- Envío de emails de confirmación cuando se aprueba una transacción
+- Notificaciones a donantes sobre Machi Coins
+
+---
+
+### SMTP_PORT
+
+**Descripción**: Puerto del servidor SMTP
+
+**Formato**: Número (comúnmente 587 para TLS, 465 para SSL)
+
+**Ejemplo**:
+```env
+SMTP_PORT=587
+```
+
+**Notas**:
+- Puerto 587: Recomendado (TLS/STARTTLS)
+- Puerto 465: SSL directo
+- ⚠️ Evitar puerto 25: Suele estar bloqueado por anti-spam
+
+---
+
+### SMTP_USERNAME
+
+**Descripción**: Usuario para autenticación en el servidor SMTP
+
+**Formato**: String
+
+**Ejemplo**:
+```env
+SMTP_USERNAME=resend
+```
+
+**🚨 Seguridad**: Mantener privado
+
+---
+
+### SMTP_PASSWORD
+
+**Descripción**: Contraseña o API key para autenticación SMTP
+
+**Formato**: String (puede ser API key)
+
+**Ejemplo**:
+```env
+SMTP_PASSWORD=re_123456789_abcdefg...
+```
+
+**🚨 CRÍTICO**: Esta es la credencial más sensible:
+- ❌ NUNCA la expongas en código cliente
+- ❌ NUNCA la subas a Git
+- ❌ NUNCA la compartas en mensajes/emails
+- ✅ Solo úsala en API Routes server-side
+- ✅ Guárdala en password manager
+
+**Usos**: Autenticación para envío de emails vía Resend
+
+---
+
+### SMTP_FROM_EMAIL
+
+**Descripción**: Dirección de email desde la cual se envían las notificaciones
+
+**Formato**: Email address válido
+
+**Ejemplo**:
+```env
+SMTP_FROM_EMAIL=onboarding@resend.dev
+```
+
+**Requisitos**:
+- Debe ser un dominio verificado en Resend
+- Debe tener registros SPF/DKIM configurados para mejor entregabilidad
+
+---
+
+### SMTP_FROM_NAME
+
+**Descripción**: Nombre que aparece como remitente en los emails
+
+**Formato**: String
+
+**Ejemplo**:
+```env
+SMTP_FROM_NAME=Carlos & Dany
+```
+
+**Uso**: Mejora la apariencia profesional y reconocimiento del email
 
 ---
 
