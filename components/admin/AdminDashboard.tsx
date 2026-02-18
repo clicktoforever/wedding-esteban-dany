@@ -81,7 +81,7 @@ export default function AdminDashboard({ stats, guests, gifts }: AdminDashboardP
   const generateWhatsAppMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? '1 pase' : `${passCount} pases`
-    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
+    const confirmationUrl = `https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     return `¡Hola ${guest.name}! 💐✨
 Es un honor invitarte a nuestra boda. Tienes asignado${passCount > 1 ? 's' : ''} *${passText}* para este día tan especial.
 🎊 Por favor, confirma tu asistencia y compártenos los detalles a través de este enlace personalizado:
@@ -92,7 +92,7 @@ ${confirmationUrl}
   const generateReminderMessage = (guest: GuestWithPasses) => {
     const passCount = guest.passes.length
     const passText = passCount === 1 ? 'tu pase' : `tus ${passCount} pases`
-    const confirmationUrl = `https://Carlosydany.clicktoforever.com/?token=${guest.access_token}`
+    const confirmationUrl = `https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     return `¡Hola ${guest.name}! 💌
 Te recordamos que la fecha límite para confirmar tu asistencia es el *10 de marzo*. 📅
 Si aún no lo has hecho, por favor confirma ${passText} a través de este enlace:
@@ -504,10 +504,10 @@ ${confirmationUrl}
                               <div key={pass.id} className="flex items-center gap-2">
                                 <span
                                   className={`inline-block h-3 w-3 rounded-full flex-shrink-0 ${pass.confirmation_status === 'confirmed'
-                                      ? 'bg-emerald-500'
-                                      : pass.confirmation_status === 'pending'
-                                        ? 'bg-amber-400'
-                                        : 'bg-gray-400'
+                                    ? 'bg-emerald-500'
+                                    : pass.confirmation_status === 'pending'
+                                      ? 'bg-amber-400'
+                                      : 'bg-gray-400'
                                     }`}
                                 ></span>
                                 <span>{pass.attendee_name}</span>
@@ -863,8 +863,8 @@ ${confirmationUrl}
             {/* Mensaje de éxito/error */}
             {message && (
               <div className={`mx-4 md:mx-6 mt-4 md:mt-6 p-4 border-l-4 ${message.type === 'success'
-                  ? 'bg-admin-sage/10 border-admin-forest text-admin-forest'
-                  : 'bg-red-50 border-red-500 text-red-700'
+                ? 'bg-admin-sage/10 border-admin-forest text-admin-forest'
+                : 'bg-red-50 border-red-500 text-red-700'
                 }`}>
                 <p className="text-sm font-medium tracking-wide">{message.text}</p>
               </div>

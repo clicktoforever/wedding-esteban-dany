@@ -77,7 +77,7 @@ Una vez completado:
 
 1. En tu proyecto Vercel → **Settings** → **Domains**
 2. Click en **"Add Domain"**
-3. Ingresa tu dominio: `estebanydany.com`
+3. Ingresa tu dominio: `carlosydany.com`
 4. Sigue las instrucciones para actualizar DNS:
    - Tipo: `A` → IP de Vercel
    - Tipo: `CNAME` → `cname.vercel-dns.com`
