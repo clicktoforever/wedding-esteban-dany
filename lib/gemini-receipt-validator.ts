@@ -48,40 +48,40 @@ export class GeminiReceiptValidator {
     if (!key) {
       throw new Error('GEMINI_API_KEY is required');
     }
-    
+
     console.log('[GeminiValidator] Initializing with API key:', key.substring(0, 10) + '...');
-    
+
     // Cargar cuentas bancarias desde variables de entorno
     this.bankAccounts = {
       EC: {
         country: 'EC',
-        accountName: process.env.BANK_ACCOUNT_EC_NAME || 'Carlos Maldonado',
-        accountNumber: process.env.BANK_ACCOUNT_EC_NUMBER || 'REDACTED_ACCOUNT',
+        accountName: process.env.BANK_ACCOUNT_EC_NAME || '',
+        accountNumber: process.env.BANK_ACCOUNT_EC_NUMBER || '',
         accountType: process.env.BANK_ACCOUNT_EC_TYPE || 'Ahorros',
-        identificationNumber: process.env.BANK_ACCOUNT_EC_ID || 'REDACTED_ID',
+        identificationNumber: process.env.BANK_ACCOUNT_EC_ID || '',
         currency: 'USD'
       },
       MX: {
         country: 'MX',
-        accountName: process.env.BANK_ACCOUNT_MX_NAME || 'Daniela Guadalupe Briones Chavez',
-        accountNumber: process.env.BANK_ACCOUNT_MX_CARD || 'REDACTED_CREDIT_CARD',
+        accountName: process.env.BANK_ACCOUNT_MX_NAME || '',
+        accountNumber: process.env.BANK_ACCOUNT_MX_CARD || '',
         accountType: 'Tarjeta',
         currency: 'MXN'
       }
     };
-    
+
     console.log('[GeminiValidator] Bank accounts loaded:', {
       EC: this.bankAccounts.EC.accountNumber,
       MX: this.bankAccounts.MX.accountNumber
     });
-    
+
     this.genAI = new GoogleGenerativeAI(key);
     console.log('[GeminiValidator] Using model: gemini-3-flash-preview');
-    
-    this.model = this.genAI.getGenerativeModel({ 
+
+    this.model = this.genAI.getGenerativeModel({
       model: 'gemini-3-flash-preview'
     });
-    
+
     console.log('[GeminiValidator] Initialization complete');
   }
 
@@ -95,16 +95,16 @@ export class GeminiReceiptValidator {
     orderId: string
   ): Promise<ReceiptValidationResult> {
     console.log(`[${orderId}] validateReceipt started for ${country} with expected amount ${expectedAmount}`);
-    
+
     try {
       // 1. Convertir imagen a base64
       console.log(`[${orderId}] Converting buffer to base64, size: ${imageBuffer.length} bytes`);
       const imageBase64 = imageBuffer.toString('base64');
       console.log(`[${orderId}] Base64 conversion complete, length: ${imageBase64.length}`);
-      
+
       const targetAccount = this.bankAccounts[country];
       console.log(`[${orderId}] Target account:`, targetAccount.accountName, targetAccount.accountNumber);
-      
+
       // 2. Prompt optimizado para extraer y validar en una sola llamada
       const prompt = this.buildPrompt(targetAccount, expectedAmount);
       console.log(`[${orderId}] Prompt built, calling Gemini API...`);
@@ -112,12 +112,12 @@ export class GeminiReceiptValidator {
       // 3. Llamar a Gemini con timeout
       const startTime = Date.now();
       console.log(`[${orderId}] Sending request to Gemini at ${new Date().toISOString()}`);
-      
+
       // Timeout de 45 segundos para dar tiempo antes del timeout de Vercel (60s)
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Gemini API timeout after 45 seconds')), 45000);
       });
-      
+
       const geminiPromise = this.model.generateContent([
         prompt,
         {
@@ -127,32 +127,32 @@ export class GeminiReceiptValidator {
           }
         }
       ]);
-      
+
       const result = await Promise.race([geminiPromise, timeoutPromise]) as any;
 
       const endTime = Date.now();
       console.log(`[${orderId}] Gemini API responded in ${endTime - startTime}ms`);
-      
+
       const response = await result.response;
       console.log(`[${orderId}] Response retrieved, extracting text...`);
-      
+
       const text = response.text();
       console.log(`[${orderId}] Response text length: ${text.length}, first 200 chars:`, text.substring(0, 200));
-      
+
       // 4. Limpiar y parsear respuesta
       const jsonMatch = text.match(/\{[\s\S]*\}/);
       if (!jsonMatch) {
         console.error(`[${orderId}] Failed to extract JSON from response:`, text);
         throw new Error('No se pudo extraer JSON de la respuesta de Gemini');
       }
-      
+
       console.log(`[${orderId}] JSON extracted, parsing...`);
       const data = JSON.parse(jsonMatch[0]);
       console.log(`[${orderId}] Parsed data:`, JSON.stringify(data, null, 2));
-      
+
       // 4.5. Verificar si la imagen es un comprobante válido
-      if (!data.validation.isValid && data.validation.errors?.some((err: string) => 
-        err.toLowerCase().includes('no es un comprobante') || 
+      if (!data.validation.isValid && data.validation.errors?.some((err: string) =>
+        err.toLowerCase().includes('no es un comprobante') ||
         err.toLowerCase().includes('not a receipt') ||
         err.toLowerCase().includes('imagen no válida') ||
         err.toLowerCase().includes('invalid image')
@@ -160,13 +160,13 @@ export class GeminiReceiptValidator {
         console.error(`[${orderId}] Image is not a valid receipt`);
         throw new Error('INVALID_IMAGE: La imagen no parece ser un comprobante de transferencia bancaria válido');
       }
-      
+
       // 5. Validaciones adicionales
       const amountDiff = Math.abs(data.extracted.amount - expectedAmount);
       const amountToleranceOk = amountDiff < 0.5; // 50 centavos de tolerancia
-      
+
       console.log(`[${orderId}] Amount validation - Expected: ${expectedAmount}, Extracted: ${data.extracted.amount}, Diff: ${amountDiff}, Ok: ${amountToleranceOk}`);
-      
+
       return {
         orderId,
         country,
@@ -187,7 +187,7 @@ export class GeminiReceiptValidator {
       console.error(`[${orderId}] Error message:`, error?.message);
       console.error(`[${orderId}] Error stack:`, error?.stack);
       console.error(`[${orderId}] Full error object:`, JSON.stringify(error, null, 2));
-      
+
       // Distinguir entre imagen inválida y errores técnicos
       if (error?.message?.includes('INVALID_IMAGE:')) {
         // Error de imagen inválida - rechazar inmediatamente
@@ -208,7 +208,7 @@ export class GeminiReceiptValidator {
    */
   private buildPrompt(targetAccount: BankAccount, expectedAmount: number): string {
     const countryName = targetAccount.country === 'EC' ? 'Ecuador' : 'México';
-    
+
     return `Analiza esta imagen y determina si es un comprobante de transferencia bancaria de ${countryName}.
 
 PRIMERO: ¿Es esto un comprobante bancario válido?

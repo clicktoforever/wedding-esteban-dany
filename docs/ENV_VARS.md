@@ -48,7 +48,7 @@ NEXT_PUBLIC_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
 
 **Ejemplo**:
 ```env
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoiYW5vbiIsImlhdCI6MTY0...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByb2plY3RpZCIsInJvbGUiOiJhbm9uIi...
 ```
 
 **⚠️ Seguridad**: Esta clave es **pública** pero está protegida por Row Level Security (RLS). Solo permite operaciones autorizadas por las políticas RLS.
@@ -72,7 +72,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 
 **Ejemplo**:
 ```env
-SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFiY2RlZmdoaWprbG1ub3AiLCJyb2xlIjoic2VydmljZV9yb2xlIiwiaWF0IjoxNjQ...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InByb2plY3RpZCIsInJvbGUiOiJzZXJ2aWNlX3JvbGUi...
 ```
 
 **🚨 CRÍTICO**: Esta clave debe mantenerse **COMPLETAMENTE SECRETA**:
@@ -139,7 +139,7 @@ Este comando ejecuta `scripts/generate-types.sh` que lee el `SUPABASE_PROJECT_ID
 
 **Ejemplo**:
 ```env
-GEMINI_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
+GEMINI_API_KEY=AIzaSy... (Tu API Key de Google AI Studio)
 ```
 
 **🎁 Tier Gratuito**:
@@ -170,7 +170,7 @@ GEMINI_API_KEY=AIzaSyA1B2C3D4E5F6G7H8I9J0K1L2M3N4O5P6Q
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_EC_NAME=Carlos Maldonado
+BANK_ACCOUNT_EC_NAME=Nombre del Titular
 ```
 
 **Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
@@ -185,7 +185,7 @@ BANK_ACCOUNT_EC_NAME=Carlos Maldonado
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_EC_NUMBER=REDACTED_ACCOUNT
+BANK_ACCOUNT_EC_NUMBER=1234567890
 ```
 
 **Uso**: Validación de comprobantes de transferencia
@@ -215,7 +215,7 @@ BANK_ACCOUNT_EC_TYPE=Ahorros
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_EC_ID=REDACTED_ID
+BANK_ACCOUNT_EC_ID=1000000000
 ```
 
 **Uso**: Validación adicional de identidad del titular
@@ -230,7 +230,7 @@ BANK_ACCOUNT_EC_ID=REDACTED_ID
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_MX_NAME=Daniela Guadalupe Briones Chavez
+BANK_ACCOUNT_MX_NAME=Nombre del Titular MX
 ```
 
 **Uso**: Validación de comprobantes de transferencia para verificar que el destinatario coincida
@@ -245,7 +245,7 @@ BANK_ACCOUNT_MX_NAME=Daniela Guadalupe Briones Chavez
 
 **Ejemplo**:
 ```env
-BANK_ACCOUNT_MX_CARD=REDACTED_CREDIT_CARD
+BANK_ACCOUNT_MX_CARD=5579000000000000
 ```
 
 **Uso**: Validación de comprobantes de transferencia/depósito a tarjeta
@@ -343,7 +343,7 @@ SMTP_USERNAME=resend
 
 **Ejemplo**:
 ```env
-SMTP_PASSWORD=REDACTED_API_KEY
+SMTP_PASSWORD=re_123456789_abcdefg...
 ```
 
 **🚨 CRÍTICO**: Esta es la credencial más sensible:
@@ -365,7 +365,7 @@ SMTP_PASSWORD=REDACTED_API_KEY
 
 **Ejemplo**:
 ```env
-SMTP_FROM_EMAIL=invitacion@clicktoforever.com
+SMTP_FROM_EMAIL=onboarding@resend.dev
 ```
 
 **Requisitos**:

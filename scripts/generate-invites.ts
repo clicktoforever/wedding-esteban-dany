@@ -83,22 +83,20 @@ async function generateInvite(guestInput: GuestInput) {
 // Example usage - You can modify this array with your guest list
 const guestsToInvite: GuestInput[] = [
   {
-    mainGuestName: 'Carlos Maldonado',
-    email: 'user@example.com',
+    mainGuestName: 'Usuario Prueba 1',
+    email: 'usuario1@example.com',
     phone: '+520000000000',
     attendees: [
-      { name: 'Carlos Maldonado' },
-      { name: 'Daniela López' },
-      { name: 'Lupita Maldonado' },
+      { name: 'Usuario Prueba 1' },
+      { name: 'Acompañante 1' },
     ],
   },
   {
-    mainGuestName: 'María García',
-    email: 'maria@example.com',
-    phone: '+521234567891',
+    mainGuestName: 'Usuario Prueba 2',
+    email: 'usuario2@example.com',
+    phone: '+520000000001',
     attendees: [
-      { name: 'María García' },
-      { name: 'Pedro García' },
+      { name: 'Usuario Prueba 2' },
     ],
   },
 ]
