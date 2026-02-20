@@ -47,23 +47,24 @@ export default function WhatsAppMessageModal({
     if (!isOpen || !guest) return null
 
     const getMessageOption1 = () => {
-        return `¡Hola *${guest.name}*! 👋✨\n\n` +
-            `Nos emociona invitarte a nuestro gran día. Hemos preparado una invitación especial solo para ti.\n\n` +
-            `🔓 *Para activar tu enlace, por favor respóndenos con un emoji o un "Hola".*\n\n` +
-            `Una vez que lo hagas, toca aquí para ver tus pases:\n` +
-            `💌 https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-            `¡Esperamos tu confirmación!\n` +
+        return `¡Hola *${guest.name}*! 👋 Nos casamos y nos encantaría contar con tu presencia.\n\n` +
+            `🚨 *IMPORTANTE:* Por seguridad de WhatsApp, el enlace de tu invitación aparece inactivo.\n\n` +
+            `� *Para activarlo, por favor respóndenos este mensaje con un "Hola".*\n\n` +
+            `Una vez que nos respondas, el enlace se pondrá azul. Toca aquí para abrirlo:\n` +
+            `�👇👇\n` +
+            `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `Con cariño, *Carlos y Dany* 💍`
     }
 
     const getMessageOption2 = () => {
-        return `¡*${guest.name}*, tenemos una sorpresa para ti! 👋\n\n` +
-            `Se acerca nuestra boda y no sería lo mismo sin ti. Te hemos reservado un lugar especial.\n\n` +
-            `👉 *Respóndenos con un 🥂 o tu emoji favorito para activar tu invitación digital.*\n\n` +
-            `Entra aquí para ver los detalles:\n` +
-            `💌 https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-            `¡Nos vemos pronto!\n` +
-            `*Carlos y Dany*`
+        return `¡Hola *${guest.name}*! 👋✨ ¡Nos casamos y tienes que estar ahí!\n\n` +
+            `� *TU ENLACE ESTÁ BLOQUEADO*\n\n` +
+            `WhatsApp no te deja abrirlo hasta que nos respondas. *Envíame un emoji (🥂, 🎉) o un "Hola" aquí mismo para desbloquearlo.*\n\n` +
+            `En cuanto respondas, el link se pondrá azul. Pícale aquí para ver tus pases:\n` +
+            `👇👇👇\n` +
+            `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
+            `¡Te esperamos!\n` +
+            `*Carlos y Dany* 💍`
     }
 
     const getReminderMessage = () => {
