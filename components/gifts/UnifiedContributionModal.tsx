@@ -750,11 +750,11 @@ export default function UnifiedContributionModal({
                       if (error) setError(null)
                     }}
                     onBlur={() => window.scrollTo(0, 0)}
-                    placeholder="dany@gmail.com"
+                    placeholder="tucorreo@mail.com"
                     required
                     className="w-full h-14 px-4 rounded-2xl border-2 border-gray-100 bg-white text-gray-800 placeholder:text-gray-400 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-[16px]"
                   />
-                  <p className="text-xs text-gray-400 mt-2 ml-1">
+                  <p className="text-sm text-gray-500 font-medium mt-2 ml-1">
                     El correo es necesario para poder enviarte una sorpresa
                   </p>
                 </div>
