@@ -730,6 +730,7 @@ export default function UnifiedContributionModal({
                   <input
                     type="text"
                     value={donorName}
+                    maxLength={100}
                     onChange={(e) => setDonorName(e.target.value)}
                     onBlur={() => window.scrollTo(0, 0)}
                     placeholder="¿Cómo te llamas?"
@@ -745,6 +746,7 @@ export default function UnifiedContributionModal({
                   <input
                     type="email"
                     value={donorEmail}
+                    maxLength={254}
                     onChange={(e) => {
                       setDonorEmail(e.target.value)
                       if (error) setError(null)
@@ -766,6 +768,7 @@ export default function UnifiedContributionModal({
                   </label>
                   <textarea
                     value={message}
+                    maxLength={500}
                     onChange={(e) => setMessage(e.target.value)}
                     onBlur={() => window.scrollTo(0, 0)}
                     placeholder="Escribe un mensaje especial para los novios..."
