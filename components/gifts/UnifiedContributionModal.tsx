@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { formatCurrency } from '@/lib/payphone'
 import { getDisplayAmount, convertToUsd } from '@/lib/currency'
 import type { Database } from '@/lib/database.types'
+import { createClient } from '@/lib/supabase/browser'
 
 type Gift = Database['public']['Tables']['gifts']['Row']
 
@@ -62,6 +63,10 @@ export default function UnifiedContributionModal({
 
   // Flip State for Ecuador Card
   const [isFlipped, setIsFlipped] = useState(false)
+  const [deunaLink, setDeunaLink] = useState<string | null>(null)
+
+  // Copy Feedback State
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   // Payphone State
   const [payphoneScriptLoaded, setPayphoneScriptLoaded] = useState(false)
@@ -185,6 +190,37 @@ export default function UnifiedContributionModal({
     }
   }, [step])
 
+  // Fetch DeUna payment link
+  useEffect(() => {
+    const fetchDeunaLink = async () => {
+      try {
+        const cachedLink = sessionStorage.getItem('deuna_payment_link')
+        if (cachedLink) {
+          setDeunaLink(cachedLink)
+          return
+        }
+
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('configurations')
+          .select('value')
+          .eq('key', 'deuna_payment_link')
+          .single()
+
+        if (data?.value) {
+          setDeunaLink(data.value)
+          sessionStorage.setItem('deuna_payment_link', data.value)
+        }
+      } catch (err) {
+        console.error('Error fetching DeUna link:', err)
+      }
+    }
+
+    if (isOpen) {
+      fetchDeunaLink()
+    }
+  }, [isOpen])
+
   const fetchBankAccount = async (country: 'EC' | 'MX') => {
     try {
       const response = await fetch(`/api/gifts/bank-accounts?country=${country}`)
@@ -221,7 +257,7 @@ export default function UnifiedContributionModal({
     reader.readAsDataURL(file)
   }
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, fieldName: string) => {
     try {
       // Check if clipboard API is available
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -244,6 +280,10 @@ export default function UnifiedContributionModal({
           textArea.remove()
         }
       }
+
+      // Show feedback
+      setCopiedField(fieldName)
+      setTimeout(() => setCopiedField(null), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
     }
@@ -900,11 +940,17 @@ export default function UnifiedContributionModal({
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    copyToClipboard(bankAccount.accountNumber)
+                                    copyToClipboard(bankAccount.accountNumber, 'accountNumber')
                                   }}
                                   type="button"
-                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                  className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                 >
+                                  {copiedField === 'accountNumber' && (
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                      ¡Copiado!
+                                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                                   <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -925,11 +971,17 @@ export default function UnifiedContributionModal({
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    copyToClipboard(bankAccount.accountName)
+                                    copyToClipboard(bankAccount.accountName, 'accountName')
                                   }}
                                   type="button"
-                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                  className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                 >
+                                  {copiedField === 'accountName' && (
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                      ¡Copiado!
+                                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                                   <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -951,11 +1003,17 @@ export default function UnifiedContributionModal({
                                   <button
                                     onClick={(e) => {
                                       e.preventDefault()
-                                      copyToClipboard(bankAccount.identificationNumber!)
+                                      copyToClipboard(bankAccount.identificationNumber!, 'identificationNumber')
                                     }}
                                     type="button"
-                                    className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                    className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                   >
+                                    {copiedField === 'identificationNumber' && (
+                                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                        ¡Copiado!
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                      </div>
+                                    )}
                                     <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -994,7 +1052,18 @@ export default function UnifiedContributionModal({
                       {/* Back Face - QR Code */}
                       <div className="absolute top-0 left-0 w-full h-full bg-white rounded-2xl shadow-sm border border-stone-100 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6">
 
-                        <div className="relative w-full aspect-square max-w-[240px] rounded-xl overflow-hidden border-2 border-stone-100 mb-8">
+                        <p className="text-sm text-gray-400 font-medium text-center mb-6 px-4">
+                          Escanea el QR o dale clic para pagar
+                        </p>
+
+                        <div
+                          className={`relative w-full aspect-square max-w-[220px] rounded-xl overflow-hidden border-2 border-stone-100 mb-8 transition-transform duration-300 ${deunaLink ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
+                          onClick={() => {
+                            if (deunaLink) {
+                              window.open(deunaLink, '_blank', 'noopener,noreferrer')
+                            }
+                          }}
+                        >
                           <Image
                             src="/images/QRDEUNA.PNG"
                             alt="QR DeUna"
