@@ -49,8 +49,8 @@ export default function WhatsAppMessageModal({
     const getMessageOption1 = () => {
         return `¡Hola *${guest.name}*! 👋 Nos casamos y nos encantaría contar con tu presencia.\n\n` +
             `🚨 *IMPORTANTE:* Por seguridad de WhatsApp, el enlace de tu invitación aparece inactivo.\n\n` +
-            `👉 *Para activarlo, por favor respóndenos este mensaje con un "Hola".*\n\n` +
-            `Una vez que nos respondas, el enlace se pondrá azul. Toca aquí para abrirlo:\n` +
+            `👉 *Para activarlo, por favor respóndenos este mensaje con un "Hola" o un emoji.*\n\n` +
+            `Una vez que nos respondas, el enlace se pondrá azul. Toca aquí para abrirlo:\n\n` +
             `👇👇👇\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `Con cariño, *Carlos y Dany* 💍`
@@ -60,7 +60,7 @@ export default function WhatsAppMessageModal({
         return `¡Hola *${guest.name}*! 👋✨ ¡Nos casamos y tienes que estar ahí!\n\n` +
             `🔒 *TU ENLACE ESTÁ BLOQUEADO*\n\n` +
             `WhatsApp no te deja abrirlo hasta que nos respondas. *Envíame un emoji (🥂, 🎉) o un "Hola" aquí mismo para desbloquearlo.*\n\n` +
-            `En cuanto respondas, el link se pondrá azul. Pícale aquí para ver tus pases:\n` +
+            `En cuanto respondas, el link se pondrá azul. Pícale aquí para ver tus pases:\n\n` +
             `👇👇👇\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Te esperamos!\n` +
@@ -220,7 +220,7 @@ export default function WhatsAppMessageModal({
                                             Opción 1: Formal
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡Hola {guest.name}! 👋✨ Nos emociona invitarte a nuestro gran día...
+                                            ¡Hola {guest.name}! 👋 Nos casamos y nos encantaría contar con tu presencia...
                                         </p>
                                     </div>
                                 </button>
@@ -244,7 +244,7 @@ export default function WhatsAppMessageModal({
                                             Opción 2: Sorpresa
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡{guest.name}, tenemos una sorpresa para ti! 👋 Se acerca nuestra boda...
+                                            ¡Hola {guest.name}! 👋✨ ¡Nos casamos y tienes que estar ahí!...
                                         </p>
                                     </div>
                                 </button>

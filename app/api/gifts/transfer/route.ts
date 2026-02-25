@@ -283,11 +283,59 @@ async function validateReceiptAsync(
       extractedAmount: result.extractedData.amount
     }));
 
+    // 1. Detectar si el comprobante tiene un número de referencia duplicado
+    let isDuplicateReference = false;
+    const refNumber = result.extractedData?.referenceNumber;
+
+    if (refNumber &&
+      refNumber.trim() !== '' &&
+      !refNumber.toLowerCase().includes('no encontrad') &&
+      refNumber.toLowerCase() !== 'null' &&
+      refNumber.toUpperCase() !== 'N/A') {
+
+      const { data: existingTransactions } = await supabase
+        .from('gift_transactions')
+        .select('id')
+        .eq('extracted_reference', refNumber)
+        .neq('id', transactionId)
+        .neq('status', 'REJECTED')
+        .limit(1);
+
+      if (existingTransactions && existingTransactions.length > 0) {
+        isDuplicateReference = true;
+        console.log(`[${transactionId}] Duplicate reference found: ${refNumber}`);
+
+        result.validation.errors = result.validation.errors || [];
+        result.validation.errors.push(`Referencia duplicada: El número de referencia ${refNumber} ya ha sido utilizado en otra transacción.`);
+      }
+    }
+
+    // 2. Validar que la fecha del comprobante sea desde febrero 2026 en adelante
+    let isInvalidDate = false;
+    const transactionDate = result.extractedData?.transactionDate;
+
+    // Fecha base mínima (1 de Febrero de 2026)
+    const minDate = new Date('2026-02-01T00:00:00Z');
+
+    if (transactionDate) {
+      // Parsear la fecha del comprobante asumiendo formato "YYYY-MM-DD" que extraemos por prompt
+      const parsedDate = new Date(transactionDate);
+
+      // Verificamos que sea una fecha válida y que sea menor a la mínima permitida
+      if (!isNaN(parsedDate.getTime()) && parsedDate < minDate) {
+        console.log(`[${transactionId}] Invalid date found: ${transactionDate}, minimum allowed is 2026-02-01`);
+        isInvalidDate = true;
+
+        result.validation.errors = result.validation.errors || [];
+        result.validation.errors.push(`Fecha Inválida: La fecha del comprobante (${transactionDate}) es anterior a Febrero de 2026.`);
+      }
+    }
+
     const needsReview = validator.needsManualReview(result.validation);
 
     let validationStatus: 'APPROVED' | 'MANUAL_REVIEW' | 'REJECTED';
 
-    if (needsReview) {
+    if (needsReview || isDuplicateReference || isInvalidDate) {
       validationStatus = 'MANUAL_REVIEW';
     } else if (result.validation.isValid) {
       validationStatus = 'APPROVED';

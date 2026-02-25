@@ -6,6 +6,7 @@ import Script from 'next/script'
 import { formatCurrency } from '@/lib/payphone'
 import { getDisplayAmount, convertToUsd } from '@/lib/currency'
 import type { Database } from '@/lib/database.types'
+import { createClient } from '@/lib/supabase/browser'
 
 type Gift = Database['public']['Tables']['gifts']['Row']
 
@@ -62,6 +63,10 @@ export default function UnifiedContributionModal({
 
   // Flip State for Ecuador Card
   const [isFlipped, setIsFlipped] = useState(false)
+  const [deunaLink, setDeunaLink] = useState<string | null>(null)
+
+  // Copy Feedback State
+  const [copiedField, setCopiedField] = useState<string | null>(null)
 
   // Payphone State
   const [payphoneScriptLoaded, setPayphoneScriptLoaded] = useState(false)
@@ -70,6 +75,7 @@ export default function UnifiedContributionModal({
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
+  const amountInputRef = useRef<HTMLInputElement>(null)
 
 
 
@@ -89,8 +95,8 @@ export default function UnifiedContributionModal({
 
   // Quick amount buttons based on currency
   const quickAmounts = currency === 'USD'
-    ? [20, 50, 100, 200]
-    : [500, 1000, 2000, 5000] // No decimal values for MXN
+    ? [20, 50, 100, 'Otro']
+    : [500, 1000, 2000, 'Otro'] // No decimal values for MXN
 
   // Currency symbol
   const currencySymbol = currency === 'USD' ? '$' : '$' // Adjust if needed
@@ -185,6 +191,37 @@ export default function UnifiedContributionModal({
     }
   }, [step])
 
+  // Fetch DeUna payment link
+  useEffect(() => {
+    const fetchDeunaLink = async () => {
+      try {
+        const cachedLink = sessionStorage.getItem('deuna_payment_link')
+        if (cachedLink) {
+          setDeunaLink(cachedLink)
+          return
+        }
+
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('configurations')
+          .select('value')
+          .eq('key', 'deuna_payment_link')
+          .single()
+
+        if (data?.value) {
+          setDeunaLink(data.value)
+          sessionStorage.setItem('deuna_payment_link', data.value)
+        }
+      } catch (err) {
+        console.error('Error fetching DeUna link:', err)
+      }
+    }
+
+    if (isOpen) {
+      fetchDeunaLink()
+    }
+  }, [isOpen])
+
   const fetchBankAccount = async (country: 'EC' | 'MX') => {
     try {
       const response = await fetch(`/api/gifts/bank-accounts?country=${country}`)
@@ -221,7 +258,7 @@ export default function UnifiedContributionModal({
     reader.readAsDataURL(file)
   }
 
-  const copyToClipboard = async (text: string) => {
+  const copyToClipboard = async (text: string, fieldName: string) => {
     try {
       // Check if clipboard API is available
       if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -244,6 +281,10 @@ export default function UnifiedContributionModal({
           textArea.remove()
         }
       }
+
+      // Show feedback
+      setCopiedField(fieldName)
+      setTimeout(() => setCopiedField(null), 2000)
     } catch (err) {
       console.error('Failed to copy:', err)
     }
@@ -620,13 +661,30 @@ export default function UnifiedContributionModal({
                 <div className="flex flex-col items-center mb-6">
                   <div className="relative group mb-2">
                     <input
+                      ref={amountInputRef}
                       type="text"
-                      inputMode="numeric"
-                      pattern="[0-9.]*"
+                      inputMode="decimal"
+                      pattern="[0-9.,]*"
                       value={`${currencySymbol} ${amount}`}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '')
+                        // Permite comas y puntos, luego reemplaza comas por puntos
+                        let val = e.target.value.replace(/,/g, '.').replace(/[^0-9.]/g, '')
+
+                        const parts = val.split('.')
+                        if (parts.length > 2) {
+                          val = parts[0] + '.' + parts.slice(1).join('')
+                        }
+
+                        if (val.includes('.')) {
+                          const [integer, decimal] = val.split('.')
+                          if (currency === 'USD') {
+                            val = `${integer}.${decimal.slice(0, 2)}`
+                          } else {
+                            val = integer // Sin decimales para MXN
+                          }
+                        }
+
                         setAmount(val)
                       }}
                       className="w-full bg-transparent border-none text-center text-neutral-text focus:ring-0 p-0 leading-none font-bold"
@@ -637,18 +695,37 @@ export default function UnifiedContributionModal({
 
                   {/* Quick Amount Buttons */}
                   <div className="flex gap-3 mt-8 mb-2 overflow-x-auto w-full justify-center px-4 no-scrollbar py-2">
-                    {quickAmounts.map((quickAmount) => (
-                      <button
-                        key={quickAmount}
-                        onClick={() => setAmount(quickAmount.toString())}
-                        className={`flex h-12 shrink-0 items-center justify-center rounded-full px-5 font-semibold text-[14px] transition-all ${parseFloat(amount) === quickAmount
-                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                          : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
-                          }`}
-                      >
-                        {currencySymbol}{quickAmount}
-                      </button>
-                    ))}
+                    {quickAmounts.map((quickAmount) => {
+                      const isOtro = quickAmount === 'Otro'
+                      const isActive = !isOtro && parseFloat(amount) === quickAmount
+
+                      return (
+                        <button
+                          key={quickAmount}
+                          onClick={() => {
+                            if (isOtro) {
+                              setAmount('')
+                              // Focus directly so mobile keyboard opens
+                              amountInputRef.current?.focus()
+                            } else {
+                              setAmount(quickAmount.toString())
+                            }
+                          }}
+                          className={`flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-full px-5 font-semibold text-[14px] transition-all ${isActive
+                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
+                            }`}
+                        >
+                          {!isOtro && <span>{currencySymbol}</span>}
+                          <span>{quickAmount}</span>
+                          {isOtro && (
+                            <svg className="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
@@ -900,11 +977,17 @@ export default function UnifiedContributionModal({
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    copyToClipboard(bankAccount.accountNumber)
+                                    copyToClipboard(bankAccount.accountNumber, 'accountNumber')
                                   }}
                                   type="button"
-                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                  className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                 >
+                                  {copiedField === 'accountNumber' && (
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                      ¡Copiado!
+                                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                                   <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -925,11 +1008,17 @@ export default function UnifiedContributionModal({
                                 <button
                                   onClick={(e) => {
                                     e.preventDefault()
-                                    copyToClipboard(bankAccount.accountName)
+                                    copyToClipboard(bankAccount.accountName, 'accountName')
                                   }}
                                   type="button"
-                                  className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                  className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                 >
+                                  {copiedField === 'accountName' && (
+                                    <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                      ¡Copiado!
+                                      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                    </div>
+                                  )}
                                   <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -951,11 +1040,17 @@ export default function UnifiedContributionModal({
                                   <button
                                     onClick={(e) => {
                                       e.preventDefault()
-                                      copyToClipboard(bankAccount.identificationNumber!)
+                                      copyToClipboard(bankAccount.identificationNumber!, 'identificationNumber')
                                     }}
                                     type="button"
-                                    className="text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1"
+                                    className="relative text-primary hover:bg-primary/5 p-2 rounded-lg transition-colors flex items-center gap-1 group"
                                   >
+                                    {copiedField === 'identificationNumber' && (
+                                      <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-[10px] font-bold px-2 py-1 rounded shadow-lg whitespace-nowrap animate-in fade-in slide-in-from-bottom-1 duration-200">
+                                        ¡Copiado!
+                                        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 border-[4px] border-transparent border-t-gray-800"></div>
+                                      </div>
+                                    )}
                                     <span className="text-sm font-bold font-body uppercase tracking-wider">Copiar</span>
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
@@ -994,7 +1089,18 @@ export default function UnifiedContributionModal({
                       {/* Back Face - QR Code */}
                       <div className="absolute top-0 left-0 w-full h-full bg-white rounded-2xl shadow-sm border border-stone-100 [backface-visibility:hidden] [transform:rotateY(180deg)] flex flex-col items-center justify-center p-6">
 
-                        <div className="relative w-full aspect-square max-w-[240px] rounded-xl overflow-hidden border-2 border-stone-100 mb-8">
+                        <p className="text-sm text-gray-400 font-medium text-center mb-6 px-4">
+                          Escanea el QR o dale clic para pagar
+                        </p>
+
+                        <div
+                          className={`relative w-full aspect-square max-w-[220px] rounded-xl overflow-hidden border-2 border-stone-100 mb-8 transition-transform duration-300 ${deunaLink ? 'cursor-pointer hover:scale-105 active:scale-95' : ''}`}
+                          onClick={() => {
+                            if (deunaLink) {
+                              window.open(deunaLink, '_blank', 'noopener,noreferrer')
+                            }
+                          }}
+                        >
                           <Image
                             src="/images/QRDEUNA.PNG"
                             alt="QR DeUna"
