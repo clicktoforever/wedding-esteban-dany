@@ -16,7 +16,7 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const [gifts, setGifts] = useState<Gift[]>(initialGifts)
   const [selectedCategory, setSelectedCategory] = useState<string | null>('all')
   const [selectedGift, setSelectedGift] = useState<Gift | null>(null)
-  
+
   // Modal states
   const [showWelcomeModal, setShowWelcomeModal] = useState(false)
   const [showContributionModal, setShowContributionModal] = useState(false)
@@ -30,8 +30,8 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
   const categories = ['all', ...Array.from(new Set(gifts.map(gift => gift.category).filter(Boolean)))]
 
   // Filter gifts by category
-  const filteredGifts = selectedCategory === 'all' 
-    ? gifts 
+  const filteredGifts = selectedCategory === 'all'
+    ? gifts
     : gifts.filter(gift => gift.category === selectedCategory)
 
   const handleContribute = (gift: Gift) => {
@@ -58,11 +58,10 @@ export default function GiftRegistry({ initialGifts }: GiftRegistryProps) {
             <button
               key={category}
               onClick={() => setSelectedCategory(category)}
-              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap font-sans ${
-                selectedCategory === category
-                  ? 'bg-[#4c5851] text-white shadow-md'
-                  : 'bg-[#e8e3e7] text-[#666666] hover:bg-[#ddd8dc]'
-              }`}
+              className={`px-6 py-2.5 rounded-full text-sm font-medium transition-all duration-300 whitespace-nowrap font-sans ${selectedCategory === category
+                ? 'bg-primary text-white shadow-md'
+                : 'bg-[#eaefe8] text-[#666666] hover:bg-[#dce3da]'
+                }`}
             >
               {category === 'all' ? 'Todos' : category}
             </button>

@@ -39,9 +39,9 @@ export default async function GiftsPage() {
 
       {/* Header Section */}
       <header className="px-6 lg:px-12 pt-2 pb-4 text-center max-w-2xl mx-auto">
-        <h1 className="font-serif text-4xl lg:text-5xl xl:text-6xl font-medium text-[#4c5851] mb-4 leading-tight transition-all duration-300">Nuestra Mesa de Regalos</h1>
+        <h1 className="font-serif text-4xl lg:text-5xl xl:text-6xl font-medium text-[#4c5851] mb-4 leading-tight transition-all duration-300">Mesa de regalos</h1>
         <p className="text-[#666666] text-base lg:text-lg leading-relaxed transition-all duration-300 font-sans">
-          Elige un detalle para nuestra nueva vida juntos. Al confirmar tu regalo, recibirás Machi Coins automáticamente para canjear por premios en la fiesta.
+          Elige un detalle para nuestra nueva vida juntos. Al confirmar tu regalo, recibirás de manera automática "Machi Coins" para canjear por premios en la fiesta.
         </p>
       </header>
 
