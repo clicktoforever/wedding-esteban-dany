@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   },
   description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
   icons: {
-    icon: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
-    shortcut: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
-    apple: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d',
+    icon: 'https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg',
+    shortcut: 'https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg',
+    apple: 'https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg',
   },
   openGraph: {
     title: 'Carlos & Dany - 11 de Abril 2026',
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
     siteName: 'Boda Carlos & Dany',
     images: [
       {
-        url: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa71fead96e4e444199285c4212f659d8',
+        url: 'https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050804/wedding/axg2cu0euiev46enb3yr.jpg',
         width: 1200,
         height: 630,
         alt: 'Carlos & Dany - Boda 11 de Abril 2026',
@@ -65,7 +65,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Carlos & Dany - 11 de Abril 2026',
     description: 'Hemos reservado un pase para ti. ¡Toca para abrir!',
-    images: ['https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa71fead96e4e444199285c4212f659d8'],
+    images: ['https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050804/wedding/axg2cu0euiev46enb3yr.jpg'],
   },
   robots: {
     index: true,

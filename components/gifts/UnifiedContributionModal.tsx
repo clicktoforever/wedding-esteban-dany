@@ -930,7 +930,7 @@ export default function UnifiedContributionModal({
                 <div className="mb-8 flex flex-col items-center">
                   <div className="w-24 h-24 relative mb-2">
                     <Image
-                      src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
+                      src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                       alt="Logo Carlos & Dany"
                       fill
                       className="object-contain brightness-0 opacity-80"

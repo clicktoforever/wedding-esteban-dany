@@ -29,7 +29,7 @@ export default function DeclinedPage() {
         >
           <Image
             alt="Pareja"
-            src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F790a0c4639d04587bf521569bd5ac12a"
+            src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050802/wedding/dawionujffy79zszxkb0.jpg"
             fill
             className="object-cover scale-105 brightness-110 contrast-[0.95]"
             priority

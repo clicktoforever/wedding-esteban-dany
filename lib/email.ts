@@ -268,7 +268,7 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
   <div class="container">
     <!-- Header -->
     <div class="header">
-      <img src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F34ac0067f6244d3da8e1bb3bab744ca5" alt="Logo" class="logo-image" />
+      <img src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050840/wedding/sqf54cbchcmxljt8gt5a.png" alt="Logo" class="logo-image" />
       <h1 class="logo">Carlos & Dany</h1>
     </div>
 
