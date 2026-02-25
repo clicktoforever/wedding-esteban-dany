@@ -65,6 +65,9 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
             <p className="text-[11px] text-warm-grey/80 text-center font-medium">
               Aceptamos todas las tarjetas y transferencias (Ecuador/México)
             </p>
+            <p className="text-[10px] text-warm-grey/60 text-center font-medium mt-1">
+              También contaremos con buzón de sobres en la boda.
+            </p>
           </div>
 
           {/* Footer Section */}

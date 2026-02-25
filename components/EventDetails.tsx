@@ -46,7 +46,7 @@ export default function EventDetails() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
 
                     <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
-                        <span className="text-xs font-bold text-white uppercase tracking-wider">Ceremonia & Recepción</span>
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">Ceremonia y Recepción</span>
                     </div>
 
                     <div className="absolute bottom-0 left-0 w-full p-6 text-white">
@@ -105,14 +105,14 @@ export default function EventDetails() {
                             <span className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-3">Ellas</span>
 
                             <div className="flex gap-1.5 justify-center flex-wrap mb-2">
-                                <div className="w-5 h-5 rounded-full bg-rose-300 shadow-sm ring-1 ring-gray-200"></div>
-                                <div className="w-5 h-5 rounded-full bg-sky-300 shadow-sm ring-1 ring-gray-200"></div>
-                                <div className="w-5 h-5 rounded-full bg-emerald-300 shadow-sm ring-1 ring-gray-200"></div>
-                                <div className="w-5 h-5 rounded-full bg-amber-200 shadow-sm ring-1 ring-gray-200"></div>
+                                <div className="w-5 h-5 rounded-full bg-[#f5b2b2]"></div>
+                                <div className="w-5 h-5 rounded-full bg-[#b2d3f5]"></div>
+                                <div className="w-5 h-5 rounded-full bg-[#acd0b4]"></div>
+                                <div className="w-5 h-5 rounded-full bg-[#e19f8e]"></div>
                             </div>
 
                             <div className="text-[10px] text-gray-400 text-center mt-1 leading-tight">
-                                Vestido largo<br />(Evitar blanco y rojo)
+                                Vestido largo<br />(Evitar gamas de blanco/beige y rojo/vino)
                             </div>
                         </div>
 
@@ -133,9 +133,9 @@ export default function EventDetails() {
                             <span className="text-sm font-bold text-gray-700 uppercase tracking-widest mb-3">Ellos</span>
 
                             <div className="flex gap-1.5 justify-center flex-wrap mb-2">
-                                <div className="w-5 h-5 rounded-full bg-black shadow-sm ring-1 ring-gray-200"></div>
-                                <div className="w-5 h-5 rounded-full bg-slate-900 shadow-sm ring-1 ring-gray-200"></div>
-                                <div className="w-5 h-5 rounded-full bg-gray-800 shadow-sm ring-1 ring-gray-200"></div>
+                                <div className="w-5 h-5 rounded-full bg-black"></div>
+                                <div className="w-5 h-5 rounded-full bg-blue-900"></div>
+                                <div className="w-5 h-5 rounded-full bg-slate-400"></div>
                             </div>
                             <div className="text-[10px] text-gray-400 text-center mt-1 leading-tight">
                                 Traje formal<br />(Evitar gris humo)
@@ -176,7 +176,7 @@ export default function EventDetails() {
                             <div className="flex-grow">
                                 <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Estacionamiento</h4>
                                 <p className="text-sm text-gray-600">
-                                    Estacionamiento privado y seguridad para todos los invitados.
+                                    Lugar privado con seguridad para todos los invitados.
                                 </p>
                             </div>
                         </div>
@@ -187,9 +187,22 @@ export default function EventDetails() {
                                 <Wine className="w-6 h-6 text-[#4a5951]" />
                             </div>
                             <div className="flex-grow">
-                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Recepción Solo Adultos</h4>
-                                <p className="text-sm text-gray-600 italic leading-relaxed">
-                                    "Amamos a tus pequeños, pero queremos que esta noche te relajes y disfrutes con nosotros. Evento solo para adultos."
+                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Recepción solo adultos</h4>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    Amamos a los pequeños, pero esta noche es solo para adultos.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Acceso */}
+                        <div className="flex gap-4 items-start border-t border-gray-50 pt-4">
+                            <div className="flex-shrink-0 mt-1">
+                                <User className="w-6 h-6 text-[#4a5951]" />
+                            </div>
+                            <div className="flex-grow">
+                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Detalles de acceso</h4>
+                                <p className="text-sm text-gray-600 leading-relaxed">
+                                    El acceso es personal y exclusivo a la lista de invitados, agradecemos respetar los pases asignados.
                                 </p>
                             </div>
                         </div>

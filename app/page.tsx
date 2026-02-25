@@ -25,11 +25,18 @@ export default async function Page() {
   const weddingDateObj = new Date(weddingDate)
 
   // Format date for display
-  const formattedDate = weddingDateObj.toLocaleDateString('es-ES', {
+  const rawDate = weddingDateObj.toLocaleDateString('es-ES', {
     day: 'numeric',
     month: 'long',
     year: 'numeric'
-  })
+  });
+
+  // Format to e.g. "11 de Abril de 2026"
+  const formattedDate = rawDate.split(' ').map((word, index) => {
+    if (word.toLowerCase() === 'de' || word.toLowerCase() === 'del') return word.toLowerCase();
+    // Capitalize month
+    return word.charAt(0).toUpperCase() + word.slice(1);
+  }).join(' ');
 
   return (
     <div className="bg-background-light text-text-light font-body antialiased transition-colors duration-300">
@@ -49,15 +56,15 @@ export default async function Page() {
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
             </div>
 
-            {/* Logo Circle - Positioned independently */}
+            {/* Logo - Positioned independently */}
             <div className="absolute top-12 lg:top-16 left-1/2 transform -translate-x-1/2 z-10">
-              <div className="w-24 h-24 lg:w-28 lg:h-28 xl:w-32 xl:h-32 bg-white/80 backdrop-blur-sm rounded-full flex items-center justify-center shadow-lg transition-all duration-300">
+              <div className="w-28 h-28 lg:w-34 lg:h-34 xl:w-40 xl:h-40 flex items-center justify-center transition-all duration-300">
                 <Image
                   src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
                   alt="Logo"
-                  width={72}
-                  height={72}
-                  className="object-contain lg:w-24 lg:h-24 xl:w-28 xl:h-28"
+                  width={144}
+                  height={144}
+                  className="object-contain brightness-0 invert lg:w-36 lg:h-36 xl:w-44 xl:h-44"
                 />
               </div>
             </div>
@@ -65,14 +72,16 @@ export default async function Page() {
             {/* Content - Names, Date, Countdown */}
             <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-56 lg:mt-64">
               <h1 className="font-serif text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
-                Dany <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-secondary">&amp;</span> Carlos
+                Dany <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-white">&amp;</span> Carlos
               </h1>
 
-              <div className="w-16 lg:w-24 xl:w-32 h-0.5 bg-secondary rounded-full my-4 lg:my-6 shadow-sm transition-all duration-300"></div>
+              <div className="w-16 lg:w-24 xl:w-32 h-0.5 bg-white rounded-full my-4 lg:my-6 shadow-sm transition-all duration-300"></div>
 
-              <div className="text-white font-light tracking-widest uppercase text-sm lg:text-base xl:text-lg drop-shadow-md space-y-1 lg:space-y-2">
-                <p className="capitalize">{formattedDate}</p>
-                <p className="font-bold">Quito, Ecuador</p>
+              <div className="text-white font-light tracking-widest text-sm lg:text-base xl:text-lg drop-shadow-md space-y-1 lg:space-y-2">
+                <p>
+                  {formattedDate}
+                </p>
+                <p className="font-bold uppercase">Quito, Ecuador</p>
               </div>
 
               <CountdownTimer targetDate={weddingDate} />
@@ -119,7 +128,7 @@ export default async function Page() {
 
           {/* Gift Registry Section */}
           <section className="px-6 lg:px-16 xl:px-24 py-12 lg:py-20 xl:py-24 pb-20 lg:pb-32">
-            <div className="relative bg-gradient-to-br from-accent-light/20 to-secondary/30 rounded-2xl lg:rounded-3xl p-8 lg:p-12 xl:p-16 text-center border border-accent-light/20 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+            <div className="relative bg-[#eaf0eb] rounded-2xl lg:rounded-3xl p-8 lg:p-12 xl:p-16 text-center border border-accent-light/20 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
 
               {/* Badge */}
               <div className="absolute top-0 right-0 p-4">
@@ -162,7 +171,7 @@ export default async function Page() {
             </div>
 
             <div className="relative z-20 flex flex-col items-center pb-16 lg:pb-20 xl:pb-24 text-white">
-              <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 border border-white/20 rounded-full flex items-center justify-center mb-2 lg:mb-3 backdrop-blur-sm bg-white/5 transition-all duration-300 shadow-lg">
+              <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 flex items-center justify-center mb-2 lg:mb-3 transition-all duration-300">
                 <Image
                   src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
                   alt="Logo"
