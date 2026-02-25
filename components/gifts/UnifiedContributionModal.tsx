@@ -75,6 +75,7 @@ export default function UnifiedContributionModal({
 
   const fileInputRef = useRef<HTMLInputElement>(null)
   const modalRef = useRef<HTMLDivElement>(null)
+  const amountInputRef = useRef<HTMLInputElement>(null)
 
 
 
@@ -94,8 +95,8 @@ export default function UnifiedContributionModal({
 
   // Quick amount buttons based on currency
   const quickAmounts = currency === 'USD'
-    ? [20, 50, 100, 200]
-    : [500, 1000, 2000, 5000] // No decimal values for MXN
+    ? [20, 50, 100, 'Otro']
+    : [500, 1000, 2000, 'Otro'] // No decimal values for MXN
 
   // Currency symbol
   const currencySymbol = currency === 'USD' ? '$' : '$' // Adjust if needed
@@ -660,13 +661,30 @@ export default function UnifiedContributionModal({
                 <div className="flex flex-col items-center mb-6">
                   <div className="relative group mb-2">
                     <input
+                      ref={amountInputRef}
                       type="text"
-                      inputMode="numeric"
-                      pattern="[0-9.]*"
+                      inputMode="decimal"
+                      pattern="[0-9.,]*"
                       value={`${currencySymbol} ${amount}`}
                       onFocus={(e) => e.target.select()}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/[^0-9.]/g, '')
+                        // Permite comas y puntos, luego reemplaza comas por puntos
+                        let val = e.target.value.replace(/,/g, '.').replace(/[^0-9.]/g, '')
+
+                        const parts = val.split('.')
+                        if (parts.length > 2) {
+                          val = parts[0] + '.' + parts.slice(1).join('')
+                        }
+
+                        if (val.includes('.')) {
+                          const [integer, decimal] = val.split('.')
+                          if (currency === 'USD') {
+                            val = `${integer}.${decimal.slice(0, 2)}`
+                          } else {
+                            val = integer // Sin decimales para MXN
+                          }
+                        }
+
                         setAmount(val)
                       }}
                       className="w-full bg-transparent border-none text-center text-neutral-text focus:ring-0 p-0 leading-none font-bold"
@@ -677,18 +695,37 @@ export default function UnifiedContributionModal({
 
                   {/* Quick Amount Buttons */}
                   <div className="flex gap-3 mt-8 mb-2 overflow-x-auto w-full justify-center px-4 no-scrollbar py-2">
-                    {quickAmounts.map((quickAmount) => (
-                      <button
-                        key={quickAmount}
-                        onClick={() => setAmount(quickAmount.toString())}
-                        className={`flex h-12 shrink-0 items-center justify-center rounded-full px-5 font-semibold text-[14px] transition-all ${parseFloat(amount) === quickAmount
-                          ? 'bg-primary text-white shadow-lg shadow-primary/30'
-                          : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
-                          }`}
-                      >
-                        {currencySymbol}{quickAmount}
-                      </button>
-                    ))}
+                    {quickAmounts.map((quickAmount) => {
+                      const isOtro = quickAmount === 'Otro'
+                      const isActive = !isOtro && parseFloat(amount) === quickAmount
+
+                      return (
+                        <button
+                          key={quickAmount}
+                          onClick={() => {
+                            if (isOtro) {
+                              setAmount('')
+                              // Focus directly so mobile keyboard opens
+                              amountInputRef.current?.focus()
+                            } else {
+                              setAmount(quickAmount.toString())
+                            }
+                          }}
+                          className={`flex h-12 shrink-0 items-center justify-center gap-1.5 rounded-full px-5 font-semibold text-[14px] transition-all ${isActive
+                            ? 'bg-primary text-white shadow-lg shadow-primary/30'
+                            : 'bg-white border border-gray-200 text-gray-600 hover:border-primary/50'
+                            }`}
+                        >
+                          {!isOtro && <span>{currencySymbol}</span>}
+                          <span>{quickAmount}</span>
+                          {isOtro && (
+                            <svg className="w-4 h-4 ml-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                            </svg>
+                          )}
+                        </button>
+                      )
+                    })}
                   </div>
                 </div>
 
