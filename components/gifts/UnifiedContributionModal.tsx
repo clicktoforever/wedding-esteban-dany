@@ -134,7 +134,10 @@ export default function UnifiedContributionModal({
   // Initialize PayPhone widget
   useEffect(() => {
     if (payphoneScriptLoaded && paymentConfig && showPayphoneWidget) {
-      const timer = setTimeout(() => {
+      let attempts = 0
+      let timer: NodeJS.Timeout
+
+      const initWidget = () => {
         const container = document.getElementById('pp-button')
         if (typeof window !== 'undefined' && (window as any).PPaymentButtonBox) {
           try {
@@ -143,9 +146,19 @@ export default function UnifiedContributionModal({
           } catch (error) {
             console.error('Error rendering PayPhone widget:', error)
             setError('Error al cargar el widget de pago')
+            setShowPayphoneWidget(false)
           }
+        } else if (attempts < 20) {
+          // Retry for up to 10 seconds (20 * 500ms) to ensure script executes
+          attempts++
+          timer = setTimeout(initWidget, 500)
+        } else {
+          setError('No se pudo cargar el componente de pago. Por favor intenta nuevamente.')
+          setShowPayphoneWidget(false)
         }
-      }, 300)
+      }
+
+      timer = setTimeout(initWidget, 300)
       return () => clearTimeout(timer)
     }
   }, [payphoneScriptLoaded, paymentConfig, showPayphoneWidget])
@@ -446,7 +459,6 @@ export default function UnifiedContributionModal({
         await new Promise(resolve => setTimeout(resolve, 800))
 
         // Redirect to confirmation page with all details
-        const giftImageUrl = gift.image_url || ''
         const status = data.status === 'approved' ? 'approved' :
           data.status === 'rejected' ? 'error' : 'review'
 
@@ -458,14 +470,10 @@ export default function UnifiedContributionModal({
         confirmUrl.searchParams.set('amount', `${currencySymbol}${amount}`)
         confirmUrl.searchParams.set('currency', currencyLabel)
         confirmUrl.searchParams.set('giftName', gift.name)
-        if (giftImageUrl) {
-          confirmUrl.searchParams.set('giftImage', giftImageUrl)
-        }
 
         window.location.href = confirmUrl.toString()
       } else {
         // Error case - redirect to error page
-        const giftImageUrl = gift.image_url || ''
         const confirmUrl = new URL('/confirm-payment', window.location.origin)
         confirmUrl.searchParams.set('type', 'transfer')
         confirmUrl.searchParams.set('status', 'error')
@@ -473,9 +481,6 @@ export default function UnifiedContributionModal({
         confirmUrl.searchParams.set('amount', `${currencySymbol}${amount}`)
         confirmUrl.searchParams.set('currency', currencyLabel)
         confirmUrl.searchParams.set('giftName', gift.name)
-        if (giftImageUrl) {
-          confirmUrl.searchParams.set('giftImage', giftImageUrl)
-        }
 
         window.location.href = confirmUrl.toString()
       }
@@ -484,7 +489,6 @@ export default function UnifiedContributionModal({
       console.error('Error:', error)
 
       // Error case - redirect to error page
-      const giftImageUrl = gift.image_url || ''
       const confirmUrl = new URL('/confirm-payment', window.location.origin)
       confirmUrl.searchParams.set('type', 'transfer')
       confirmUrl.searchParams.set('status', 'error')
@@ -492,9 +496,6 @@ export default function UnifiedContributionModal({
       confirmUrl.searchParams.set('amount', `${currencySymbol}${amount}`)
       confirmUrl.searchParams.set('currency', currencyLabel)
       confirmUrl.searchParams.set('giftName', gift.name)
-      if (giftImageUrl) {
-        confirmUrl.searchParams.set('giftImage', giftImageUrl)
-      }
 
       window.location.href = confirmUrl.toString()
     } finally {
@@ -930,7 +931,7 @@ export default function UnifiedContributionModal({
                 <div className="mb-8 flex flex-col items-center">
                   <div className="w-24 h-24 relative mb-2">
                     <Image
-                      src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
+                      src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                       alt="Logo Carlos & Dany"
                       fill
                       className="object-contain brightness-0 opacity-80"
@@ -968,7 +969,7 @@ export default function UnifiedContributionModal({
                             {/* Account Number */}
                             <div>
                               <label className="text-xs font-body text-gray-500 uppercase tracking-wider mb-1 block">
-                                Número de cuenta
+                                {currency === 'MXN' ? 'Número de tarjeta' : 'Número de cuenta'}
                               </label>
                               <div className="flex items-center justify-between">
                                 <p className="text-lg font-body font-bold text-gray-900 font-mono tracking-tight">

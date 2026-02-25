@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
         <div
           className="absolute inset-0 bg-cover bg-center md:bg-right transition-transform duration-1000 md:group-hover:scale-105"
           style={{
-            backgroundImage: 'url("https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F4d0783ada0a44302b4305c1f52e1ea8f")'
+            backgroundImage: 'url("https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050799/wedding/ajxra8errfxzqfjlpqxm.jpg")'
           }}
         />
         {/* Overlay Gradient */}
@@ -121,7 +121,7 @@ export default function AdminLoginPage() {
             {/* Logo */}
             <div className="mx-auto w-20 h-20 rounded-full border border-primary/20 flex items-center justify-center bg-white shadow-[0_4px_20px_-4px_rgba(53,94,59,0.1)]">
               <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
+                src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                 alt="Logo E&D"
                 width={64}
                 height={64}

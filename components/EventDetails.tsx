@@ -8,9 +8,9 @@ export default function EventDetails() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
     const images = [
-        "https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F1f53f3fe3eee4969aa9ae6a68db621d2",
-        "https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fa7e2edd907e54831b10c9d079377820b",
-        "https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F33a754f4a06f48d49fd6330047b4a020"
+        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050808/wedding/dx7prnvhrp7yosev8dlw.webp",
+        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050810/wedding/mzftbr1lyqunkrbcioiu.webp",
+        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050811/wedding/hxvx77iljtuv923xmqxv.webp"
     ]
 
     useEffect(() => {
@@ -51,7 +51,7 @@ export default function EventDetails() {
 
                     <div className="absolute bottom-0 left-0 w-full p-6 text-white">
                         <h3 className="font-display text-3xl mb-1">Hacienda Capelo</h3>
-                        <p className="text-white/80 text-sm mb-6">Un lugar mágico para nuestro día especial</p>
+                        <p className="text-white/80 text-sm mb-6">El lugar para nuestro día especial</p>
 
                         <div className="flex gap-3">
                             <a

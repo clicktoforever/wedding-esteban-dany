@@ -1,5 +1,6 @@
 'use client'
 
+import { CalendarPlus } from 'lucide-react'
 export default function AddToCalendarButton() {
   const handleAddToCalendar = () => {
     // Crear evento de calendario en formato .ics
@@ -41,15 +42,29 @@ export default function AddToCalendarButton() {
   };
 
   return (
-    <button
-      onClick={handleAddToCalendar}
-      className="absolute bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-10 text-primary hover:text-primary/80 transition-all duration-300 hover:scale-110 active:scale-95"
-      aria-label="Agregar al calendario"
-      title="Agregar al calendario"
-    >
-      <svg className="w-8 h-8 lg:w-10 lg:h-10 xl:w-12 xl:h-12 transition-all duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-      </svg>
-    </button>
+    <>
+      <button
+        onClick={handleAddToCalendar}
+        className="absolute bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 lg:gap-2 text-primary hover:text-primary/80 transition-all duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer"
+        aria-label="Guardar Fecha"
+        title="Guardar Fecha"
+      >
+        <CalendarPlus className="w-6 h-6 lg:w-7 lg:h-7 xl:w-8 xl:h-8 animate-[soft-bounce_2s_infinite]" />
+        <span className="text-[10px] lg:text-xs xl:text-sm font-bold tracking-widest uppercase">Guardar Fecha</span>
+      </button>
+
+      <style jsx>{`
+        @keyframes soft-bounce {
+          0%, 100% {
+            transform: translateY(-15%);
+            animation-timing-function: cubic-bezier(0.8,0,1,1);
+          }
+          50% {
+            transform: none;
+            animation-timing-function: cubic-bezier(0,0,0.2,1);
+          }
+        }
+      `}</style>
+    </>
   );
 }

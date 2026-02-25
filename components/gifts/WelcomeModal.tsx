@@ -37,7 +37,7 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
               <span className="italic text-hunter-green">Mesa de Regalos</span>
             </h1>
             <p className="text-text-muted text-[15px] leading-relaxed max-w-xs mx-auto font-medium">
-              Su presencia es lo más importante. Pero si quieren ayudarnos a empezar nuestra aventura, aquí pueden sumar su granito de arena. ¡Es fácil, seguro y nos ayudas a cumplir sueños!
+              Su presencia es lo más valioso. Pero si desean contribuir a nuestra nueva vida juntos, preparamos una forma fácil y segura de hacerlo.
             </p>
           </div>
 
@@ -74,9 +74,9 @@ export default function WelcomeModal({ onClose }: WelcomeModalProps) {
           <div className="px-8 pt-3 pb-8 flex flex-col items-center gap-5">
             <div className="flex flex-col items-center gap-2">
               <p className="font-serif italic text-text-muted text-sm text-center opacity-80">
-                &ldquo;Gracias por ser parte de nuestra historia&rdquo;
+                Gracias por ser parte de nuestra historia
               </p>
-              <span className="text-2xl font-script text-hunter-green mt-1 block">
+              <span className="text-2xl font-display italic font-medium text-hunter-green mt-1 block">
                 Carlos &amp; Dany
               </span>
             </div>

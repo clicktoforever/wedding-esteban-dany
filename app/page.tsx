@@ -4,7 +4,7 @@ import { Suspense } from 'react'
 import CountdownTimer from '@/components/CountdownTimer'
 import RSVPButton from '@/components/RSVPButton'
 import AddToCalendarButton from '@/components/AddToCalendarButton'
-import GalleryLightbox from '@/components/GalleryLightbox'
+import SeasonsGallery from '@/components/SeasonsGallery'
 import EventDetails from '@/components/EventDetails'
 import { UIProvider } from '@/components/providers/UIProvider'
 import { createClient } from '@/lib/supabase/server'
@@ -46,7 +46,7 @@ export default async function Page() {
           <header className="relative h-screen lg:max-h-[1000px] flex flex-col items-center justify-center text-center px-6 lg:px-12 xl:px-20">
             <div className="absolute inset-0">
               <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb2c477eaaeee4caab9ba5d05b1f51906"
+                src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050805/wedding/rdrrbnakbb8hnjhmgfi2.jpg"
                 alt="Romantic couple holding hands in a field"
                 fill
                 className="object-cover brightness-75"
@@ -60,7 +60,7 @@ export default async function Page() {
             <div className="absolute top-12 lg:top-16 left-1/2 transform -translate-x-1/2 z-10">
               <div className="w-28 h-28 lg:w-34 lg:h-34 xl:w-40 xl:h-40 flex items-center justify-center transition-all duration-300">
                 <Image
-                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
+                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                   alt="Logo"
                   width={144}
                   height={144}
@@ -95,32 +95,10 @@ export default async function Page() {
             <div className="absolute top-0 left-0 w-full h-24 bg-gradient-to-b from-background-light/0 to-background-light -mt-24 pointer-events-none"></div>
 
             <div className="text-center space-y-4 lg:space-y-6 mb-10 lg:mb-16">
-              <span className="text-primary text-xs lg:text-sm xl:text-base font-bold tracking-[0.2em] uppercase">Nuestra Galería</span>
-              <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl text-gray-800 transition-all duration-300">Momentos Juntos</h2>
+              <h2 className="font-display text-4xl lg:text-5xl xl:text-6xl text-gray-800 transition-all duration-300">Nuestra historia</h2>
             </div>
 
-            <GalleryLightbox
-              images={[
-                {
-                  src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F4d0783ada0a44302b4305c1f52e1ea8f',
-                  alt: 'Carlos y Dany - Momento especial',
-                  width: 800,
-                  height: 400
-                },
-                {
-                  src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F195ab2d14d414911a0f5e1d2ab1ca811',
-                  alt: 'Carlos y Dany - Retrato',
-                  width: 400,
-                  height: 320
-                },
-                {
-                  src: 'https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F449e5d83e6864bea9046d6a2ed9a99df',
-                  alt: 'Carlos y Dany - Detalles',
-                  width: 400,
-                  height: 320
-                }
-              ]}
-            />
+            <SeasonsGallery />
           </section>
 
           {/* Event Details Section - Redesigned */}
@@ -161,7 +139,7 @@ export default async function Page() {
           <footer className="relative h-96 lg:h-[28rem] xl:h-[32rem] w-full flex items-end justify-center">
             <div className="absolute inset-0 z-0">
               <Image
-                src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2F817ed4cfe46441ee902e78a55ce23445"
+                src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050807/wedding/mj4i1xwu2pjebjkoqapg.jpg"
                 alt="Couple landscape photo footer"
                 fill
                 className="object-cover"
@@ -173,7 +151,7 @@ export default async function Page() {
             <div className="relative z-20 flex flex-col items-center pb-16 lg:pb-20 xl:pb-24 text-white">
               <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 flex items-center justify-center mb-2 lg:mb-3 transition-all duration-300">
                 <Image
-                  src="https://cdn.builder.io/api/v1/image/assets%2F7275fb28b3684652a493c6fd6532e314%2Fb3e322996b8847a0a758dad58256148d"
+                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                   alt="Logo"
                   width={52}
                   height={52}

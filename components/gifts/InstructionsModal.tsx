@@ -105,7 +105,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
               </h2>
 
               <p className="text-gray-500 text-sm leading-relaxed max-w-[280px] font-body">
-                Elige un regalo y aporta la cantidad que quieras. Todo suma para nuestra nueva vida.
+                Elige un regalo y aporta la cantidad que desees. Todo suma para nuestra nueva vida.
               </p>
             </div>
 
@@ -138,7 +138,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
 
             {/* Slide 3: LA DIVERSIÓN */}
             <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
-              <div className="w-24 h-24 mb-6 rounded-full bg-purple-50 flex items-center justify-center text-purple-500 shadow-inner">
+              <div className="w-24 h-24 mb-6 rounded-full bg-primary/10 flex items-center justify-center text-primary shadow-inner">
                 <PartyPopper size={48} strokeWidth={1.5} />
               </div>
 
