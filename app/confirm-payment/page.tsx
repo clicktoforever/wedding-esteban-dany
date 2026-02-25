@@ -63,7 +63,8 @@ function ConfirmPaymentContent() {
     // Calculate Machi Coins (1 USD = 10 Coins)
     // Parse amount string to number, remove non-numeric chars if any (though usually it's clean)
     const numericAmount = parseFloat((amount || '0').replace(/[^0-9.]/g, '')) || 0
-    const machiCoins = Math.floor(numericAmount * 10)
+    const amountInUSD = currency === 'MXN' ? numericAmount / 20 : numericAmount
+    const machiCoins = Math.floor(amountInUSD * 10)
 
     return (
       <div className="bg-background-light text-primary font-body min-h-screen flex flex-col items-center p-6 relative overflow-hidden pt-8 md:pt-14">
@@ -283,7 +284,7 @@ function ConfirmPaymentContent() {
               onClick={() => router.push('/gifts')}
               className="w-full h-12 md:h-14 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors"
             >
-              Intentar de Nuevo
+              Intentar de nuevo
             </button>
             <a
               href={`https://wa.me/593968508240?text=${whatsappMessage}`}
