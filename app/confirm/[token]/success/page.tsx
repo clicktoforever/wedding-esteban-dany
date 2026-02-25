@@ -94,17 +94,6 @@ export default function ConfirmationSuccessPage() {
         </div>
       </main>
 
-      {/* Decorative Corner Pattern */}
-      <div className="fixed top-0 left-0 w-32 h-32 lg:w-40 lg:h-40 xl:w-48 xl:h-48 pointer-events-none opacity-50 z-0">
-        <svg className="w-full h-full fill-accent-light/20" viewBox="0 0 100 100">
-          <path d="M0 0 C 50 0, 50 50, 100 50 L 0 50 Z" transform="rotate(180 50 50)"></path>
-        </svg>
-      </div>
-      <div className="fixed bottom-0 right-0 w-48 h-48 lg:w-56 lg:h-56 xl:w-64 xl:h-64 pointer-events-none opacity-40 z-0">
-        <svg className="w-full h-full" viewBox="0 0 200 200">
-          <path d="M44.7,-76.4C58.9,-69.2,71.8,-59.1,81.6,-46.6C91.4,-34.1,98.1,-19.2,95.8,-5.3C93.5,8.6,82.2,21.5,71.2,32.4C60.2,43.3,49.5,52.2,37.8,60.6C26.1,69,13.4,76.9,-0.6,77.9C-14.6,79,-29,73.2,-41.8,65.3C-54.6,57.4,-65.8,47.4,-74.6,35.4C-83.4,23.4,-89.8,9.4,-88.7,-4.2C-87.6,-17.8,-79,-31,-69,-41.8C-59,-52.6,-47.6,-61,-35.6,-69.6C-23.6,-78.2,-11,-87,1.9,-90.3C14.8,-93.6,29.6,-91.4,44.7,-76.4Z" fill="#284F2E" opacity="0.1" transform="translate(100 100) scale(1.1)"></path>
-        </svg>
-      </div>
 
       <style jsx>{`
         .confetti-piece {

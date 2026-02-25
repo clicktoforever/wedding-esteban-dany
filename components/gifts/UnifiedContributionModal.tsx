@@ -1071,7 +1071,7 @@ export default function UnifiedContributionModal({
                               onClick={() => setIsFlipped(true)}
                               className="group flex items-center gap-2 bg-primary text-white px-5 py-2.5 rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 border-2 border-white"
                             >
-                              <span className="font-body font-bold text-sm tracking-wide">DeUna!</span>
+                              <span className="font-body font-bold text-sm tracking-wide">deUna!</span>
                               <svg
                                 className="w-4 h-4 text-white group-hover:rotate-180 transition-transform duration-500"
                                 fill="none"

@@ -71,12 +71,19 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
   }
 
   // Format deadline date
-  const formattedDeadline = deadline ? deadline.toLocaleDateString('es-ES', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'America/Guayaquil'
-  }) : null
+  const formattedDeadline = deadline ? (() => {
+    const rawDate = deadline.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'America/Guayaquil'
+    });
+
+    return rawDate.split(' ').map((word) => {
+      if (word.toLowerCase() === 'de' || word.toLowerCase() === 'del') return word.toLowerCase();
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+  })() : null;
 
   return (
     <>
@@ -100,7 +107,7 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
           ¡Hola, <span className="text-primary italic">{guest.name.split(' ')[0]}</span>!
         </h2>
         <p className="text-gray-600 font-light leading-relaxed text-base lg:text-lg">
-          Estamos muy felices de celebrar con ustedes. Por favor confirma quiénes podrán acompañarnos.
+          Por favor confirma quiénes podrán acompañarnos.
         </p>
         {formattedDeadline && (
           <div className="mt-4 inline-flex items-center gap-2 bg-secondary/10 border border-secondary/20 rounded-full px-4 py-2">
@@ -108,7 +115,7 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             <p className="text-sm font-medium text-gray-700">
-              Plazo máximo: <span className="text-secondary capitalize font-semibold">{formattedDeadline}</span>
+              Plazo máximo: <span className="text-secondary font-semibold">{formattedDeadline}</span>
             </p>
           </div>
         )}
@@ -135,7 +142,7 @@ export default function GuestConfirmation({ guest, token, deadline }: GuestConfi
             >
               {/* Left Accent Bar for confirmed */}
               {isConfirmed && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-secondary/30"></div>
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#eaf0eb]"></div>
               )}
 
               {/* Header */}
