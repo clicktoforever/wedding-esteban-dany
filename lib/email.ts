@@ -89,6 +89,8 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>Confirmación de Regalo</title>
   <style>
     body {
@@ -253,6 +255,14 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
         font-size: 16px;
       }
     }
+    @media (prefers-color-scheme: dark) {
+      .cta-button, .cta-text {
+        color: #000000 !important;
+      }
+    }
+    [data-ogsc] .cta-button, [data-ogsc] .cta-text {
+      color: #000000 !important;
+    }
   </style>
 </head>
 <body>
@@ -321,8 +331,8 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
 
       <!-- CTA Button -->
       <div style="text-align: center;">
-        <a href="https://machiboda.clicktoforever.com" class="cta-button">
-          IR A GASTAR MIS COINS (ENTRAR) ➔
+        <a href="https://machiboda.clicktoforever.com" class="cta-button" style="color: #FFFFFF; text-decoration: none;">
+          <span class="cta-text" style="color: #FFFFFF;">IR A GASTAR MIS COINS ENTRAR ➔</span>
         </a>
       </div>
 
