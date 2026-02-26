@@ -56,7 +56,7 @@ export async function sendTransactionApprovedEmail(data: TransactionEmailData): 
     const info = await transporter.sendMail({
       from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
       to: data.donorEmail,
-      subject: '✅ Tu regalo fue aprobado (¡Gracias!)',
+      subject: '✅ Tu regalo fue aprobado ¡Gracias!',
       html: htmlContent,
     });
 
