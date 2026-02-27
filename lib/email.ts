@@ -343,20 +343,20 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
       <!-- Transaction Details -->
       <div class="transaction-details">
         <div class="detail-row">
-          <span class="detail-label">ID de Transacción:</span>
+          <span class="detail-label">ID de Transacción: </span>
           <span class="detail-value">#${data.transactionId.substring(0, 8).toUpperCase()}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Fecha:</span>
+          <span class="detail-label">Fecha: </span>
           <span class="detail-value">${formatDate(data.transactionDate)}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Monto Aportado:</span>
+          <span class="detail-label">Monto Aportado: </span>
           <span class="detail-value">$${data.amount.toFixed(2)} USD</span>
         </div>
         ${data.giftName ? `
         <div class="detail-row">
-          <span class="detail-label">Regalo:</span>
+          <span class="detail-label">Regalo: </span>
           <span class="detail-value">${data.giftName}</span>
         </div>
         ` : ''}
