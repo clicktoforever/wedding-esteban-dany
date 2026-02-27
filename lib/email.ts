@@ -56,7 +56,7 @@ export async function sendTransactionApprovedEmail(data: TransactionEmailData): 
     const info = await transporter.sendMail({
       from: `"${process.env.SMTP_FROM_NAME}" <${process.env.SMTP_FROM_EMAIL}>`,
       to: data.donorEmail,
-      subject: '✅ Tu regalo fue aprobado (¡Gracias!)',
+      subject: '✅ Tu regalo fue aprobado ¡Gracias!',
       html: htmlContent,
     });
 
@@ -89,6 +89,8 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="color-scheme" content="light dark">
+  <meta name="supported-color-schemes" content="light dark">
   <title>Confirmación de Regalo</title>
   <style>
     body {
@@ -253,6 +255,14 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
         font-size: 16px;
       }
     }
+    @media (prefers-color-scheme: dark) {
+      .cta-button, .cta-text {
+        color: #000000 !important;
+      }
+    }
+    [data-ogsc] .cta-button, [data-ogsc] .cta-text {
+      color: #000000 !important;
+    }
   </style>
 </head>
 <body>
@@ -321,8 +331,8 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
 
       <!-- CTA Button -->
       <div style="text-align: center;">
-        <a href="https://machiboda.clicktoforever.com" class="cta-button">
-          IR A GASTAR MIS COINS (ENTRAR) ➔
+        <a href="https://machiboda.clicktoforever.com" class="cta-button" style="color: #FFFFFF; text-decoration: none;">
+          <span class="cta-text" style="color: #FFFFFF;">IR A GASTAR MIS COINS ENTRAR ➔</span>
         </a>
       </div>
 
@@ -333,20 +343,20 @@ function generateEmailHTML(data: TransactionEmailData, machiCoins: number, appUr
       <!-- Transaction Details -->
       <div class="transaction-details">
         <div class="detail-row">
-          <span class="detail-label">ID de Transacción:</span>
+          <span class="detail-label">ID de Transacción: </span>
           <span class="detail-value">#${data.transactionId.substring(0, 8).toUpperCase()}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Fecha:</span>
+          <span class="detail-label">Fecha: </span>
           <span class="detail-value">${formatDate(data.transactionDate)}</span>
         </div>
         <div class="detail-row">
-          <span class="detail-label">Monto Aportado:</span>
+          <span class="detail-label">Monto Aportado: </span>
           <span class="detail-value">$${data.amount.toFixed(2)} USD</span>
         </div>
         ${data.giftName ? `
         <div class="detail-row">
-          <span class="detail-label">Regalo:</span>
+          <span class="detail-label">Regalo: </span>
           <span class="detail-value">${data.giftName}</span>
         </div>
         ` : ''}
