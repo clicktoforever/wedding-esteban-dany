@@ -7,6 +7,13 @@ import Link from 'next/link'
 
 import confetti from 'canvas-confetti'
 
+const loadingMessages = [
+  'Verificando...',
+  'Llamando a PayPhone...',
+  'Acomodando tu regalo...',
+  '¡Ya casi terminamos!'
+]
+
 function ConfirmPaymentContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
@@ -28,12 +35,6 @@ function ConfirmPaymentContent() {
   const isApproved = currentStatus === 'approved'
   const isReview = currentStatus === 'review' || currentStatus === 'manual_review'
   const isError = currentStatus === 'error' || currentStatus === 'rejected'
-
-  const loadingMessages = [
-    'Llamando a PayPhone...',
-    'Acomodando tu regalo...',
-    '¡Ya casi terminamos!'
-  ]
 
   // Rotate loading messages every 3 seconds
   useEffect(() => {
@@ -138,7 +139,7 @@ function ConfirmPaymentContent() {
           <div className="relative w-36 h-36 mx-auto mb-4 transform transition-transform duration-500 animate-coin-flip">
             <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full animate-pulse-slow"></div>
             <Image
-              src="/images/pwa/machicoin.webp"
+              src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
               alt="Machi Coin"
               fill
               className="object-contain drop-shadow-2xl"
@@ -206,34 +207,30 @@ function ConfirmPaymentContent() {
     )
   }
 
-  // Manual Review Page
-  if (isReview) {
-    const isPayPhoneProcessing = type === 'payphone'
-    
+  // PayPhone Processing Page (New UX)
+  if (isReview && type === 'payphone') {
     return (
       <div className="min-h-screen bg-background-light flex flex-col items-center pt-8 md:pt-14 p-6">
         <div className="max-w-lg w-full mt-2 md:mt-4">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-4">
             <div className="p-6 md:p-8 flex flex-col items-center text-center">
-              <div className="mb-4 relative">
-                <div className="w-20 h-20 relative animate-hourglass">
-                  <svg className="w-20 h-20 text-secondary" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 2h12v6l-6 6 6 6v2H6v-2l6-6-6-6V2zm2 3v2.17l4 4 4-4V5H8zm8 14v-2.17l-4-4-4 4V19h8z"/>
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-2 h-2 bg-secondary rounded-full animate-sand"></div>
-                  </div>
-                </div>
+              <div className="mb-4 relative w-20 h-20">
+                <video
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  className="w-20 h-20 object-contain"
+                >
+                  <source src="https://res.cloudinary.com/machiboda/video/upload/f_auto,q_auto/wedding/icons/loading.mp4" type="video/mp4" />
+                </video>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-2">
-                {isPayPhoneProcessing ? '¡Casi lo logramos! 💍✨' : 'Pago en proceso'}
+                Falto poco! 💍✨
               </h1>
               <p className="text-gray-500 text-base md:text-lg font-body leading-relaxed mb-6">
-                {isPayPhoneProcessing 
-                  ? 'Estamos validando tu aporte con PayPhone. Solo toma unos segundos asegurar que este regalo llegue a manos de Dany y Esteban.'
-                  : 'Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo'
-                }
+                Estamos validando tu aporte con PayPhone, solo toma unos segundos.
               </p>
 
               <div className="w-full border-t border-dashed border-gray-200 pt-4 space-y-3">
@@ -273,37 +270,95 @@ function ConfirmPaymentContent() {
               </div>
             </div>
 
-            <div className="bg-yellow-50 px-6 py-3 flex flex-col items-center justify-center gap-2">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
-                <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
-                  {isPayPhoneProcessing ? 'Verificando con la pasarela...' : 'En revisión manual'}
-                </span>
-              </div>
-              {isPayPhoneProcessing && (
-                <p className="text-sm text-yellow-700 font-medium animate-fade-in">
-                  {loadingMessages[loadingMessage]}
-                </p>
-              )}
+            <div className="bg-yellow-50 px-6 py-3 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
+              <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
+                {loadingMessages[loadingMessage]}
+              </span>
             </div>
           </div>
 
-          {!isPayPhoneProcessing && (
-            <button
-              onClick={() => router.push('/gifts')}
-              className="w-full h-12 md:h-14 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors"
-            >
-              Entendido
-            </button>
-          )}
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600 font-medium">
+              Por favor, no cierres esta ventana. ¡Tu detalle está a un paso de ser oficial!
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-          {isPayPhoneProcessing && (
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600 font-medium">
-                Por favor, no cierres esta ventana. ¡Tu detalle está a un paso de ser oficial!
+  // Manual Review Page (Original Design)
+  if (isReview) {
+    return (
+      <div className="min-h-screen bg-background-light flex flex-col items-center pt-8 md:pt-14 p-6">
+        <div className="max-w-lg w-full mt-2 md:mt-4">
+          <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-4">
+            <div className="p-6 md:p-8 flex flex-col items-center text-center">
+              <div className="mb-4 bg-yellow-50 p-3 rounded-full">
+                <svg className="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-2">
+                Pago en proceso
+              </h1>
+              <p className="text-gray-500 text-base md:text-lg font-body leading-relaxed mb-6">
+                Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo
               </p>
+
+              <div className="w-full border-t border-dashed border-gray-200 pt-4 space-y-3">
+                {giftName && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-background-light rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                      </svg>
+                    </div>
+                    <div className="text-left flex-1">
+                      <p className="text-xs font-bold uppercase tracking-widest text-gray-500 opacity-60">
+                        Regalo seleccionado
+                      </p>
+                      <p className="font-medium text-gray-900">{giftName}</p>
+                    </div>
+                  </div>
+                )}
+
+                {amount && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-background-light rounded-lg flex items-center justify-center">
+                      <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <div className="text-left flex-1">
+                      <p className="text-xs font-bold uppercase tracking-widest text-gray-500 opacity-60">
+                        Monto del aporte
+                      </p>
+                      <p className="font-bold text-lg text-primary">
+                        {amount}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
+
+            <div className="bg-yellow-50 px-6 py-3 flex items-center justify-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
+              <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
+                En revisión manual
+              </span>
+            </div>
+          </div>
+
+          <button
+            onClick={() => router.push('/gifts')}
+            className="w-full h-12 md:h-14 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors"
+          >
+            Entendido
+          </button>
 
         </div>
       </div>
@@ -396,26 +451,9 @@ export default function ConfirmPaymentPage() {
   return (
     <>
       <style jsx global>{`
-        @keyframes hourglass {
-          0% { transform: rotate(0deg); }
-          50% { transform: rotate(0deg); }
-          50.01% { transform: rotate(180deg); }
-          100% { transform: rotate(180deg); }
-        }
-        @keyframes sand {
-          0% { transform: translateY(-8px); opacity: 0; }
-          50% { transform: translateY(0); opacity: 1; }
-          100% { transform: translateY(8px); opacity: 0; }
-        }
         @keyframes fade-in {
           0% { opacity: 0; transform: translateY(-4px); }
           100% { opacity: 1; transform: translateY(0); }
-        }
-        .animate-hourglass {
-          animation: hourglass 4s ease-in-out infinite;
-        }
-        .animate-sand {
-          animation: sand 2s ease-in-out infinite;
         }
         .animate-fade-in {
           animation: fade-in 0.5s ease-out;
