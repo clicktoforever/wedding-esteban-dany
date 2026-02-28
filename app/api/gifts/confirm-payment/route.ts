@@ -61,43 +61,30 @@ export async function GET(request: NextRequest) {
         } | null 
       }
     
+    // Solo actualizamos el payphone_transaction_id
+    // El trigger de la BD llamará a la Edge Function que confirma con PayPhone
     const { error: updateError } = await supabase
       .from('gift_transactions')
       .update({ 
-        payphone_transaction_id: id,
-        status: 'APPROVED' // Payphone solo redirige aquí si el pago fue exitoso
+        payphone_transaction_id: id
+        // NO cambiamos el status aquí - lo hace la Edge Function después de confirmar
       })
       .eq('payphone_client_transaction_id', clientTransactionId)
       .eq('status', 'PENDING')
 
-      
-      // Enviar email de confirmación de forma asíncrona
-      if (transaction) {
-        sendTransactionApprovedEmail({
-          donorName: transaction.donor_name,
-          donorEmail: transaction.donor_email,
-          amount: transaction.amount,
-          transactionId: transaction.id,
-          transactionDate: transaction.created_at,
-          giftName: transaction.gift?.name,
-          giftImage: transaction.gift?.image_url || undefined,
-        }).catch((error) => {
-          console.error('Error sending approval email:', error)
-          // No bloqueamos el flujo si falla el email
-        })
-      }
     if (updateError) {
       console.error('Error updating transaction:', updateError)
     } else {
-      console.log('Transaction updated with PayPhone ID:', id, '- Status: APPROVED')
+      console.log('Transaction updated with PayPhone ID:', id, '- Trigger will confirm with PayPhone API')
     }
 
-    // Redirect to confirmation page with all details
+    // Redirect to confirmation page with processing status
+    // La Edge Function confirmará con PayPhone en segundo plano
     const redirectUrl = new URL('/confirm-payment', request.url)
     redirectUrl.searchParams.set('clientTransactionId', clientTransactionId)
     redirectUrl.searchParams.set('type', 'payphone')
     redirectUrl.searchParams.set('transactionId', transaction?.id || '')
-    redirectUrl.searchParams.set('status', 'approved') // Payphone exitoso = aprobado
+    redirectUrl.searchParams.set('status', 'review') // Mostrar estado de procesamiento
     
     if (transaction?.donor_name) {
       redirectUrl.searchParams.set('donorName', transaction.donor_name)

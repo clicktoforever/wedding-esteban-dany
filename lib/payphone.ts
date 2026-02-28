@@ -119,10 +119,16 @@ export function createPayPhoneWidgetConfig(params: {
 
   // Calculate totals in cents
   const baseAmount = Math.round(params.amount * 100) // Gift amount (0% tax)
-  const amountWithTax = Math.round(baseAmount * 0.05) // Commission amount (5% - Taxable base)
-  const tax = Math.round(amountWithTax * 0.15) // Tax amount (15% of commission)
 
-  const totalAmount = baseAmount + amountWithTax + tax
+  // PayPhone charges 5% commission + 15% IVA (5.75% total) on the TOTAL transaction amount.
+  // To receive exactly the baseAmount (gift amount), we must gross-up the total.
+  // Total = baseAmount / (1 - (0.05 * 1.15)) = baseAmount / 0.9425
+  const totalAmount = Math.round(baseAmount / 0.9425)
+  const totalFee = totalAmount - baseAmount
+
+  // Split the fee into taxable commission (base for tax) and tax (15% IVA) for the API
+  const amountWithTax = Math.round(totalFee / 1.15)
+  const tax = totalAmount - baseAmount - amountWithTax
 
   const config: PayPhoneWidgetConfig = {
     token,

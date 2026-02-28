@@ -6,19 +6,20 @@ export const dynamic = 'force-dynamic'
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
+    const transactionId = searchParams.get('id')
     const clientTransactionId = searchParams.get('clientTransactionId')
 
-    if (!clientTransactionId) {
+    if (!transactionId && !clientTransactionId) {
       return NextResponse.json(
-        { error: 'Missing clientTransactionId' },
+        { error: 'Missing transaction id or clientTransactionId' },
         { status: 400 }
       )
     }
 
     const supabase = await createClient()
 
-    // Get transaction with gift details
-    const { data: transaction, error } = await supabase
+    // Build query based on which parameter was provided
+    let query = supabase
       .from('gift_transactions')
       .select(`
         id,
@@ -34,24 +35,30 @@ export async function GET(request: NextRequest) {
           category
         )
       `)
-      .eq('payphone_client_transaction_id', clientTransactionId)
-      .single() as {
-        data: {
+    
+    if (transactionId) {
+      query = query.eq('id', transactionId)
+    } else if (clientTransactionId) {
+      query = query.eq('payphone_client_transaction_id', clientTransactionId)
+    }
+
+    const { data: transaction, error } = await query.single() as {
+      data: {
+        id: string;
+        donor_name: string;
+        amount: number;
+        status: string;
+        message: string | null;
+        created_at: string;
+        gift: {
           id: string;
-          donor_name: string;
-          amount: number;
-          status: string;
-          message: string | null;
-          created_at: string;
-          gift: {
-            id: string;
-            name: string;
-            image_url: string | null;
-            category: string | null;
-          } | null;
+          name: string;
+          image_url: string | null;
+          category: string | null;
         } | null;
-        error: any;
-      }
+      } | null;
+      error: any;
+    }
 
     if (error || !transaction) {
       return NextResponse.json(
