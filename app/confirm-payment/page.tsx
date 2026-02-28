@@ -21,9 +21,42 @@ function ConfirmPaymentContent() {
   const transactionId = searchParams.get('transactionId')
   const clientTransactionId = searchParams.get('clientTransactionId')
 
-  const isApproved = status === 'approved'
-  const isReview = status === 'review' || status === 'manual_review'
-  const isError = status === 'error' || status === 'rejected'
+  const [currentStatus, setCurrentStatus] = useState(status)
+  const [pollingCount, setPollingCount] = useState(0)
+
+  const isApproved = currentStatus === 'approved'
+  const isReview = currentStatus === 'review' || currentStatus === 'manual_review'
+  const isError = currentStatus === 'error' || currentStatus === 'rejected'
+
+  // Poll transaction status for PayPhone payments in review
+  useEffect(() => {
+    if (type === 'payphone' && isReview && transactionId && pollingCount < 12) {
+      // Poll every 5 seconds for 1 minute (12 attempts)
+      const interval = setInterval(async () => {
+        try {
+          const response = await fetch(`/api/gifts/transaction-status?id=${transactionId}`)
+          const data = await response.json()
+          
+          if (data.status === 'APPROVED') {
+            // Payment confirmed! Update to approved state
+            setCurrentStatus('approved')
+            clearInterval(interval)
+          } else if (data.status === 'REJECTED') {
+            // Payment rejected
+            setCurrentStatus('rejected')
+            clearInterval(interval)
+          } else {
+            // Still processing, increment count
+            setPollingCount(prev => prev + 1)
+          }
+        } catch (error) {
+          console.error('Error polling transaction status:', error)
+        }
+      }, 5000)
+
+      return () => clearInterval(interval)
+    }
+  }, [type, isReview, transactionId, pollingCount])
 
   // Confetti Effect
   useEffect(() => {
@@ -157,6 +190,8 @@ function ConfirmPaymentContent() {
 
   // Manual Review Page
   if (isReview) {
+    const isPayPhoneProcessing = type === 'payphone'
+    
     return (
       <div className="min-h-screen bg-background-light flex flex-col items-center pt-8 md:pt-14 p-6">
         <div className="max-w-lg w-full mt-2 md:mt-4">
@@ -169,10 +204,13 @@ function ConfirmPaymentContent() {
               </div>
 
               <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-2">
-                Pago en proceso
+                {isPayPhoneProcessing ? 'Confirmando pago...' : 'Pago en proceso'}
               </h1>
               <p className="text-gray-500 text-base md:text-lg font-body leading-relaxed mb-6">
-                Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo
+                {isPayPhoneProcessing 
+                  ? 'Estamos verificando tu pago con la pasarela. Esto puede tomar unos segundos...'
+                  : 'Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo'
+                }
               </p>
 
               <div className="w-full border-t border-dashed border-gray-200 pt-4 space-y-3">
@@ -215,17 +253,27 @@ function ConfirmPaymentContent() {
             <div className="bg-yellow-50 px-6 py-3 flex items-center justify-center gap-2">
               <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
               <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
-                En revisión manual
+                {isPayPhoneProcessing ? 'Verificando con pasarela de pago...' : 'En revisión manual'}
               </span>
             </div>
           </div>
 
-          <button
-            onClick={() => router.push('/gifts')}
-            className="w-full h-12 md:h-14 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors"
-          >
-            Entendido
-          </button>
+          {!isPayPhoneProcessing && (
+            <button
+              onClick={() => router.push('/gifts')}
+              className="w-full h-12 md:h-14 bg-primary text-white font-bold rounded-xl hover:bg-primary/90 transition-colors"
+            >
+              Entendido
+            </button>
+          )}
+
+          {isPayPhoneProcessing && (
+            <div className="text-center">
+              <p className="text-sm text-gray-500">
+                Por favor espera, esto se actualizará automáticamente...
+              </p>
+            </div>
+          )}
 
         </div>
       </div>

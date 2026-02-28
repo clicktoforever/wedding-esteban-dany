@@ -8,6 +8,7 @@ const PAYPHONE_TOKEN = Deno.env.get('PAYPHONE_TOKEN')!
 const PAYPHONE_API_URL = 'https://pay.payphonetodoesposible.com'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+const NEXT_APP_URL = Deno.env.get('NEXT_APP_URL') || 'https://wedding-esteban-dany.vercel.app'
 
 interface PayPhoneConfirmResponse {
   transactionStatus: string
@@ -101,6 +102,25 @@ serve(async (req) => {
 
       const rpcResult = await rpcResponse.json()
       console.log('Transaction approved successfully:', rpcResult)
+
+      // Send approval email asynchronously
+      console.log('Sending approval email...')
+      
+      // Don't await - fire and forget
+      fetch(`${NEXT_APP_URL}/api/gifts/send-approval-email`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          transactionId: record.id,
+        }),
+      }).then(() => {
+        console.log('Email API called successfully')
+      }).catch((emailError) => {
+        console.error('Error calling email API (non-blocking):', emailError)
+        // Don't throw - email is not critical
+      })
 
       return new Response(
         JSON.stringify({ 
