@@ -113,7 +113,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
             <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
               <div className="w-24 h-24 mb-4 relative drop-shadow-2xl animate-pulse-slow">
                 <Image
-                  src="/images/pwa/machicoin.webp"
+                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
                   alt="Machi Coin"
                   fill
                   className="object-contain"
