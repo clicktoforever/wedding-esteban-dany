@@ -36,9 +36,9 @@ serve(async (req) => {
       )
     }
 
-    // Wait 3 seconds for PayPhone to fully process
-    console.log('Waiting 3 seconds before confirmation...')
-    await new Promise(resolve => setTimeout(resolve, 3000))
+    // Wait 1 second for PayPhone to fully process
+    console.log('Waiting 1 second before confirmation...')
+    await new Promise(resolve => setTimeout(resolve, 1000))
 
     // Call PayPhone Confirm API
     console.log('Calling PayPhone V2/Confirm API...')

@@ -23,25 +23,43 @@ function ConfirmPaymentContent() {
 
   const [currentStatus, setCurrentStatus] = useState(status)
   const [pollingCount, setPollingCount] = useState(0)
+  const [loadingMessage, setLoadingMessage] = useState(0)
 
   const isApproved = currentStatus === 'approved'
   const isReview = currentStatus === 'review' || currentStatus === 'manual_review'
   const isError = currentStatus === 'error' || currentStatus === 'rejected'
 
+  const loadingMessages = [
+    'Llamando a PayPhone...',
+    'Acomodando tu regalo...',
+    '¡Ya casi terminamos!'
+  ]
+
+  // Rotate loading messages every 3 seconds
+  useEffect(() => {
+    if (type === 'payphone' && isReview) {
+      const messageInterval = setInterval(() => {
+        setLoadingMessage(prev => (prev + 1) % loadingMessages.length)
+      }, 3000)
+
+      return () => clearInterval(messageInterval)
+    }
+  }, [type, isReview])
+
   // Poll transaction status for PayPhone payments in review
   useEffect(() => {
-    if (type === 'payphone' && isReview && transactionId && pollingCount < 12) {
-      // Poll every 5 seconds for 1 minute (12 attempts)
+    if (type === 'payphone' && isReview && transactionId && pollingCount < 30) {
+      // Poll every 2 seconds for 1 minute (30 attempts)
       const interval = setInterval(async () => {
         try {
           const response = await fetch(`/api/gifts/transaction-status?id=${transactionId}`)
           const data = await response.json()
           
-          if (data.status === 'APPROVED') {
+          if (data.transaction?.status === 'APPROVED') {
             // Payment confirmed! Update to approved state
             setCurrentStatus('approved')
             clearInterval(interval)
-          } else if (data.status === 'REJECTED') {
+          } else if (data.transaction?.status === 'REJECTED') {
             // Payment rejected
             setCurrentStatus('rejected')
             clearInterval(interval)
@@ -52,7 +70,7 @@ function ConfirmPaymentContent() {
         } catch (error) {
           console.error('Error polling transaction status:', error)
         }
-      }, 5000)
+      }, 2000)
 
       return () => clearInterval(interval)
     }
@@ -197,18 +215,23 @@ function ConfirmPaymentContent() {
         <div className="max-w-lg w-full mt-2 md:mt-4">
           <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-4">
             <div className="p-6 md:p-8 flex flex-col items-center text-center">
-              <div className="mb-4 bg-yellow-50 p-3 rounded-full">
-                <svg className="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+              <div className="mb-4 relative">
+                <div className="w-20 h-20 relative animate-hourglass">
+                  <svg className="w-20 h-20 text-secondary" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M6 2h12v6l-6 6 6 6v2H6v-2l6-6-6-6V2zm2 3v2.17l4 4 4-4V5H8zm8 14v-2.17l-4-4-4 4V19h8z"/>
+                  </svg>
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="w-2 h-2 bg-secondary rounded-full animate-sand"></div>
+                  </div>
+                </div>
               </div>
 
               <h1 className="text-3xl md:text-4xl font-display font-bold text-gray-900 mb-2">
-                {isPayPhoneProcessing ? 'Confirmando pago...' : 'Pago en proceso'}
+                {isPayPhoneProcessing ? '¡Casi lo logramos! 💍✨' : 'Pago en proceso'}
               </h1>
               <p className="text-gray-500 text-base md:text-lg font-body leading-relaxed mb-6">
                 {isPayPhoneProcessing 
-                  ? 'Estamos verificando tu pago con la pasarela. Esto puede tomar unos segundos...'
+                  ? 'Estamos validando tu aporte con PayPhone. Solo toma unos segundos asegurar que este regalo llegue a manos de Dany y Esteban.'
                   : 'Recibimos tu comprobante. En cuanto nuestro equipo lo valide, te llegarán tus Machi Coins al correo'
                 }
               </p>
@@ -250,11 +273,18 @@ function ConfirmPaymentContent() {
               </div>
             </div>
 
-            <div className="bg-yellow-50 px-6 py-3 flex items-center justify-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
-              <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
-                {isPayPhoneProcessing ? 'Verificando con pasarela de pago...' : 'En revisión manual'}
-              </span>
+            <div className="bg-yellow-50 px-6 py-3 flex flex-col items-center justify-center gap-2">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-yellow-600 animate-pulse" />
+                <span className="text-xs font-bold text-yellow-800 uppercase tracking-widest">
+                  {isPayPhoneProcessing ? 'Verificando con la pasarela...' : 'En revisión manual'}
+                </span>
+              </div>
+              {isPayPhoneProcessing && (
+                <p className="text-sm text-yellow-700 font-medium animate-fade-in">
+                  {loadingMessages[loadingMessage]}
+                </p>
+              )}
             </div>
           </div>
 
@@ -268,9 +298,9 @@ function ConfirmPaymentContent() {
           )}
 
           {isPayPhoneProcessing && (
-            <div className="text-center">
-              <p className="text-sm text-gray-500">
-                Por favor espera, esto se actualizará automáticamente...
+            <div className="text-center mt-4">
+              <p className="text-sm text-gray-600 font-medium">
+                Por favor, no cierres esta ventana. ¡Tu detalle está a un paso de ser oficial!
               </p>
             </div>
           )}
@@ -364,15 +394,43 @@ function ConfirmPaymentContent() {
 
 export default function ConfirmPaymentPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-background-light">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
-          <p className="text-gray-600 text-lg">Cargando...</p>
+    <>
+      <style jsx global>{`
+        @keyframes hourglass {
+          0% { transform: rotate(0deg); }
+          50% { transform: rotate(0deg); }
+          50.01% { transform: rotate(180deg); }
+          100% { transform: rotate(180deg); }
+        }
+        @keyframes sand {
+          0% { transform: translateY(-8px); opacity: 0; }
+          50% { transform: translateY(0); opacity: 1; }
+          100% { transform: translateY(8px); opacity: 0; }
+        }
+        @keyframes fade-in {
+          0% { opacity: 0; transform: translateY(-4px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-hourglass {
+          animation: hourglass 4s ease-in-out infinite;
+        }
+        .animate-sand {
+          animation: sand 2s ease-in-out infinite;
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-out;
+        }
+      `}</style>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center bg-background-light">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary border-t-transparent mx-auto mb-4"></div>
+            <p className="text-gray-600 text-lg">Cargando...</p>
+          </div>
         </div>
-      </div>
-    }>
-      <ConfirmPaymentContent />
-    </Suspense>
+      }>
+        <ConfirmPaymentContent />
+      </Suspense>
+    </>
   )
 }
