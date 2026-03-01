@@ -1,13 +1,21 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import dynamic from 'next/dynamic'
 import CountdownTimer from '@/components/CountdownTimer'
 import RSVPButton from '@/components/RSVPButton'
 import AddToCalendarButton from '@/components/AddToCalendarButton'
-import SeasonsGallery from '@/components/SeasonsGallery'
-import EventDetails from '@/components/EventDetails'
 import { UIProvider } from '@/components/providers/UIProvider'
 import { createClient } from '@/lib/supabase/server'
+
+// Lazy load below-the-fold components
+const SeasonsGallery = dynamic(() => import('@/components/SeasonsGallery'), {
+  loading: () => <div className="h-96 w-full animate-pulse bg-gray-100 rounded-2xl"></div>
+})
+
+const EventDetails = dynamic(() => import('@/components/EventDetails'), {
+  loading: () => <div className="h-96 w-full animate-pulse bg-[#f9f8f4]"></div>
+})
 
 export const revalidate = 60
 
@@ -52,6 +60,7 @@ export default async function Page() {
                 sizes="100vw"
                 className="object-cover brightness-75"
                 priority
+                unoptimized
                 style={{ objectPosition: 'center 5%' }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
