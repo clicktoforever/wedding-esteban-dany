@@ -75,6 +75,8 @@ export default async function Page() {
                   width={144}
                   height={144}
                   className="object-contain brightness-0 invert lg:w-36 lg:h-36 xl:w-44 xl:h-44"
+                  priority
+                  unoptimized
                 />
               </div>
             </div>

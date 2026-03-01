@@ -122,7 +122,7 @@ export default function AdminLoginPage() {
             <div className="mx-auto w-20 h-20 rounded-full border border-primary/20 flex items-center justify-center bg-white shadow-[0_4px_20px_-4px_rgba(53,94,59,0.1)]">
               <Image
                 src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
-                alt="Logo E&D"
+                alt="Logo D&C"
                 width={64}
                 height={64}
                 className="w-16 h-16 object-contain"
