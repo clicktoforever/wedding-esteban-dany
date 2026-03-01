@@ -116,6 +116,7 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
                   src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
                   alt="Machi Coin"
                   fill
+                  sizes="96px"
                   className="object-contain"
                   unoptimized
                 />

@@ -934,6 +934,7 @@ export default function UnifiedContributionModal({
                       src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
                       alt="Logo Carlos & Dany"
                       fill
+                      sizes="96px"
                       className="object-contain brightness-0 opacity-80"
                     />
                   </div>
@@ -1106,6 +1107,7 @@ export default function UnifiedContributionModal({
                             src="/images/QRDEUNA.PNG"
                             alt="QR DeUna"
                             fill
+                            sizes="220px"
                             className="object-contain"
                           />
                         </div>
@@ -1163,6 +1165,7 @@ export default function UnifiedContributionModal({
                             src={receiptPreview}
                             alt="Comprobante"
                             fill
+                            sizes="(max-width: 480px) 100vw, 380px"
                             className="object-contain"
                           />
                         </div>
