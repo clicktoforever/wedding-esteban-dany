@@ -47,7 +47,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
 
     try {
       const supabase = createClient()
-      
+
       const { error } = await (supabase.from('gifts') as any).insert({
         name: formData.name,
         description: formData.description || null,
@@ -70,7 +70,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
         total_amount: '',
       })
       setImagePreview(null)
-      
+
       onSuccess()
       onClose()
     } catch (error) {
@@ -117,6 +117,7 @@ export default function NewGiftModal({ isOpen, onClose, onSuccess }: NewGiftModa
                     src={imagePreview}
                     alt="Preview"
                     fill
+                    sizes="(max-width: 640px) 100vw, 400px"
                     className="object-cover"
                   />
                   <button

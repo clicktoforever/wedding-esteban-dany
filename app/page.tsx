@@ -49,6 +49,7 @@ export default async function Page() {
                 src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050805/wedding/rdrrbnakbb8hnjhmgfi2.jpg"
                 alt="Romantic couple holding hands in a field"
                 fill
+                sizes="100vw"
                 className="object-cover brightness-75"
                 priority
                 style={{ objectPosition: 'center 5%' }}
@@ -142,6 +143,7 @@ export default async function Page() {
                 src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050807/wedding/mj4i1xwu2pjebjkoqapg.jpg"
                 alt="Couple landscape photo footer"
                 fill
+                sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: 'center 40%' }}
               />

@@ -55,7 +55,7 @@ function ConfirmPaymentContent() {
         try {
           const response = await fetch(`/api/gifts/transaction-status?id=${transactionId}`)
           const data = await response.json()
-          
+
           if (data.transaction?.status === 'APPROVED') {
             // Payment confirmed! Update to approved state
             setCurrentStatus('approved')
@@ -142,6 +142,7 @@ function ConfirmPaymentContent() {
               src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
               alt="Machi Coin"
               fill
+              sizes="144px"
               className="object-contain drop-shadow-2xl"
               unoptimized
             />

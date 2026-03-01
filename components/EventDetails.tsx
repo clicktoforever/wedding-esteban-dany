@@ -38,6 +38,7 @@ export default function EventDetails() {
                             src={src}
                             alt="Hacienda Venue"
                             fill
+                            sizes="(max-width: 768px) 100vw, 448px"
                             className={`object-cover transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
                             priority={index === 0}
                         />
@@ -65,6 +66,7 @@ export default function EventDetails() {
                                         src="/icons/waze.svg"
                                         alt="Waze"
                                         fill
+                                        sizes="16px"
                                         className="object-contain"
                                     />
                                 </div>
@@ -98,6 +100,7 @@ export default function EventDetails() {
                                         src="/icons/dress.png"
                                         alt="Vestido"
                                         fill
+                                        sizes="32px"
                                         className="object-contain mix-blend-multiply"
                                     />
                                 </div>
@@ -126,6 +129,7 @@ export default function EventDetails() {
                                         src="/icons/traje.png"
                                         alt="Traje"
                                         fill
+                                        sizes="32px"
                                         className="object-contain mix-blend-multiply"
                                     />
                                 </div>

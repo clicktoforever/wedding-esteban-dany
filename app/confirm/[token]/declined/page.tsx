@@ -31,6 +31,7 @@ export default function DeclinedPage() {
             alt="Pareja"
             src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050802/wedding/dawionujffy79zszxkb0.jpg"
             fill
+            sizes="100vw"
             className="object-cover scale-105 brightness-110 contrast-[0.95]"
             priority
           />

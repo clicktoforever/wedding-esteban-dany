@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
@@ -9,18 +10,8 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'api.builder.io',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'cleeumrziseyvctsfxxx.supabase.co',
         pathname: '/storage/v1/object/public/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'lh3.googleusercontent.com',
-        pathname: '/**',
       },
     ],
     dangerouslyAllowSVG: true,

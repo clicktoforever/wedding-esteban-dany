@@ -122,8 +122,8 @@ export default function GiftsAdminPage() {
             <button
               onClick={() => setActiveTab('all')}
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'all'
-                  ? 'bg-white text-[#4a5951] shadow-sm'
-                  : 'text-[#807d7c] hover:text-[#4a5951]'
+                ? 'bg-white text-[#4a5951] shadow-sm'
+                : 'text-[#807d7c] hover:text-[#4a5951]'
                 }`}
             >
               Todos
@@ -131,8 +131,8 @@ export default function GiftsAdminPage() {
             <button
               onClick={() => setActiveTab('active')}
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'active'
-                  ? 'bg-white text-[#4a5951] shadow-sm'
-                  : 'text-[#807d7c] hover:text-[#4a5951]'
+                ? 'bg-white text-[#4a5951] shadow-sm'
+                : 'text-[#807d7c] hover:text-[#4a5951]'
                 }`}
             >
               Activos
@@ -140,8 +140,8 @@ export default function GiftsAdminPage() {
             <button
               onClick={() => setActiveTab('completed')}
               className={`flex-1 py-2 text-xs font-semibold rounded-lg transition-all ${activeTab === 'completed'
-                  ? 'bg-white text-[#4a5951] shadow-sm'
-                  : 'text-[#807d7c] hover:text-[#4a5951]'
+                ? 'bg-white text-[#4a5951] shadow-sm'
+                : 'text-[#807d7c] hover:text-[#4a5951]'
                 }`}
             >
               Completados
@@ -157,8 +157,8 @@ export default function GiftsAdminPage() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-colors ${selectedCategory === cat.id
-                    ? 'bg-[#4a5951] text-white shadow-soft'
-                    : 'bg-white border border-[#4a5951]/10 text-[#807d7c] hover:bg-[#4a5951]/5'
+                  ? 'bg-[#4a5951] text-white shadow-soft'
+                  : 'bg-white border border-[#4a5951]/10 text-[#807d7c] hover:bg-[#4a5951]/5'
                   }`}
               >
                 {cat.label}
@@ -211,6 +211,7 @@ export default function GiftsAdminPage() {
                         src={gift.image_url}
                         alt={gift.name}
                         fill
+                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-105"
                       />
                     ) : (

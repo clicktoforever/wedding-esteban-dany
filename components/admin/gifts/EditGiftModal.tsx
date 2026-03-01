@@ -55,7 +55,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
 
     try {
       const supabase = createClient()
-      
+
       const { error } = await (supabase
         .from('gifts') as any)
         .update({
@@ -82,7 +82,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
   const handleDelete = async () => {
     try {
       const supabase = createClient()
-      
+
       const { error } = await supabase
         .from('gifts')
         .delete()
@@ -136,6 +136,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
                   src={imagePreview}
                   alt={formData.name}
                   fill
+                  sizes="(max-width: 640px) 100vw, 400px"
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               ) : (
@@ -146,7 +147,7 @@ export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: Edit
                 </div>
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-[#4a5951]/30 via-transparent to-transparent opacity-60"></div>
-              
+
               {/* Change Photo Button */}
               <div className="absolute bottom-4 right-4 z-10">
                 <label className="flex items-center gap-2 bg-[#d3c3db]/95 hover:bg-[#d3c3db] backdrop-blur-sm text-[#4a5951] font-bold text-sm px-5 py-2.5 rounded-xl shadow-lg transition-all active:scale-95 border border-white/20 cursor-pointer">

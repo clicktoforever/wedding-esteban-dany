@@ -88,6 +88,7 @@ export default function GalleryLightbox({ images }: GalleryLightboxProps) {
               alt={image.alt}
               width={image.width}
               height={image.height}
+              sizes="(max-width: 1024px) 50vw, 25vw"
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
           </div>
