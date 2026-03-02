@@ -47,29 +47,19 @@ export default function WhatsAppMessageModal({
     if (!isOpen || !guest) return null
 
     const getMessageOption1 = () => {
-        return `¡Hola *${guest.name}*! 👋 Nos casamos y nos encantaría contar con tu presencia.\n\n` +
-            `🚨 *IMPORTANTE:* Por seguridad de WhatsApp, el enlace de tu invitación aparece inactivo.\n\n` +
-            `👉 *Para activarlo, por favor respóndenos este mensaje con un "Hola" o un emoji.*\n\n` +
-            `Una vez que nos respondas, el enlace se pondrá azul. Toca aquí para abrirlo:\n\n` +
-            `👇👇👇\n` +
-            `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-            `Con cariño, *Carlos y Dany* 💍`
+        return `¡Hola *${guest.name}*! \n\n` +
+            `Con mucha alegría les compartimos que nos casamos. 💍 \n\n` +
+            `Nos encantaría que nos acompañen en este día tan especial, *confirme su asistencia* en su invitación personalizada: \n\n 👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getMessageOption2 = () => {
-        return `¡Hola *${guest.name}*! 👋✨ ¡Nos casamos y tienes que estar ahí!\n\n` +
-            `🔒 *TU ENLACE ESTÁ BLOQUEADO*\n\n` +
-            `WhatsApp no te deja abrirlo hasta que nos respondas. *Envíame un emoji (🥂, 🎉) o un "Hola" aquí mismo para desbloquearlo.*\n\n` +
-            `En cuanto respondas, el link se pondrá azul. Pícale aquí para ver tus pases:\n\n` +
-            `👇👇👇\n` +
-            `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-            `¡Te esperamos!\n` +
-            `*Carlos y Dany* 💍`
+        return `¡Hola *${guest.name}*! 🎉 \n\n ¡Se viene la boda Ecumex y queremos que estés ahí! 🇲🇽🇪🇨 \n\n` +
+            `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia* \n\n 👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getReminderMessage = () => {
         return `¡Hola ${guest.name}! 💌\n\n` +
-            `Te recordamos que la fecha límite para confirmar tu asistencia es el 10 de marzo. 📅\n\n` +
+            `Te recordamos que la fecha límite para confirmar tu asistencia es el 11 de marzo. 📅\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Tu presencia es muy importante para nosotros! 💕✨`
@@ -220,7 +210,7 @@ export default function WhatsAppMessageModal({
                                             Opción 1: Formal
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡Hola {guest.name}! 👋 Nos casamos y nos encantaría contar con tu presencia...
+                                            ¡Hola {guest.name}! Con mucha alegría les compartimos que nos casamos...
                                         </p>
                                     </div>
                                 </button>
@@ -241,10 +231,10 @@ export default function WhatsAppMessageModal({
                                     <div>
                                         <h4 className={`font-bold text-base ${selectedOption === 2 ? 'text-primary' : 'text-stone-700'
                                             }`}>
-                                            Opción 2: Sorpresa
+                                            Opción 2: Divertida
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡Hola {guest.name}! 👋✨ ¡Nos casamos y tienes que estar ahí!...
+                                            ¡Hola {guest.name}! 🎉 ¡Se viene la boda Ecumex y queremos que estés ahí!...
                                         </p>
                                     </div>
                                 </button>
