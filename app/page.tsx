@@ -1,4 +1,5 @@
 import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import Link from 'next/link'
 import { Suspense } from 'react'
 import dynamic from 'next/dynamic'
@@ -53,14 +54,15 @@ export default async function Page() {
           {/* Hero Section */}
           <header className="relative h-screen lg:max-h-[1000px] flex flex-col items-center justify-center text-center px-6 lg:px-12 xl:px-20">
             <div className="absolute inset-0">
-              <Image
-                src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050805/wedding/rdrrbnakbb8hnjhmgfi2.jpg"
+              <CldImage
+                src="wedding/rdrrbnakbb8hnjhmgfi2"
                 alt="Romantic couple holding hands in a field"
                 fill
+                format="webp"
+                quality="50"
                 sizes="100vw"
                 className="object-cover brightness-75"
-                priority
-                unoptimized
+                preload={true}
                 style={{ objectPosition: 'center 5%' }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
@@ -69,14 +71,14 @@ export default async function Page() {
             {/* Logo - Positioned independently */}
             <div className="absolute top-12 lg:top-16 left-1/2 transform -translate-x-1/2 z-10">
               <div className="w-28 h-28 lg:w-34 lg:h-34 xl:w-40 xl:h-40 flex items-center justify-center transition-all duration-300">
-                <Image
-                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
+                <CldImage
+                  src="wedding/lal95pilyeq3jojweafo"
                   alt="Logo"
                   width={144}
                   height={144}
+                  format="auto"
                   className="object-contain brightness-0 invert lg:w-36 lg:h-36 xl:w-44 xl:h-44"
-                  priority
-                  unoptimized
+                  preload={true}
                   fetchPriority="high"
                 />
               </div>
@@ -151,10 +153,12 @@ export default async function Page() {
           {/* Footer */}
           <footer className="relative h-96 lg:h-[28rem] xl:h-[32rem] w-full flex items-end justify-center">
             <div className="absolute inset-0 z-0">
-              <Image
-                src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050807/wedding/mj4i1xwu2pjebjkoqapg.jpg"
+              <CldImage
+                src="wedding/mj4i1xwu2pjebjkoqapg"
                 alt="Couple landscape photo footer"
                 fill
+                format="webp"
+                quality="50"
                 sizes="100vw"
                 className="object-cover"
                 style={{ objectPosition: 'center 40%' }}
@@ -164,11 +168,12 @@ export default async function Page() {
 
             <div className="relative z-20 flex flex-col items-center pb-16 lg:pb-20 xl:pb-24 text-white">
               <div className="w-16 h-16 lg:w-20 lg:h-20 xl:w-24 xl:h-24 flex items-center justify-center mb-2 lg:mb-3 transition-all duration-300">
-                <Image
-                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050800/wedding/lal95pilyeq3jojweafo.svg"
+                <CldImage
+                  src="wedding/lal95pilyeq3jojweafo"
                   alt="Logo"
                   width={52}
                   height={52}
+                  format="auto"
                   className="object-contain brightness-0 invert lg:w-16 lg:h-16 xl:w-20 xl:h-20"
                 />
               </div>

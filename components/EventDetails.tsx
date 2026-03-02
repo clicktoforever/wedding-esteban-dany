@@ -1,6 +1,7 @@
 "use client"
 
 import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import { Map, Navigation, User, Clock, Car, Wine, Pin, MapPin } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -8,9 +9,9 @@ export default function EventDetails() {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
     const images = [
-        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050808/wedding/dx7prnvhrp7yosev8dlw.webp",
-        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050810/wedding/mzftbr1lyqunkrbcioiu.webp",
-        "https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/v1772050811/wedding/hxvx77iljtuv923xmqxv.webp"
+        "wedding/dx7prnvhrp7yosev8dlw",
+        "wedding/mzftbr1lyqunkrbcioiu",
+        "wedding/hxvx77iljtuv923xmqxv"
     ]
 
     useEffect(() => {
@@ -33,14 +34,16 @@ export default function EventDetails() {
                 {/* Card 1: Ubicación (Hacienda Capelo) */}
                 <div className="relative w-full h-80 rounded-2xl overflow-hidden shadow-lg group">
                     {images.map((src, index) => (
-                        <Image
+                        <CldImage
                             key={src}
                             src={src}
                             alt="Hacienda Venue"
                             fill
+                            format="webp"
+                            quality="50"
                             sizes="(max-width: 768px) 100vw, 448px"
                             className={`object-cover transition-opacity duration-1000 ${index === currentImageIndex ? 'opacity-100' : 'opacity-0'}`}
-                            priority={index === 0}
+                            preload={index === 0}
                         />
                     ))}
 

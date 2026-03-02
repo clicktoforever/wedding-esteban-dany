@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Image from 'next/image'
 import { CldImage } from 'next-cloudinary'
 import { useUI } from '@/components/providers/UIProvider'
 
@@ -88,7 +87,8 @@ const seasonsData: Season[] = [
         cover: { src: "nxcwhiv511ll958ddtvg", alt: "Portada Temporada 7" },
         photos: [
             "bdvgtnx7nfalxi0bodyv", "ifcvxyqspvhylbhjq4yu", "tih3ae8p0fgzsfayzx85",
-            "rngp154egj3jxxfaphek"
+            "rngp154egj3jxxfaphek", "hefstxxtkvhjyz5mqxlw", "wn7duwj7toth2mqco96q",
+            "h9rwlpy01tinvj3gmqry", "cwpkgyuwq6ezbftkkjci"
         ].map(id => ({ src: id, alt: "Foto Temporada 7", width: 800, height: 1200 }))
     },
     {
@@ -245,7 +245,7 @@ export default function SeasonsGallery() {
                                 height={1200}
                                 format="webp"
                                 quality="50"
-                                priority
+                                preload={true}
                             />
                         )}
                         {activePhotos[(currentIndex + 1) % activePhotos.length] && (
@@ -256,7 +256,7 @@ export default function SeasonsGallery() {
                                 height={1200}
                                 format="webp"
                                 quality="50"
-                                priority
+                                preload={true}
                             />
                         )}
                     </div>
@@ -322,7 +322,7 @@ export default function SeasonsGallery() {
                                 quality="50"
                                 className="object-contain"
                                 sizes="(max-width: 1024px) 100vw, 1024px"
-                                priority
+                                preload={true}
                             />
                         </div>
                     </div>
