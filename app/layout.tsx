@@ -19,6 +19,7 @@ const cormorant = Cormorant_Garamond({
   variable: '--font-cormorant',
   display: 'swap',
   weight: ['300', '400', '500', '600', '700'],
+  preload: true,
 })
 
 const montserrat = Montserrat({
@@ -26,6 +27,7 @@ const montserrat = Montserrat({
   variable: '--font-montserrat',
   display: 'swap',
   weight: ['300', '400', '500', '600'],
+  preload: true,
 })
 
 const greatVibes = Great_Vibes({
@@ -33,6 +35,7 @@ const greatVibes = Great_Vibes({
   subsets: ['latin'],
   variable: '--font-great-vibes',
   display: 'swap',
+  preload: true,
 })
 
 export const metadata: Metadata = {

@@ -114,8 +114,8 @@ export default function EventDetails() {
                                 <div className="w-5 h-5 rounded-full bg-[#e19f8e]"></div>
                             </div>
 
-                            <div className="text-[10px] text-gray-400 text-center mt-1 leading-tight">
-                                Vestido largo<br />(Evitar gamas de blanco/beige y rojo/vino)
+                            <div className="text-[10px] text-gray-600 text-center mt-1 leading-tight font-medium">
+                                Vestido largo<br /><span>(Evitar gamas de blanco/beige y rojo/vino)</span>
                             </div>
                         </div>
 
@@ -141,8 +141,8 @@ export default function EventDetails() {
                                 <div className="w-5 h-5 rounded-full bg-blue-900"></div>
                                 <div className="w-5 h-5 rounded-full bg-slate-400"></div>
                             </div>
-                            <div className="text-[10px] text-gray-400 text-center mt-1 leading-tight">
-                                Traje formal<br />(Evitar gris humo)
+                            <div className="text-[10px] text-gray-600 text-center mt-1 leading-tight font-medium">
+                                Traje formal<br /><span>(Evitar gris humo)</span>
                             </div>
                         </div>
                     </div>
