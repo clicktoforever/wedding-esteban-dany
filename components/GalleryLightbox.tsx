@@ -139,10 +139,9 @@ export default function GalleryLightbox({ images }: GalleryLightboxProps) {
             <Image
               src={images[currentIndex].src}
               alt={images[currentIndex].alt}
-              width={1200}
-              height={800}
+              sizes="100vw"
               className="max-h-[90vh] w-auto object-contain"
-              priority
+              preload={true}
             />
           </div>
 

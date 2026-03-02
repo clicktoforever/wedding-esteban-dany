@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import { Plane, PartyPopper, ArrowRight, Check } from 'lucide-react'
 
 interface InstructionsModalProps {
@@ -112,13 +112,14 @@ export default function InstructionsModal({ isOpen, onClose }: InstructionsModal
             {/* Slide 2: LA RECOMPENSA */}
             <div className="min-w-full w-full snap-center flex flex-col items-center justify-center px-8 pb-8 pt-2 text-center">
               <div className="w-24 h-24 mb-4 relative drop-shadow-2xl animate-pulse-slow">
-                <Image
-                  src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
+                <CldImage
+                  src="wedding/icons/machicoin"
                   alt="Machi Coin"
                   fill
+                  format="webp"
+                  quality="50"
                   sizes="96px"
                   className="object-contain"
-                  unoptimized
                 />
               </div>
 

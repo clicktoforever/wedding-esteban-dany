@@ -2,7 +2,7 @@
 
 import { useSearchParams, useRouter } from 'next/navigation'
 import { useState, useEffect, Suspense } from 'react'
-import Image from 'next/image'
+import { CldImage } from 'next-cloudinary'
 import Link from 'next/link'
 
 import confetti from 'canvas-confetti'
@@ -24,7 +24,6 @@ function ConfirmPaymentContent() {
   const amount = searchParams.get('amount')
   const currency = searchParams.get('currency') || 'USD'
   const giftName = searchParams.get('giftName')
-  const giftImage = searchParams.get('giftImage')
   const transactionId = searchParams.get('transactionId')
   const clientTransactionId = searchParams.get('clientTransactionId')
 
@@ -138,13 +137,14 @@ function ConfirmPaymentContent() {
           {/* Hero Image (Golden Coin) */}
           <div className="relative w-36 h-36 mx-auto mb-4 transform transition-transform duration-500 animate-coin-flip">
             <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full animate-pulse-slow"></div>
-            <Image
-              src="https://res.cloudinary.com/machiboda/image/upload/f_auto,q_auto/wedding/icons/machicoin"
+            <CldImage
+              src="wedding/icons/machicoin"
               alt="Machi Coin"
               fill
+              format="webp"
+              quality="50"
               sizes="144px"
               className="object-contain drop-shadow-2xl"
-              unoptimized
             />
           </div>
 

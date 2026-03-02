@@ -33,7 +33,7 @@ export default function DeclinedPage() {
             fill
             sizes="100vw"
             className="object-cover scale-105 brightness-110 contrast-[0.95]"
-            priority
+            preload={true}
           />
           <div className="absolute inset-0 bg-primary/10 mix-blend-multiply"></div>
           <div className="absolute inset-0 bg-gradient-to-t from-background-light via-transparent to-transparent"></div>
