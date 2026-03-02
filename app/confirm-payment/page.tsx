@@ -30,6 +30,7 @@ function ConfirmPaymentContent() {
   const [currentStatus, setCurrentStatus] = useState(status)
   const [pollingCount, setPollingCount] = useState(0)
   const [loadingMessage, setLoadingMessage] = useState(0)
+  const [isCoinLoaded, setIsCoinLoaded] = useState(false)
 
   const isApproved = currentStatus === 'approved'
   const isReview = currentStatus === 'review' || currentStatus === 'manual_review'
@@ -135,7 +136,7 @@ function ConfirmPaymentContent() {
           </div>
 
           {/* Hero Image (Golden Coin) */}
-          <div className="relative w-36 h-36 mx-auto mb-4 transform transition-transform duration-500 animate-coin-flip">
+          <div className={`relative w-36 h-36 mx-auto mb-4 transform transition-transform duration-500 ${isCoinLoaded ? 'animate-coin-flip' : 'opacity-0'}`}>
             <div className="absolute inset-0 bg-yellow-400/20 blur-3xl rounded-full animate-pulse-slow"></div>
             <CldImage
               src="wedding/icons/machicoin"
@@ -145,6 +146,7 @@ function ConfirmPaymentContent() {
               quality="50"
               sizes="144px"
               className="object-contain drop-shadow-2xl"
+              onLoad={() => setIsCoinLoaded(true)}
             />
           </div>
 
