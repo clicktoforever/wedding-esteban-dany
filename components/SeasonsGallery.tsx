@@ -26,90 +26,80 @@ const seasonsData: Season[] = [
     {
         id: 1,
         title: "Temporada 1",
-        cover: { src: "wedding/xf5oyoezdyohmp2nt8ia.jpg", alt: "Portada Temporada 1" },
-        photos: Array(3).fill({
-            src: "wedding/dmxf3yjymqstzu5hvv1t.jpg",
-            alt: "Foto Temporada 1",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "wpmeebxk5vd3zirbr3ui", alt: "Portada Temporada 1" },
+        photos: [
+            "nghvbqcczjqfxu8ejk6f", "vdafn5ymtnp0tjzfql2b",
+            "qqayuatj3igyoapxqe0h", "qrt0btyarnh1jizgb5sp", "g4g6vpqlc91s56wir8lh",
+            "uxc3lyu62qguqjmeimab", "d2krbdm1eot0qpzdricj"
+        ].map(id => ({ src: id, alt: "Foto Temporada 1", width: 800, height: 1200 }))
     },
     {
         id: 2,
         title: "Temporada 2",
-        cover: { src: "wedding/n9fthw3o3ebfdvh4uhfn.jpg", alt: "Portada Temporada 2" },
-        photos: Array(3).fill({
-            src: "wedding/e8jkm04idkpbohxit7b2.jpg",
-            alt: "Foto Temporada 2",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "use5zywerth9cpjdcbop", alt: "Portada Temporada 2" },
+        photos: [
+            "qufdu0rbriqsluy7ohwc", "xs2hxfc3ohs77yeshxns", "vyaxnzloo0tq0t3pb5sm",
+            "v6djhifxn1xrdk1qgxyd", "epbzo27ssvphvgupn3g1", "gcinojpiowd88exkuimh",
+            "pkivqpbzkxct7vzfr0a1"
+        ].map(id => ({ src: id, alt: "Foto Temporada 2", width: 800, height: 1200 }))
     },
     {
         id: 3,
         title: "Temporada 3",
-        cover: { src: "wedding/wrkuifa44f9keea005ns.jpg", alt: "Portada Temporada 3" },
-        photos: Array(3).fill({
-            src: "wedding/oor15ezyy3skk0wq7upy.jpg",
-            alt: "Foto Temporada 3",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "iz8sjtk8qw8bbnjc26ek", alt: "Portada Temporada 3" },
+        photos: [
+            "juhlgdnkrzsuv43sq2i2", "dbremksyxjqtrtpgpfho", "olpdvdvef83qg3e9a6p6",
+            "xny1qpvuk0qgtdhqsenb", "i3g5evllunhanhtagxsu", "ima2tfkrzhq5ztbltd41",
+            "kcbsmytt44br88qlnmaz"
+        ].map(id => ({ src: id, alt: "Foto Temporada 3", width: 800, height: 1200 }))
     },
     {
         id: 4,
         title: "Temporada 4",
-        cover: { src: "wedding/ydirwodpm5lss2izou17.jpg", alt: "Portada Temporada 4" },
-        photos: Array(3).fill({
-            src: "wedding/tk5lhhoduxlheruekqdy.jpg",
-            alt: "Foto Temporada 4",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "qp02c8l9queeam1xth3s", alt: "Portada Temporada 4" },
+        photos: [
+            "caprdpqubszsujk9ytjv", "egbndbzeerot5ebfhftt", "lfxwvufvig6r2qiadt0q",
+            "zqoykkuwnny8tvz2xcvb", "fm1cuuql3avga9m8f2zi", "gmehhccnschud2acxcg6",
+            "xhzhsvzknnqj1bdrnhch", "n1yfzgm11bl1degezy08"
+        ].map(id => ({ src: id, alt: "Foto Temporada 4", width: 800, height: 1200 }))
     },
     {
         id: 5,
         title: "Temporada 5",
-        cover: { src: "wedding/gahmy1eqb8k2d0llkdso.jpg", alt: "Portada Temporada 5" },
-        photos: Array(3).fill({
-            src: "wedding/tk5lhhoduxlheruekqdy.jpg",
-            alt: "Foto Temporada 5",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "ciasctujio3u30lk1kns", alt: "Portada Temporada 5" },
+        photos: [
+            "o312rcyofntkqw7uvfen", "gcy8a8poyqckhteeyknd", "a44gbozfgb16uke7qbwu",
+            "sbwsuodrcx62ha213nh8"
+        ].map(id => ({ src: id, alt: "Foto Temporada 5", width: 800, height: 1200 }))
     },
     {
         id: 6,
         title: "Temporada 6",
-        cover: { src: "wedding/kfummqqeypi9vu6l7bhw.jpg", alt: "Portada Temporada 6" },
-        photos: Array(3).fill({
-            src: "wedding/ojejzu9ljemlt7tizl39.jpg",
-            alt: "Foto Temporada 6",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "xgfzqy9wqazbn8kszwjy", alt: "Portada Temporada 6" },
+        photos: [
+            "efedizqn9amttq6uckaq", "ghnxmxuvurv7vx92twvf", "vfijv2goroorwetkyw4j",
+            "rmei0igi2qyqsgkbsfvf", "p9myae2scibwc4ndgdqw", "hnsujkjobac4qadzmr3w",
+            "gx0tvrfg3rmxqijcb9kp", "jz51gdlplrielendkw5c"
+        ].map(id => ({ src: id, alt: "Foto Temporada 6", width: 800, height: 1200 }))
     },
     {
         id: 7,
         title: "Temporada 7",
-        cover: { src: "wedding/ifyxum4xrpumpp3klle7.jpg", alt: "Portada Temporada 7" },
-        photos: Array(3).fill({
-            src: "wedding/t6whyeuyxquxipkrerq8.jpg",
-            alt: "Foto Temporada 7",
-            width: 800,
-            height: 1200
-        })
+        cover: { src: "nxcwhiv511ll958ddtvg", alt: "Portada Temporada 7" },
+        photos: [
+            "bdvgtnx7nfalxi0bodyv", "ifcvxyqspvhylbhjq4yu", "tih3ae8p0fgzsfayzx85",
+            "rngp154egj3jxxfaphek"
+        ].map(id => ({ src: id, alt: "Foto Temporada 7", width: 800, height: 1200 }))
     },
     {
         id: 8,
-        title: "Temporada 8",
-        cover: { src: "wedding/slmvwyh3y4k6xhfubwcp.jpg", alt: "Portada Temporada 8" },
-        photos: Array(3).fill({
-            src: "wedding/yul2vhlvkt6qv5nbfrul.jpg",
-            alt: "Foto Temporada 8",
-            width: 1200,
-            height: 800
-        })
+        title: "Próximamente",
+        cover: { src: "arhsld5yhlaorxkvtclu", alt: "Portada Temporada 8" },
+        photos: [
+            "szltdpx0zszhyaz478gb", "wxpcvubsjojrupyjelev", "a09rv5bhe3mrb0qaxsye",
+            "hin8azfwjsqkyvj8rvkq", "clwjw5v620aby02etr9r", "j0hqx7jnqgnyxyzdfdjv",
+            "wlfyjvawpaind7ggw30c"
+        ].map(id => ({ src: id, alt: "Foto Temporada 8", width: 1200, height: 800 }))
     }
 ]
 
@@ -221,7 +211,9 @@ export default function SeasonsGallery() {
                             src={season.cover.src}
                             alt={season.cover.alt}
                             fill
-                            className={`object-cover transition-transform duration-500 ${season.id !== 8 ? 'rotate-90 scale-[1.35] group-hover:scale-[1.5]' : 'group-hover:scale-105'}`}
+                            format="webp"
+                            quality="50"
+                            className="object-cover transition-transform duration-500 group-hover:scale-105"
                             sizes="(max-width: 768px) 50vw, (max-width: 1024px) 50vw, 33vw"
                         />
                         {/* Overlay for Season Title */}
@@ -243,6 +235,31 @@ export default function SeasonsGallery() {
                     onTouchMove={onTouchMove}
                     onTouchEnd={onTouchEnd}
                 >
+                    {/* Preload adjacent images for smooth swiping */}
+                    <div className="hidden">
+                        {activePhotos[currentIndex - 1 >= 0 ? currentIndex - 1 : activePhotos.length - 1] && (
+                            <CldImage
+                                src={activePhotos[currentIndex - 1 >= 0 ? currentIndex - 1 : activePhotos.length - 1].src}
+                                alt="Preload Previous"
+                                width={800}
+                                height={1200}
+                                format="webp"
+                                quality="50"
+                                priority
+                            />
+                        )}
+                        {activePhotos[(currentIndex + 1) % activePhotos.length] && (
+                            <CldImage
+                                src={activePhotos[(currentIndex + 1) % activePhotos.length].src}
+                                alt="Preload Next"
+                                width={800}
+                                height={1200}
+                                format="webp"
+                                quality="50"
+                                priority
+                            />
+                        )}
+                    </div>
                     {/* Top Bar Navigation */}
                     <div className="absolute top-0 w-full flex justify-between items-center p-4 lg:p-6 z-50">
                         <div className="text-white text-sm lg:text-base font-medium">
@@ -296,35 +313,18 @@ export default function SeasonsGallery() {
                         className="relative w-full h-[85vh] flex items-center justify-center mt-8"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        {activeSeason.id === 8 ? (
-                            <div className="relative w-full h-full max-w-5xl pointer-events-auto">
-                                <CldImage
-                                    src={activePhotos[currentIndex].src}
-                                    alt={activePhotos[currentIndex].alt}
-                                    fill
-                                    className="object-contain"
-                                    sizes="100vw"
-                                    priority
-                                />
-                            </div>
-                        ) : (
-                            <div
-                                className="relative pointer-events-auto rotate-90"
-                                style={{
-                                    height: 'min(calc(100vw - 32px), calc(85vh * 0.6666))',
-                                    width: 'min(calc((100vw - 32px) * 1.5), 85vh)'
-                                }}
-                            >
-                                <CldImage
-                                    src={activePhotos[currentIndex].src}
-                                    alt={activePhotos[currentIndex].alt}
-                                    fill
-                                    className="object-contain"
-                                    sizes="100vw"
-                                    priority
-                                />
-                            </div>
-                        )}
+                        <div className="relative w-full h-full max-w-5xl pointer-events-auto">
+                            <CldImage
+                                src={activePhotos[currentIndex].src}
+                                alt={activePhotos[currentIndex].alt}
+                                fill
+                                format="webp"
+                                quality="50"
+                                className="object-contain"
+                                sizes="(max-width: 1024px) 100vw, 1024px"
+                                priority
+                            />
+                        </div>
                     </div>
                 </div>
             )}
