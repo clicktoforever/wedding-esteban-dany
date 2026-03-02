@@ -93,7 +93,7 @@ const seasonsData: Season[] = [
     },
     {
         id: 8,
-        title: "Próximamente",
+        title: "Próximamente...",
         cover: { src: "arhsld5yhlaorxkvtclu", alt: "Portada Temporada 8" },
         photos: [
             "szltdpx0zszhyaz478gb", "wxpcvubsjojrupyjelev", "a09rv5bhe3mrb0qaxsye",
