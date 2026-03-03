@@ -27,7 +27,7 @@ const seasonsData: Season[] = [
         title: "Temporada 1",
         cover: { src: "wedding/gallery/temp1/1", alt: "Portada Temporada 1" },
         photos: [
-            "wedding/gallery/temp1/2", "wedding/gallery/temp1/3", "wedding/gallery/temp1/4",
+            "wedding/gallery/temp1/2", "wedding/gallery/temp1/4",
             "wedding/gallery/temp1/5", "wedding/gallery/temp1/6", "wedding/gallery/temp1/7",
             "wedding/gallery/temp1/8", "wedding/gallery/temp1/9"
         ].map(id => ({ src: id, alt: "Foto Temporada 1", width: 800, height: 1200 }))

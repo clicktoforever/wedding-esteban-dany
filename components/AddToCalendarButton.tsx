@@ -45,7 +45,7 @@ export default function AddToCalendarButton() {
     <>
       <button
         onClick={handleAddToCalendar}
-        className="absolute bottom-8 lg:bottom-12 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 lg:gap-2 text-primary hover:text-primary/80 transition-all duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer"
+        className="absolute bottom-4 lg:bottom-0 xl:-bottom-4 left-1/2 transform -translate-x-1/2 z-10 flex flex-col items-center gap-1.5 lg:gap-2 text-primary hover:text-primary/80 transition-all duration-300 hover:-translate-y-1 active:scale-95 cursor-pointer"
         aria-label="Guardar Fecha"
         title="Guardar Fecha"
       >

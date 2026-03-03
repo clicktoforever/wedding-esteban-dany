@@ -85,7 +85,7 @@ export default async function Page() {
             </div>
 
             {/* Content - Names, Date, Countdown */}
-            <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-56 lg:mt-64">
+            <div className="relative z-10 w-full flex flex-col items-center space-y-6 lg:space-y-8 fade-in-up mt-64 lg:mt-72 pt-24 lg:pt-32 pb-8 lg:pb-16">
               <h1 className="font-serif text-5xl lg:text-6xl xl:text-8xl text-white drop-shadow-lg tracking-wide transition-all duration-300">
                 Dany <span className="block text-3xl lg:text-4xl xl:text-6xl italic mt-2 lg:mt-3 xl:mt-4 text-white">&amp;</span> Carlos
               </h1>
@@ -100,9 +100,11 @@ export default async function Page() {
               </div>
 
               <CountdownTimer targetDate={weddingDate} />
-            </div>
 
-            <AddToCalendarButton />
+              <div className="mt-8 lg:mt-12 xl:mt-16 w-full flex justify-center pb-8 lg:pb-12">
+                <AddToCalendarButton />
+              </div>
+            </div>
           </header>
 
           {/* Gallery Section */}
