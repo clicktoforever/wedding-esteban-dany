@@ -25,80 +25,80 @@ const seasonsData: Season[] = [
     {
         id: 1,
         title: "Temporada 1",
-        cover: { src: "wpmeebxk5vd3zirbr3ui", alt: "Portada Temporada 1" },
+        cover: { src: "wedding/gallery/temp1/1", alt: "Portada Temporada 1" },
         photos: [
-            "nghvbqcczjqfxu8ejk6f", "vdafn5ymtnp0tjzfql2b",
-            "qqayuatj3igyoapxqe0h", "qrt0btyarnh1jizgb5sp", "g4g6vpqlc91s56wir8lh",
-            "uxc3lyu62qguqjmeimab", "d2krbdm1eot0qpzdricj"
+            "wedding/gallery/temp1/2", "wedding/gallery/temp1/3", "wedding/gallery/temp1/4",
+            "wedding/gallery/temp1/5", "wedding/gallery/temp1/6", "wedding/gallery/temp1/7",
+            "wedding/gallery/temp1/8", "wedding/gallery/temp1/9"
         ].map(id => ({ src: id, alt: "Foto Temporada 1", width: 800, height: 1200 }))
     },
     {
         id: 2,
         title: "Temporada 2",
-        cover: { src: "use5zywerth9cpjdcbop", alt: "Portada Temporada 2" },
+        cover: { src: "wedding/gallery/temp2/1", alt: "Portada Temporada 2" },
         photos: [
-            "qufdu0rbriqsluy7ohwc", "xs2hxfc3ohs77yeshxns", "vyaxnzloo0tq0t3pb5sm",
-            "v6djhifxn1xrdk1qgxyd", "epbzo27ssvphvgupn3g1", "gcinojpiowd88exkuimh",
-            "pkivqpbzkxct7vzfr0a1"
+            "wedding/gallery/temp2/2", "wedding/gallery/temp2/3", "wedding/gallery/temp2/4",
+            "wedding/gallery/temp2/5", "wedding/gallery/temp2/6", "wedding/gallery/temp2/7",
+            "wedding/gallery/temp2/8"
         ].map(id => ({ src: id, alt: "Foto Temporada 2", width: 800, height: 1200 }))
     },
     {
         id: 3,
         title: "Temporada 3",
-        cover: { src: "iz8sjtk8qw8bbnjc26ek", alt: "Portada Temporada 3" },
+        cover: { src: "wedding/gallery/temp3/1", alt: "Portada Temporada 3" },
         photos: [
-            "juhlgdnkrzsuv43sq2i2", "dbremksyxjqtrtpgpfho", "olpdvdvef83qg3e9a6p6",
-            "xny1qpvuk0qgtdhqsenb", "i3g5evllunhanhtagxsu", "ima2tfkrzhq5ztbltd41",
-            "kcbsmytt44br88qlnmaz"
+            "wedding/gallery/temp3/2", "wedding/gallery/temp3/3", "wedding/gallery/temp3/4",
+            "wedding/gallery/temp3/5", "wedding/gallery/temp3/6", "wedding/gallery/temp3/7",
+            "wedding/gallery/temp3/8"
         ].map(id => ({ src: id, alt: "Foto Temporada 3", width: 800, height: 1200 }))
     },
     {
         id: 4,
         title: "Temporada 4",
-        cover: { src: "qp02c8l9queeam1xth3s", alt: "Portada Temporada 4" },
+        cover: { src: "wedding/gallery/temp4/1", alt: "Portada Temporada 4" },
         photos: [
-            "caprdpqubszsujk9ytjv", "egbndbzeerot5ebfhftt", "lfxwvufvig6r2qiadt0q",
-            "zqoykkuwnny8tvz2xcvb", "fm1cuuql3avga9m8f2zi", "gmehhccnschud2acxcg6",
-            "xhzhsvzknnqj1bdrnhch", "n1yfzgm11bl1degezy08"
+            "wedding/gallery/temp4/2", "wedding/gallery/temp4/3", "wedding/gallery/temp4/4",
+            "wedding/gallery/temp4/5", "wedding/gallery/temp4/6", "wedding/gallery/temp4/7",
+            "wedding/gallery/temp4/8", "wedding/gallery/temp4/9"
         ].map(id => ({ src: id, alt: "Foto Temporada 4", width: 800, height: 1200 }))
     },
     {
         id: 5,
         title: "Temporada 5",
-        cover: { src: "ciasctujio3u30lk1kns", alt: "Portada Temporada 5" },
+        cover: { src: "wedding/gallery/temp5/1", alt: "Portada Temporada 5" },
         photos: [
-            "o312rcyofntkqw7uvfen", "gcy8a8poyqckhteeyknd", "a44gbozfgb16uke7qbwu",
-            "sbwsuodrcx62ha213nh8"
+            "wedding/gallery/temp5/2", "wedding/gallery/temp5/3", "wedding/gallery/temp5/4",
+            "wedding/gallery/temp5/5"
         ].map(id => ({ src: id, alt: "Foto Temporada 5", width: 800, height: 1200 }))
     },
     {
         id: 6,
         title: "Temporada 6",
-        cover: { src: "xgfzqy9wqazbn8kszwjy", alt: "Portada Temporada 6" },
+        cover: { src: "wedding/gallery/temp6/1", alt: "Portada Temporada 6" },
         photos: [
-            "efedizqn9amttq6uckaq", "ghnxmxuvurv7vx92twvf", "vfijv2goroorwetkyw4j",
-            "rmei0igi2qyqsgkbsfvf", "p9myae2scibwc4ndgdqw", "hnsujkjobac4qadzmr3w",
-            "gx0tvrfg3rmxqijcb9kp", "jz51gdlplrielendkw5c"
+            "wedding/gallery/temp6/2", "wedding/gallery/temp6/3", "wedding/gallery/temp6/4",
+            "wedding/gallery/temp6/5", "wedding/gallery/temp6/6", "wedding/gallery/temp6/7",
+            "wedding/gallery/temp6/8", "wedding/gallery/temp6/9"
         ].map(id => ({ src: id, alt: "Foto Temporada 6", width: 800, height: 1200 }))
     },
     {
         id: 7,
         title: "Temporada 7",
-        cover: { src: "nxcwhiv511ll958ddtvg", alt: "Portada Temporada 7" },
+        cover: { src: "wedding/gallery/temp7/1", alt: "Portada Temporada 7" },
         photos: [
-            "bdvgtnx7nfalxi0bodyv", "ifcvxyqspvhylbhjq4yu", "tih3ae8p0fgzsfayzx85",
-            "rngp154egj3jxxfaphek", "hefstxxtkvhjyz5mqxlw", "wn7duwj7toth2mqco96q",
-            "h9rwlpy01tinvj3gmqry", "cwpkgyuwq6ezbftkkjci"
+            "wedding/gallery/temp7/IMG_3136", "wedding/gallery/temp7/IMG_6928", "wedding/gallery/temp7/IMG_6986",
+            "wedding/gallery/temp7/IMG_7061", "wedding/gallery/temp7/cwpkgyuwq6ezbftkkjci", "wedding/gallery/temp7/h9rwlpy01tinvj3gmqry",
+            "wedding/gallery/temp7/hefstxxtkvhjyz5mqxlw", "wedding/gallery/temp7/wn7duwj7toth2mqco96q"
         ].map(id => ({ src: id, alt: "Foto Temporada 7", width: 800, height: 1200 }))
     },
     {
         id: 8,
         title: "Próximamente...",
-        cover: { src: "arhsld5yhlaorxkvtclu", alt: "Portada Temporada 8" },
+        cover: { src: "wedding/gallery/temp8/1", alt: "Portada Temporada 8" },
         photos: [
-            "szltdpx0zszhyaz478gb", "wxpcvubsjojrupyjelev", "a09rv5bhe3mrb0qaxsye",
-            "hin8azfwjsqkyvj8rvkq", "clwjw5v620aby02etr9r", "j0hqx7jnqgnyxyzdfdjv",
-            "wlfyjvawpaind7ggw30c"
+            "wedding/gallery/temp8/2", "wedding/gallery/temp8/3", "wedding/gallery/temp8/4",
+            "wedding/gallery/temp8/5", "wedding/gallery/temp8/6", "wedding/gallery/temp8/7",
+            "wedding/gallery/temp8/8"
         ].map(id => ({ src: id, alt: "Foto Temporada 8", width: 1200, height: 800 }))
     }
 ]
