@@ -48,13 +48,13 @@ export default function WhatsAppMessageModal({
 
     const getMessageOption1 = () => {
         return `¡Hola *${guest.name}*! \n\n` +
-            `Con mucha alegría les compartimos que nos casamos. 💍 \n\n` +
-            `Nos encantaría que nos acompañen en este día tan especial, *confirme su asistencia* en su invitación personalizada: \n\n 👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
+            `Con mucha alegría les compartimos que nos casamos. 💍\n\n` +
+            `Nos encantaría que nos acompañen en este día tan especial, *confirme su asistencia* en su invitación personalizada:\n\n👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getMessageOption2 = () => {
-        return `¡Hola *${guest.name}*! 🎉 \n\n ¡Se viene la boda Ecumex y queremos que estés ahí! 🇲🇽🇪🇨 \n\n` +
-            `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia* \n\n 👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
+        return `¡Hola *${guest.name}*! 🎉\n\n¡Se viene la boda Ecumex y queremos que estés ahí! 🇲🇽🇪🇨\n\n` +
+            `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia.*\n\n👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getReminderMessage = () => {
