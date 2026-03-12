@@ -48,27 +48,27 @@ export default function WhatsAppMessageModal({
 
     const getMessageOption1 = () => {
         return `¡Hola *${guest.name}*! \n\n` +
-            `Con mucha alegría les compartimos que nos casamos. 💍\n\n` +
-            `Nos encantaría que nos acompañen en este día tan especial, *confirme su asistencia* en su invitación personalizada:\n\n👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
+            `Con mucha alegría les compartimos que nos casamos. ${String.fromCodePoint(0x1F48D)}\n\n` +
+            `Nos encantaría que nos acompañen en este día tan especial, *confirme su asistencia* en su invitación personalizada:\n\n${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getMessageOption2 = () => {
-        return `¡Hola *${guest.name}*! 🎉\n\n¡Se viene la boda Ecumex y queremos que estés ahí! 🇲🇽🇪🇨\n\n` +
-            `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia.*\n\n👉 https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
+        return `¡Hola *${guest.name}*! ${String.fromCodePoint(0x1F389)}\n\n¡Se viene la boda Ecumex y queremos que estés ahí! ${String.fromCodePoint(0x1F1F2, 0x1F1FD)}${String.fromCodePoint(0x1F1EA, 0x1F1E8)}\n\n` +
+            `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia.*\n\n${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
     const getReminderMessage = () => {
-        return `¡Hola ${guest.name}! 💌\n\n` +
-            `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. 📅\n\n` +
+        return `¡Hola ${guest.name}! ${String.fromCodePoint(0x1F48C)}\n\n` +
+            `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. ${String.fromCodePoint(0x1F4C5)}\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
-            `¡Tu presencia es muy importante para nosotros! 💕✨`
+            `¡Tu presencia es muy importante para nosotros! ${String.fromCodePoint(0x1F495)}${String.fromCodePoint(0x2728)}`
     }
 
     const getClosingMessage = () => {
-        return `Hola *${guest.name}*, esperamos que estés bien. 👋\n\n` +
+        return `Hola *${guest.name}*, esperamos que estés bien. ${String.fromCodePoint(0x1F44B)}\n\n` +
             `Hoy debemos cerrar la lista final de nuestra boda. Al no recibir tu confirmación, *entendemos que en esta ocasión no podrás acompañarnos*.\n\n` +
-            `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. 🥂\n\n` +
+            `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. ${String.fromCodePoint(0x1F942)}\n\n` +
             `Un abrazo,\n` +
             `*Carlos y Dany*`
     }
@@ -234,7 +234,7 @@ export default function WhatsAppMessageModal({
                                             Opción 2: Divertida
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡Hola {guest.name}! 🎉 ¡Se viene la boda Ecumex y queremos que estés ahí!...
+                                            ¡Hola {guest.name}! {String.fromCodePoint(0x1F389)} ¡Se viene la boda Ecumex y queremos que estés ahí!...
                                         </p>
                                     </div>
                                 </button>
