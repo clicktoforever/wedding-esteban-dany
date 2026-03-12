@@ -272,10 +272,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   }
 
   const handleSendWhatsApp = (guest: Guest) => {
-    if (!guest.phone) {
-      alert('Este invitado no tiene número de WhatsApp')
-      return
-    }
+    if (!guest.phone) return
 
     setSelectedGuest(guest)
     setShowWhatsAppModal(true)
@@ -284,41 +281,32 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const handleConfirmSendWhatsApp = async (message: string) => {
     if (!selectedGuest || !selectedGuest.phone) return
 
+    // 1. Actualizar el estado local inmediatamente para feedback visual
+    setGuests(prevGuests =>
+      prevGuests.map(g =>
+        g.id === selectedGuest.id ? { ...g, notified_whatsapp: true } : g
+      )
+    )
+
+    // 2. Limpiar el número de teléfono y abrir WhatsApp
+    const cleanPhone = selectedGuest.phone.replace(/[\s\-()]/g, '')
+    const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
+    window.open(whatsappUrl, '_blank')
+
+    // 3. Cerrar el modal
+    setShowWhatsAppModal(false)
+
+    // 4. Actualizar en la base de datos en segundo plano
     try {
-      // 1. Primero marcar como notificado en la base de datos
       const supabase = createClient()
-      const { error } = await supabase
+      await supabase
         .from('guests')
         .update({ notified_whatsapp: true })
         .eq('id', selectedGuest.id)
-
-      if (error) {
-        console.error('Error updating notified status:', error)
-        alert('Error al actualizar el estado del invitado')
-        return
-      }
-
-      // 2. Actualizar el estado local inmediatamente
-      setGuests(prevGuests =>
-        prevGuests.map(g =>
-          g.id === selectedGuest.id ? { ...g, notified_whatsapp: true } : g
-        )
-      )
-
-      // 3. Limpiar el número de teléfono y abrir WhatsApp
-      const cleanPhone = selectedGuest.phone.replace(/[\s\-()]/g, '')
-      const whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`
-      window.open(whatsappUrl, '_blank')
-
-      // 4. Cerrar el modal
-      setShowWhatsAppModal(false)
-
-      // 5. Actualizar datos del servidor en background
+      
       refreshData()
-
     } catch (err) {
-      console.error('Error in send WhatsApp flow:', err)
-      alert('Error al enviar el mensaje')
+      console.error('Error updating notified status:', err)
     }
   }
 
