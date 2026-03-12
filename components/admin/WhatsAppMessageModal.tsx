@@ -59,7 +59,7 @@ export default function WhatsAppMessageModal({
 
     const getReminderMessage = () => {
         return `¡Hola ${guest.name}! 💌\n\n` +
-            `Te recordamos que la fecha límite para confirmar tu asistencia es el 11 de marzo. 📅\n\n` +
+            `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. 📅\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Tu presencia es muy importante para nosotros! 💕✨`
