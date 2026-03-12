@@ -60,12 +60,6 @@ export default function TablesPage() {
 
       setTables(tablesWithOccupancy)
 
-      // Get unassigned confirmed guests count
-      const { count: unassignedConfirmed } = await supabase
-        .from('guests')
-        .select('*', { count: 'exact', head: true })
-        .is('table_id', null)
-
       // Get total confirmed through passes
       const { data: confirmedPasses } = await supabase
         .from('passes')
@@ -74,7 +68,18 @@ export default function TablesPage() {
 
       const uniqueConfirmedGuests = new Set((confirmedPasses as any)?.map((p: any) => p.guest_id) || [])
 
-      setUnassignedCount(unassignedConfirmed || 0)
+      // Get guests data to check table assignments
+      const { data: guestsData } = await supabase
+        .from('guests')
+        .select('id, table_id')
+
+      // Count confirmed passes without table assignment
+      const unassignedPassesCount = (confirmedPasses as any)?.filter((pass: any) => {
+        const guest = guestsData?.find((g: any) => g.id === pass.guest_id)
+        return !guest?.table_id
+      }).length || 0
+
+      setUnassignedCount(unassignedPassesCount)
       setTotalConfirmed(uniqueConfirmedGuests.size)
     } catch (error) {
       console.error('Error loading tables:', error)
