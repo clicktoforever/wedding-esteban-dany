@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import CloudinaryImage from '@/components/CloudinaryImage'
 import Link from 'next/link'
 import { Suspense } from 'react'
@@ -96,7 +95,7 @@ export default async function Page() {
                 <p>
                   {formattedDate}
                 </p>
-                <p className="font-bold uppercase">Quito, Ecuador</p>
+                <p className="font-bold uppercase">Boda civil, Quito</p>
               </div>
 
               <CountdownTimer targetDate={weddingDate} />

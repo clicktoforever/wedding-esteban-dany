@@ -14,12 +14,6 @@ interface Table {
   occupancy: number
 }
 
-interface Guest {
-  id: string
-  name: string
-  table_id: string | null
-}
-
 export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([])
   const [unassignedCount, setUnassignedCount] = useState(0)
