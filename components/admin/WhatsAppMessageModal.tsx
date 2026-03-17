@@ -61,7 +61,7 @@ export default function WhatsAppMessageModal({
     const getPartyInviteMessage = () => {
         return `¡Hola *${guest.name}*! ${String.fromCodePoint(0x1F973)}\n\n` +
             `¡Se viene la rumba *Ecumex* y la fiesta no está completa sin ti! ${String.fromCodePoint(0x1F1F2, 0x1F1FD)}${String.fromCodePoint(0x1F1EA, 0x1F1E8)}\n\n` +
-            `Entra a tu invitación para ver los detalles, participar por premios y *confirma tu asistencia al baile.* ${String.fromCodePoint(0x1F483)}\n\n` +
+            `Entra a tu invitación para ver los detalles, participar por premios y *confirmar tu asistencia al baile.* ${String.fromCodePoint(0x1F483)}\n\n` +
             `${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/party?token=${guest.access_token}`
     }
 
