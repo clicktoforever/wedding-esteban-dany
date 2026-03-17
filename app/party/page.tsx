@@ -64,7 +64,7 @@ export default async function Page() {
                 sizes="100vw"
                 className="object-cover brightness-75"
                 preload={true}
-                style={{ objectPosition: 'center 15%' }}
+                style={{ objectPosition: '60% 15%' }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
             </div>
