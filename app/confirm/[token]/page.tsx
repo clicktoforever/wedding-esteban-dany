@@ -61,11 +61,13 @@ export default async function ConfirmPage(props: PageProps) {
   // Get deadline date for display
   const deadlineDate = deadlineConfig?.value ? new Date(deadlineConfig.value) : null
 
+  const homeUrl = guest.guest_type === 'party' ? '/party' : '/'
+
   return (
     <div className="bg-background-light text-gray-800 font-body min-h-screen relative pb-32" style={{ backgroundImage: 'radial-gradient(#E6E6FA 0.5px, transparent 0.5px)', backgroundSize: '20px 20px' }}>
       {/* Navigation */}
       <nav className="sticky top-0 z-50 bg-background-light/90 backdrop-blur-md border-b border-gray-100 px-6 lg:px-12 xl:px-20 py-4 flex justify-between items-center max-w-md lg:max-w-none mx-auto">
-        <Link href="/" className="text-gray-500 hover:text-primary transition-colors">
+        <Link href={homeUrl} className="text-gray-500 hover:text-primary transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>

@@ -1,7 +1,12 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function RSVPClosedPage() {
+  const cookieStore = await cookies()
+  const source = cookieStore.get('wedding_source')?.value
+  const homeUrl = source === 'party' ? '/party' : '/'
+
   const supabase = await createClient()
 
   // Fetch deadline date from configurations
@@ -82,7 +87,7 @@ export default async function RSVPClosedPage() {
 
         {/* Back to Home Link */}
         <div className="mt-8">
-          <Link href="/" className="text-sm text-[#4a5951] hover:text-[#9E7BB5] transition-colors underline">
+          <Link href={homeUrl} className="text-sm text-[#4a5951] hover:text-[#9E7BB5] transition-colors underline">
             Volver al inicio
           </Link>
         </div>

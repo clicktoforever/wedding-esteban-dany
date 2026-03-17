@@ -49,14 +49,14 @@ export default async function Page() {
 
   return (
     <div className="bg-background-light text-text-light font-body antialiased transition-colors duration-300">
-      <HomeTracker source="full" />
+      <HomeTracker source="party" />
       <UIProvider>
         <div className="max-w-md lg:max-w-none mx-auto relative min-h-screen lg:shadow-none shadow-2xl overflow-hidden bg-background-light pb-0">
           {/* Hero Section */}
           <header className="relative h-screen lg:max-h-[1000px] flex flex-col items-center justify-center text-center px-6 lg:px-12 xl:px-20">
             <div className="absolute inset-0">
               <CloudinaryImage
-                src="wedding/rdrrbnakbb8hnjhmgfi2"
+                src="wedding/tfgzolxiwf0oypajjzma"
                 alt="Romantic couple holding hands in a field"
                 fill
                 format="webp"
@@ -64,7 +64,7 @@ export default async function Page() {
                 sizes="100vw"
                 className="object-cover brightness-75"
                 preload={true}
-                style={{ objectPosition: 'center 5%' }}
+                style={{ objectPosition: 'center 15%' }}
               />
               <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-background-light"></div>
             </div>
@@ -97,13 +97,13 @@ export default async function Page() {
                 <p>
                   {formattedDate}
                 </p>
-                <p className="font-bold uppercase">Boda civil, Quito</p>
+                <p className="font-bold uppercase">Fiesta boda civil</p>
               </div>
 
               <CountdownTimer targetDate={weddingDate} />
 
               <div className="mt-8 lg:mt-12 xl:mt-16 w-full flex justify-center pb-8 lg:pb-12">
-                <AddToCalendarButton />
+                <AddToCalendarButton variant="party" />
               </div>
             </div>
           </header>
@@ -120,7 +120,7 @@ export default async function Page() {
           </section>
 
           {/* Event Details Section - Redesigned */}
-          <EventDetails />
+          <EventDetails title="Detalles de la fiesta" variant="party" />
 
           {/* Gift Registry Section */}
           <section className="px-6 lg:px-16 xl:px-24 py-12 lg:py-20 xl:py-24 pb-20 lg:pb-32">

@@ -251,6 +251,7 @@ export type Database = {
           notified_whatsapp: boolean
           phone: string | null
           updated_at: string
+          guest_type: string | null
         }
         Insert: {
           access_token?: string
@@ -261,6 +262,7 @@ export type Database = {
           notified_whatsapp?: boolean
           phone?: string | null
           updated_at?: string
+          guest_type?: string | null
         }
         Update: {
           access_token?: string
@@ -271,6 +273,7 @@ export type Database = {
           notified_whatsapp?: boolean
           phone?: string | null
           updated_at?: string
+          guest_type?: string | null
         }
         Relationships: []
       }

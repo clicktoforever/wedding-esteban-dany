@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import GiftRegistry from '@/components/gifts/GiftRegistry'
 import InstructionsButton from '@/components/gifts/InstructionsButton'
 
@@ -7,6 +8,10 @@ export const revalidate = 0
 export const dynamic = 'force-dynamic'
 
 export default async function GiftsPage() {
+  const cookieStore = await cookies()
+  const source = cookieStore.get('wedding_source')?.value
+  const homeUrl = source === 'party' ? '/party' : '/'
+
   const supabase = await createClient()
 
   const { data: gifts, error } = await supabase
@@ -28,7 +33,7 @@ export default async function GiftsPage() {
     <div className="min-h-screen bg-background-light">
       {/* Sticky Header */}
       <div className="sticky top-0 z-50 bg-background-light/80 backdrop-blur-md px-4 lg:px-8 py-4 flex items-center justify-between border-b border-gray-200/50">
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href={homeUrl} className="flex items-center gap-2 group">
           <svg className="w-5 h-5 lg:w-6 lg:h-6 text-[#4a4a4a]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>

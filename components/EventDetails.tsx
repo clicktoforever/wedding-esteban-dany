@@ -5,8 +5,14 @@ import { CldImage } from 'next-cloudinary'
 import { Map, Navigation, User, Clock, Car, Wine, Pin, MapPin } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
-export default function EventDetails() {
+interface EventDetailsProps {
+    title?: string;
+    variant?: 'full' | 'party';
+}
+
+export default function EventDetails({ title = "Detalles del Evento", variant = 'full' }: EventDetailsProps) {
     const [currentImageIndex, setCurrentImageIndex] = useState(0)
+    const isParty = variant === 'party'
 
     const images = [
         "wedding/dx7prnvhrp7yosev8dlw",
@@ -26,7 +32,7 @@ export default function EventDetails() {
         <section className="px-6 py-12 bg-secondary/10 rounded-t-[40px] border-t border-secondary/20 relative">
             <div className="text-center mb-8">
                 <Map className="w-8 h-8 mx-auto text-primary mb-2" />
-                <h2 className="font-display text-3xl text-gray-800">Detalles del Evento</h2>
+                <h2 className="font-display text-3xl text-gray-800">{title}</h2>
             </div>
 
             <div className="space-y-6 max-w-md mx-auto">
@@ -50,7 +56,7 @@ export default function EventDetails() {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10"></div>
 
                     <div className="absolute top-4 right-4 bg-white/20 backdrop-blur-md px-3 py-1 rounded-full border border-white/30">
-                        <span className="text-xs font-bold text-white uppercase tracking-wider">Ceremonia y Recepción</span>
+                        <span className="text-xs font-bold text-white uppercase tracking-wider">{isParty ? 'Celebración y fiesta' : 'Ceremonia y Recepción'}</span>
                     </div>
 
                     <div className="absolute bottom-0 left-0 w-full p-6 text-white">
@@ -169,7 +175,7 @@ export default function EventDetails() {
                                 <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Horario</h4>
                                 <div className="relative pl-3 border-l-2 border-[#4a5951]/20 space-y-2 py-1">
                                     <p className="text-sm text-gray-600">
-                                        <span className="font-bold text-[#4a5951]">11:30 AM</span> — Ceremonia y Recepción
+                                        <span className="font-bold text-[#4a5951]">{isParty ? '5:00 PM' : '11:30 AM'}</span> — {isParty ? 'Fiesta boda civil' : 'Ceremonia y Recepción'}
                                     </p>
                                 </div>
                             </div>
@@ -188,18 +194,19 @@ export default function EventDetails() {
                             </div>
                         </div>
 
-                        {/* Niños */}
-                        <div className="flex gap-4 items-start border-t border-gray-50 pt-4">
-                            <div className="flex-shrink-0 mt-1">
-                                <Wine className="w-6 h-6 text-[#4a5951]" />
+                        {!isParty && (
+                            <div className="flex gap-4 items-start border-t border-gray-50 pt-4">
+                                <div className="flex-shrink-0 mt-1">
+                                    <Wine className="w-6 h-6 text-[#4a5951]" />
+                                </div>
+                                <div className="flex-grow">
+                                    <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Recepción solo adultos</h4>
+                                    <p className="text-sm text-gray-600 leading-relaxed">
+                                        Amamos a los pequeños, pero esta noche es solo para adultos.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="flex-grow">
-                                <h4 className="font-display font-bold text-xl text-gray-800 mb-1">Recepción solo adultos</h4>
-                                <p className="text-sm text-gray-600 leading-relaxed">
-                                    Amamos a los pequeños, pero esta noche es solo para adultos.
-                                </p>
-                            </div>
-                        </div>
+                        )}
 
                         {/* Acceso */}
                         <div className="flex gap-4 items-start border-t border-gray-50 pt-4">

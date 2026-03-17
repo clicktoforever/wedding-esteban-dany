@@ -25,6 +25,7 @@ export default function NewGuestModal({
     name: '',
     phone: '',
     email: '',
+    guest_type: 'full' as 'full' | 'party',
     passes: [{ name: '', isMain: true }]
   })
 
@@ -40,6 +41,7 @@ export default function NewGuestModal({
         name: '',
         phone: '',
         email: '',
+        guest_type: 'full',
         passes: [{ name: '', isMain: true }]
       })
     } else {
@@ -119,7 +121,8 @@ export default function NewGuestModal({
         .insert({
           name: formData.name,
           phone: phoneNumber,
-          email: formData.email || null
+          email: formData.email || null,
+          guest_type: formData.guest_type
         } as any)
         .select()
         .single()
@@ -278,6 +281,36 @@ export default function NewGuestModal({
                       <span className="material-symbols-outlined text-stone-400">mail</span>
                     </div>
                   </div>
+                </div>
+
+                {/* Guest Type Switch */}
+                <div>
+                  <label className="block text-sm font-semibold text-primary mb-2 pl-1" htmlFor="guest-type-checkbox">
+                    Tipo de Invitado
+                  </label>
+                  <label
+                    htmlFor="guest-type-checkbox"
+                    className="w-full rounded-xl bg-white ring-1 ring-inset ring-stone-300 px-4 py-3 flex items-center justify-between hover:ring-primary/50 transition-all cursor-pointer"
+                  >
+                    <div className="text-left">
+                      <p className="text-sm font-bold text-stone-900">
+                        {formData.guest_type === 'full' ? 'Completo' : 'Fiesta'}
+                      </p>
+                      <p className="text-xs text-stone-600">
+                        {formData.guest_type === 'full' ? 'Acceso al evento completo' : 'Solo fiesta'}
+                      </p>
+                    </div>
+                    <input
+                      id="guest-type-checkbox"
+                      type="checkbox"
+                      checked={formData.guest_type === 'full'}
+                      onChange={(e) => setFormData(prev => ({
+                        ...prev,
+                        guest_type: e.target.checked ? 'full' : 'party'
+                      }))}
+                      className="h-5 w-5 accent-[#4a5951] rounded border-stone-300"
+                    />
+                  </label>
                 </div>
               </section>
 

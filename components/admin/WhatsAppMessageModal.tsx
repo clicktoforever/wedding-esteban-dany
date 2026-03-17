@@ -7,6 +7,7 @@ interface Guest {
     name: string
     phone?: string | null
     access_token: string
+    guest_type?: string | null
 }
 
 interface WhatsAppMessageModalProps {
@@ -57,6 +58,13 @@ export default function WhatsAppMessageModal({
             `Entra a tu invitación personalizada para ver los detalles y *confirma tu asistencia.*\n\n${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/?token=${guest.access_token}`
     }
 
+    const getPartyInviteMessage = () => {
+        return `¡Hola *${guest.name}*! ${String.fromCodePoint(0x1F973)}\n\n` +
+            `¡Se viene la rumba *Ecumex* y la fiesta no está completa sin ti! ${String.fromCodePoint(0x1F1F2, 0x1F1FD)}${String.fromCodePoint(0x1F1EA, 0x1F1E8)}\n\n` +
+            `Entra a tu invitación para ver los detalles, participar por premios y *confirma tu asistencia al baile.* ${String.fromCodePoint(0x1F483)}\n\n` +
+            `${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/party?token=${guest.access_token}`
+    }
+
     const getReminderMessage = () => {
         return `¡Hola ${guest.name}! ${String.fromCodePoint(0x1F48C)}\n\n` +
             `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. ${String.fromCodePoint(0x1F4C5)}\n\n` +
@@ -74,8 +82,11 @@ export default function WhatsAppMessageModal({
     }
 
     const getCurrentMessage = () => {
+        const isPartyGuest = guest.guest_type === 'party'
+
         switch (selectedCategory) {
             case 'invite':
+                if (isPartyGuest) return getPartyInviteMessage()
                 return selectedOption === 1 ? getMessageOption1() : getMessageOption2()
             case 'remind':
                 return getReminderMessage()
@@ -189,7 +200,25 @@ export default function WhatsAppMessageModal({
                             {selectedCategory === 'invite' ? 'Selecciona un mensaje' : 'Mensaje a enviar'}
                         </h3>
 
-                        {selectedCategory === 'invite' && (
+                        {selectedCategory === 'invite' && guest.guest_type === 'party' && (
+                            <div className="flex flex-col gap-4 mb-8">
+                                <div className="flex items-start gap-4 p-4 rounded-xl border-2 border-primary bg-primary/5 shadow-md text-left">
+                                    <div className="w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 border-primary">
+                                        <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                                    </div>
+                                    <div>
+                                        <h4 className="font-bold text-base text-primary">
+                                            Invitación Fiesta
+                                        </h4>
+                                        <p className="text-sm text-stone-500 mt-1 line-clamp-2">
+                                            ¡Hola {guest.name}! {String.fromCodePoint(0x1F973)} Se viene la rumba Ecuamex y la fiesta no está completa sin ti...
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {selectedCategory === 'invite' && guest.guest_type !== 'party' && (
                             <div className="flex flex-col gap-4 mb-8">
                                 <button
                                     onClick={() => setSelectedOption(1)}

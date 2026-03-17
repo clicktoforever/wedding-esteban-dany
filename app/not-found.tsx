@@ -1,6 +1,11 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 
-export default function NotFound() {
+export default async function NotFound() {
+  const cookieStore = await cookies()
+  const source = cookieStore.get('wedding_source')?.value
+  const homeUrl = source === 'party' ? '/party' : '/'
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-pink-50 to-white">
       <div className="text-center px-4">
@@ -12,7 +17,7 @@ export default function NotFound() {
           Lo sentimos, la página que buscas no existe o el enlace de confirmación es inválido.
         </p>
         <Link
-          href="/"
+          href={homeUrl}
           className="inline-block bg-primary-500 hover:bg-primary-600 text-white font-semibold px-6 py-3 rounded-lg transition-colors"
         >
           Volver al inicio
