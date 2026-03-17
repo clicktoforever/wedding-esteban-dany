@@ -49,9 +49,9 @@ export default function EditTableModal({ isOpen, onClose, table, onSuccess, onDe
     try {
       const supabase = createClient()
 
-      // First, unassign all guests from this table
+      // First, unassign all passes from this table
       await (supabase
-        .from('guests')
+        .from('passes')
         .update as any)({ table_id: null })
         .eq('table_id', table.id)
 

@@ -3,12 +3,11 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 
-interface Guest {
+interface AssignablePass {
   id: string
-  name: string
-  email: string | null
-  phone: string | null
-  hasConfirmedPasses: boolean
+  attendee_name: string
+  guest_id: string
+  guest_name: string
 }
 
 interface AssignGuestModalProps {
@@ -20,108 +19,103 @@ interface AssignGuestModalProps {
 }
 
 export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, onSuccess }: AssignGuestModalProps) {
-  const [guests, setGuests] = useState<Guest[]>([])
-  const [filteredGuests, setFilteredGuests] = useState<Guest[]>([])
+  const [passes, setPasses] = useState<AssignablePass[]>([])
+  const [filteredPasses, setFilteredPasses] = useState<AssignablePass[]>([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedGuests, setSelectedGuests] = useState<Set<string>>(new Set())
+  const [selectedPasses, setSelectedPasses] = useState<Set<string>>(new Set())
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
-      loadAvailableGuests()
+      loadAvailablePasses()
     }
   }, [isOpen])
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
-      setFilteredGuests(guests)
+      setFilteredPasses(passes)
     } else {
       const query = searchQuery.toLowerCase()
-      setFilteredGuests(
-        guests.filter(guest =>
-          guest.name.toLowerCase().includes(query) ||
-          guest.email?.toLowerCase().includes(query) ||
-          guest.phone?.includes(query)
+      setFilteredPasses(
+        passes.filter(pass =>
+          pass.attendee_name.toLowerCase().includes(query) ||
+          pass.guest_name.toLowerCase().includes(query)
         )
       )
     }
-  }, [searchQuery, guests])
+  }, [searchQuery, passes])
 
-  const loadAvailableGuests = async () => {
+  const loadAvailablePasses = async () => {
     try {
       const supabase = createClient()
 
-      // Get all guests without a table
-      const { data: guestsData, error: guestsError } = await supabase
-        .from('guests')
-        .select('*')
+      // Get all confirmed passes without a table
+      const { data: passesData, error: passesError } = await (supabase
+        .from('passes')
+        .select(`
+          id,
+          attendee_name,
+          guest_id,
+          guests!inner (
+            name
+          )
+        `)
+        .eq('confirmation_status', 'confirmed')
         .is('table_id', null)
-        .order('name', { ascending: true })
+        .order('attendee_name', { ascending: true }) as any)
 
-      if (guestsError) throw guestsError
+      if (passesError) throw passesError
 
-      // For each guest, check if they have at least one confirmed pass
-      const guestsWithConfirmation = await Promise.all(
-        (guestsData || []).map(async (guest: any) => {
-          const { data: passes } = await supabase
-            .from('passes')
-            .select('confirmation_status')
-            .eq('guest_id', guest.id)
-            .eq('confirmation_status', 'confirmed')
-            .limit(1)
+      const formattedPasses: AssignablePass[] = (passesData || []).map((pass: any) => ({
+        id: pass.id,
+        attendee_name: pass.attendee_name,
+        guest_id: pass.guest_id,
+        guest_name: pass.guests?.name || 'Invitación'
+      }))
 
-          return {
-            ...guest,
-            hasConfirmedPasses: (passes?.length || 0) > 0
-          }
-        })
-      )
-
-      // Only show guests with at least one confirmed pass
-      const confirmedGuests = guestsWithConfirmation.filter(g => g.hasConfirmedPasses)
-      setGuests(confirmedGuests)
-      setFilteredGuests(confirmedGuests)
+      setPasses(formattedPasses)
+      setFilteredPasses(formattedPasses)
     } catch (error) {
-      console.error('Error loading guests:', error)
+      console.error('Error loading passes:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
-  const toggleGuest = (guestId: string) => {
-    const newSelected = new Set(selectedGuests)
-    if (newSelected.has(guestId)) {
-      newSelected.delete(guestId)
+  const togglePass = (passId: string) => {
+    const newSelected = new Set(selectedPasses)
+    if (newSelected.has(passId)) {
+      newSelected.delete(passId)
     } else {
-      newSelected.add(guestId)
+      newSelected.add(passId)
     }
-    setSelectedGuests(newSelected)
+    setSelectedPasses(newSelected)
   }
 
   const handleAssign = async () => {
-    if (selectedGuests.size === 0) return
+    if (selectedPasses.size === 0) return
 
     setIsSaving(true)
     try {
       const supabase = createClient()
 
-      // Update all selected guests
-      const updates = Array.from(selectedGuests).map(guestId =>
+      // Update all selected passes
+      const updates = Array.from(selectedPasses).map(passId =>
         (supabase
-          .from('guests')
+          .from('passes')
           .update as any)({ table_id: tableId })
-          .eq('id', guestId)
+          .eq('id', passId)
       )
 
       await Promise.all(updates)
 
       onSuccess()
-      setSelectedGuests(new Set())
+      setSelectedPasses(new Set())
       setSearchQuery('')
     } catch (error) {
-      console.error('Error assigning guests:', error)
-      alert('Error al asignar invitados')
+      console.error('Error assigning passes:', error)
+      alert('Error al asignar personas')
     } finally {
       setIsSaving(false)
     }
@@ -165,7 +159,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
               </span>
               <input
                 className="w-full bg-white border-none rounded-xl py-3.5 pl-11 pr-4 text-base text-[#131514] placeholder:text-gray-400 focus:ring-2 focus:ring-[#495a51]/20 shadow-sm transition-shadow"
-                placeholder="Buscar invitado sin mesa..."
+                placeholder="Buscar persona sin mesa..."
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -178,7 +172,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
             {/* Section Header */}
             <div className="sticky top-0 z-10 bg-[#fbf8f0]/95 backdrop-blur-sm px-6 py-3 border-b border-black/5">
               <h3 className="text-[#495a51] text-sm font-bold uppercase tracking-wider">
-                Invitados sin asignar ({filteredGuests.length})
+                Personas sin asignar ({filteredPasses.length})
               </h3>
             </div>
 
@@ -189,24 +183,24 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
                   progress_activity
                 </span>
               </div>
-            ) : filteredGuests.length === 0 ? (
+            ) : filteredPasses.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
                 <span className="material-symbols-outlined text-[#6b7566] text-5xl mb-3">
                   person_off
                 </span>
                 <p className="text-[#6b7566] font-medium">
-                  {searchQuery ? 'No se encontraron invitados' : 'No hay invitados confirmados sin mesa'}
+                  {searchQuery ? 'No se encontraron personas' : 'No hay personas confirmadas sin mesa'}
                 </p>
               </div>
             ) : (
               <div className="px-6 py-4 space-y-3">
-                {filteredGuests.map((guest) => {
-                  const isSelected = selectedGuests.has(guest.id)
+                {filteredPasses.map((pass) => {
+                  const isSelected = selectedPasses.has(pass.id)
 
                   return (
                     <button
-                      key={guest.id}
-                      onClick={() => toggleGuest(guest.id)}
+                      key={pass.id}
+                      onClick={() => togglePass(pass.id)}
                       className={`w-full flex items-center justify-between gap-4 p-3 rounded-xl border-2 transition-all ${isSelected
                           ? 'bg-[#495a51]/5 border-[#495a51]'
                           : 'bg-white border-transparent hover:border-[#d3c3db]'
@@ -217,15 +211,16 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
                             ? 'bg-[#495a51] text-white'
                             : 'bg-[#d3c3db]/20 text-[#495a51]'
                           }`}>
-                          {guest.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                          {pass.attendee_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex flex-col items-start text-left truncate">
                           <p className="text-[#131514] text-base font-bold leading-tight truncate w-full">
-                            {guest.name}
+                            {pass.attendee_name}
                           </p>
-                          <div className="flex items-center gap-1">
-                            <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                            <span className="text-[#6b7566] text-xs font-medium">Confirmado</span>
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <span className="text-[#6b7566] text-xs font-medium truncate">
+                              De: {pass.guest_name}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -245,7 +240,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
           </div>
 
           {/* Footer */}
-          {selectedGuests.size > 0 && (
+          {selectedPasses.size > 0 && (
             <div className="flex-none px-6 py-4 bg-[#fbf8f0] border-t border-[#ece8de]">
               <button
                 onClick={handleAssign}
@@ -260,7 +255,7 @@ export default function AssignGuestModal({ isOpen, onClose, tableId, tableName, 
                 ) : (
                   <>
                     <span className="material-symbols-outlined">check</span>
-                    Asignar {selectedGuests.size} {selectedGuests.size === 1 ? 'Invitado' : 'Invitados'}
+                    Asignar {selectedPasses.size} {selectedPasses.size === 1 ? 'Persona' : 'Personas'}
                   </>
                 )}
               </button>
