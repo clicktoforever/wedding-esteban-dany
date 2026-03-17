@@ -12,10 +12,12 @@ type Gift = Database['public']['Tables']['gifts']['Row']
 
 const CATEGORIES = [
   { id: 'all', label: 'Todo' },
-  { id: 'luna-de-miel', label: 'Luna de Miel' },
-  { id: 'hogar', label: 'Hogar' },
-  { id: 'cocina', label: 'Cocina' },
-  { id: 'experiencias', label: 'Experiencias' },
+  { id: 'Cocina', label: 'Cocina' },
+  { id: 'Hogar', label: 'Hogar' },
+  { id: 'Honeymoon', label: 'Honeymoon' },
+  { id: 'Novia', label: 'Novia' },
+  { id: 'Novio', label: 'Novio' },
+  { id: 'Trámites', label: 'Trámites' },
 ]
 
 export default function GiftsAdminPage() {
