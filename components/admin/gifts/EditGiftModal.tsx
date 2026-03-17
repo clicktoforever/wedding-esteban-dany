@@ -16,12 +16,12 @@ interface EditGiftModalProps {
 }
 
 const CATEGORIES = [
-  { value: 'luna-de-miel', label: 'Luna de Miel' },
-  { value: 'hogar', label: 'Hogar y Decoración' },
-  { value: 'cocina', label: 'Cocina' },
-  { value: 'experiencias', label: 'Experiencias' },
-  { value: 'efectivo', label: 'Fondo de efectivo' },
-  { value: 'otros', label: 'Otros' },
+  { value: 'Cocina', label: 'Cocina' },
+  { value: 'Hogar', label: 'Hogar' },
+  { value: 'Honeymoon', label: 'Honeymoon' },
+  { value: 'Novia', label: 'Novia' },
+  { value: 'Novio', label: 'Novio' },
+  { value: 'Trámites', label: 'Trámites' },
 ]
 
 export default function EditGiftModal({ isOpen, gift, onClose, onSuccess }: EditGiftModalProps) {
