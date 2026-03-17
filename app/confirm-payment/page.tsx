@@ -31,6 +31,13 @@ function ConfirmPaymentContent() {
   const [pollingCount, setPollingCount] = useState(0)
   const [loadingMessage, setLoadingMessage] = useState(0)
   const [isCoinLoaded, setIsCoinLoaded] = useState(false)
+  const [homeUrl, setHomeUrl] = useState('/')
+
+  useEffect(() => {
+    if (document.cookie.includes('wedding_source=party')) {
+      setHomeUrl('/party')
+    }
+  }, [])
 
   const isApproved = currentStatus === 'approved'
   const isReview = currentStatus === 'review' || currentStatus === 'manual_review'
@@ -173,7 +180,7 @@ function ConfirmPaymentContent() {
             </Link>
 
             <Link
-              href="/"
+              href={homeUrl}
               className="block w-full py-2 text-gray-400 font-bold hover:text-gray-600 transition-colors text-xs uppercase tracking-wider"
             >
               Volver al inicio

@@ -1,17 +1,31 @@
 'use client'
 
 import { CalendarPlus } from 'lucide-react'
-export default function AddToCalendarButton() {
+interface AddToCalendarButtonProps {
+  variant?: 'full' | 'party'
+}
+
+export default function AddToCalendarButton({ variant = 'full' }: AddToCalendarButtonProps) {
   const handleAddToCalendar = () => {
     // Crear evento de calendario en formato .ics
-    const event = {
-      title: 'Boda de Carlos & Dany',
-      description: 'Ceremonia civil y festejo\\n\\nUbicación: https://share.google/rG5IgDFHQyzZgs1Q4',
-      location: 'Hacienda Capelo, Quito, Ecuador',
-      start: '20260411T110000',
-      end: '20260411T230000',
-      url: 'https://share.google/rG5IgDFHQyzZgs1Q4'
-    };
+    const isParty = variant === 'party'
+    const event = isParty
+      ? {
+        title: 'Fiesta boda civil Carlos & Dany 🎉',
+        description: 'Noche de celebracion y fiesta con Carlos & Dany.\\n\\nUbicacion: https://share.google/rG5IgDFHQyzZgs1Q4',
+        location: 'Hacienda Capelo, Quito, Ecuador',
+        start: '20260411T170000',
+        end: '20260411T230000',
+        url: 'https://share.google/rG5IgDFHQyzZgs1Q4',
+      }
+      : {
+        title: 'Boda de Carlos & Dany',
+        description: 'Ceremonia civil y festejo\\n\\nUbicación: https://share.google/rG5IgDFHQyzZgs1Q4',
+        location: 'Hacienda Capelo, Quito, Ecuador',
+        start: '20260411T110000',
+        end: '20260411T230000',
+        url: 'https://share.google/rG5IgDFHQyzZgs1Q4',
+      }
 
     const icsContent = [
       'BEGIN:VCALENDAR',
@@ -34,7 +48,7 @@ export default function AddToCalendarButton() {
     const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = 'boda-Carlos-dany.ics';
+    link.download = isParty ? 'party.ics' : 'boda-Carlos-dany.ics';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
