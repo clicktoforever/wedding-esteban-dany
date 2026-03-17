@@ -212,6 +212,35 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_photos: {
+        Row: {
+          created_at: string
+          guest_id: string | null
+          id: string
+          image_url: string
+        }
+        Insert: {
+          created_at?: string
+          guest_id?: string | null
+          id?: string
+          image_url: string
+        }
+        Update: {
+          created_at?: string
+          guest_id?: string | null
+          id?: string
+          image_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "guest_photos_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "store_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       guests: {
         Row: {
           access_token: string
@@ -221,7 +250,6 @@ export type Database = {
           name: string
           notified_whatsapp: boolean
           phone: string | null
-          table_id: string | null
           updated_at: string
         }
         Insert: {
@@ -232,7 +260,6 @@ export type Database = {
           name: string
           notified_whatsapp?: boolean
           phone?: string | null
-          table_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -243,18 +270,9 @@ export type Database = {
           name?: string
           notified_whatsapp?: boolean
           phone?: string | null
-          table_id?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "guests_table_id_fkey"
-            columns: ["table_id"]
-            isOneToOne: false
-            referencedRelation: "tables"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       passes: {
         Row: {
@@ -262,6 +280,7 @@ export type Database = {
           confirmation_status: Database["public"]["Enums"]["confirmation_status"]
           guest_id: string
           id: string
+          table_id: string | null
           updated_at: string
         }
         Insert: {
@@ -269,6 +288,7 @@ export type Database = {
           confirmation_status?: Database["public"]["Enums"]["confirmation_status"]
           guest_id: string
           id?: string
+          table_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -276,6 +296,7 @@ export type Database = {
           confirmation_status?: Database["public"]["Enums"]["confirmation_status"]
           guest_id?: string
           id?: string
+          table_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -286,7 +307,130 @@ export type Database = {
             referencedRelation: "guests"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "passes_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: false
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      purchased_items: {
+        Row: {
+          created_at: string
+          id: string
+          item_id: string
+          notes: string | null
+          qr_code: string
+          redeemed_at: string | null
+          redeemed_by: string | null
+          status: Database["public"]["Enums"]["purchase_status"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          item_id: string
+          notes?: string | null
+          qr_code: string
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          status?: Database["public"]["Enums"]["purchase_status"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          item_id?: string
+          notes?: string | null
+          qr_code?: string
+          redeemed_at?: string | null
+          redeemed_by?: string | null
+          status?: Database["public"]["Enums"]["purchase_status"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "purchased_items_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "store_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      store_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number | null
+          id: string
+          image_url: string | null
+          is_active: boolean
+          price_coins: number
+          rarity: number | null
+          stock_limit: number | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price_coins: number
+          rarity?: number | null
+          stock_limit?: number | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number | null
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          price_coins?: number
+          rarity?: number | null
+          stock_limit?: number | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      store_users: {
+        Row: {
+          created_at: string
+          current_balance: number
+          email: string
+          full_name: string | null
+          id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_balance?: number
+          email: string
+          full_name?: string | null
+          id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_balance?: number
+          email?: string
+          full_name?: string | null
+          id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       tables: {
         Row: {
@@ -311,6 +455,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          source_gift_id: string | null
+          transaction_type: Database["public"]["Enums"]["wallet_transaction_type"]
+          user_email: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          source_gift_id?: string | null
+          transaction_type: Database["public"]["Enums"]["wallet_transaction_type"]
+          user_email: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          source_gift_id?: string | null
+          transaction_type?: Database["public"]["Enums"]["wallet_transaction_type"]
+          user_email?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "wallet_transactions_source_gift_id_fkey"
+            columns: ["source_gift_id"]
+            isOneToOne: false
+            referencedRelation: "gift_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
@@ -349,20 +537,41 @@ export type Database = {
           total_passes: number
         }[]
       }
-      is_admin: { Args: { check_user_id?: string }; Returns: boolean }
+      is_admin:
+        | { Args: { check_user_id?: string }; Returns: boolean }
+        | { Args: { user_email: string }; Returns: boolean }
       is_gift_completed: {
         Args: { gift: Database["public"]["Tables"]["gifts"]["Row"] }
         Returns: boolean
       }
+      play_gacha: { Args: { p_user_id: string }; Returns: Json }
+      purchase_store_item: {
+        Args: { p_item_id: string; p_user_id: string }
+        Returns: Json
+      }
+      redeem_qr_code: {
+        Args: { p_qr_code: string; p_staff_name: string }
+        Returns: Json
+      }
+      upload_paparazzi_photo: {
+        Args: { p_guest_id: string; p_image_url: string }
+        Returns: Json
+      }
     }
     Enums: {
       confirmation_status: "pending" | "confirmed" | "declined"
+      purchase_status: "ACTIVE" | "REDEEMED" | "EXPIRED"
       transaction_status:
         | "PENDING"
         | "APPROVED"
         | "REJECTED"
         | "PROCESSING"
         | "MANUAL_REVIEW"
+      wallet_transaction_type:
+        | "GIFT_REWARD"
+        | "STORE_PURCHASE"
+        | "BONUS"
+        | "ADMIN_ADJUSTMENT"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -491,12 +700,19 @@ export const Constants = {
   public: {
     Enums: {
       confirmation_status: ["pending", "confirmed", "declined"],
+      purchase_status: ["ACTIVE", "REDEEMED", "EXPIRED"],
       transaction_status: [
         "PENDING",
         "APPROVED",
         "REJECTED",
         "PROCESSING",
         "MANUAL_REVIEW",
+      ],
+      wallet_transaction_type: [
+        "GIFT_REWARD",
+        "STORE_PURCHASE",
+        "BONUS",
+        "ADMIN_ADJUSTMENT",
       ],
     },
   },

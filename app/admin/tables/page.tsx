@@ -41,9 +41,10 @@ export default function TablesPage() {
       const tablesWithOccupancy = await Promise.all(
         (tablesData || []).map(async (table: any) => {
           const { count } = await supabase
-            .from('guests')
+            .from('passes')
             .select('*', { count: 'exact', head: true })
             .eq('table_id', table.id)
+            .eq('confirmation_status', 'confirmed')
 
           return {
             ...table,
@@ -54,27 +55,19 @@ export default function TablesPage() {
 
       setTables(tablesWithOccupancy)
 
-      // Get total confirmed through passes
+      // Get total confirmed passes
       const { data: confirmedPasses } = await supabase
         .from('passes')
-        .select('guest_id')
+        .select('id, guest_id, table_id')
         .eq('confirmation_status', 'confirmed')
 
-      const uniqueConfirmedGuests = new Set((confirmedPasses as any)?.map((p: any) => p.guest_id) || [])
-
-      // Get guests data to check table assignments
-      const { data: guestsData } = await supabase
-        .from('guests')
-        .select('id, table_id')
+      const totalConfirmedCount = confirmedPasses?.length || 0
 
       // Count confirmed passes without table assignment
-      const unassignedPassesCount = (confirmedPasses as any)?.filter((pass: any) => {
-        const guest = guestsData?.find((g: any) => g.id === pass.guest_id)
-        return !guest?.table_id
-      }).length || 0
+      const unassignedPassesCount = (confirmedPasses as any)?.filter((pass: any) => !pass.table_id).length || 0
 
       setUnassignedCount(unassignedPassesCount)
-      setTotalConfirmed(uniqueConfirmedGuests.size)
+      setTotalConfirmed(totalConfirmedCount)
     } catch (error) {
       console.error('Error loading tables:', error)
     } finally {
@@ -89,7 +82,7 @@ export default function TablesPage() {
     try {
       const supabase = createClient()
 
-      // Get all tables with their assigned guests
+      // Get all tables
       const { data: tablesData, error: tablesError } = await supabase
         .from('tables')
         .select('*')
@@ -97,47 +90,54 @@ export default function TablesPage() {
 
       if (tablesError) throw tablesError
 
-      // Get all guests
-      const { data: guestsData, error: guestsError } = await supabase
-        .from('guests')
-        .select('id, name, table_id')
-        .order('name', { ascending: true })
+      // Get all confirmed passes
+      const { data: passesData, error: passesError } = await supabase
+        .from('passes')
+        .select(`
+          id, 
+          attendee_name, 
+          table_id,
+          guests (name)
+        `)
+        .eq('confirmation_status', 'confirmed')
+        .order('attendee_name', { ascending: true })
 
-      if (guestsError) throw guestsError
+      if (passesError) throw passesError
 
       // Create Excel data
       const excelData: any[] = []
 
       // Header row
-      excelData.push(['Mesa', 'Capacidad', 'Ocupación', 'Invitado'])
+      excelData.push(['Mesa', 'Capacidad', 'Ocupación', 'Persona', 'Invitación'])
 
-      // Add tables with their guests
+      // Add tables with their passes
       tablesData?.forEach((table: any) => {
-        const tableGuests = guestsData?.filter((g: any) => g.table_id === table.id) || []
-        const occupancy = tableGuests.length
+        const tablePasses = passesData?.filter((p: any) => p.table_id === table.id) || []
+        const occupancy = tablePasses.length
 
-        if (tableGuests.length === 0) {
+        if (tablePasses.length === 0) {
           // Empty table
-          excelData.push([table.name, table.capacity, 0, 'Sin asignar'])
+          excelData.push([table.name, table.capacity, 0, 'Sin asignar', ''])
         } else {
-          // Table with guests
-          tableGuests.forEach((guest: any, index: number) => {
+          // Table with passes
+          tablePasses.forEach((pass: any, index: number) => {
+            const guestName = pass.guests?.name || ''
             if (index === 0) {
-              excelData.push([table.name, table.capacity, occupancy, guest.name])
+              excelData.push([table.name, table.capacity, occupancy, pass.attendee_name, guestName])
             } else {
-              excelData.push(['', '', '', guest.name])
+              excelData.push(['', '', '', pass.attendee_name, guestName])
             }
           })
         }
       })
 
-      // Add unassigned guests section
-      const unassignedGuests = guestsData?.filter((g: any) => !g.table_id) || []
-      if (unassignedGuests.length > 0) {
-        excelData.push(['', '', '', '']) // Empty row
-        excelData.push(['SIN ASIGNAR', '', unassignedGuests.length, ''])
-        unassignedGuests.forEach((guest: any) => {
-          excelData.push(['', '', '', guest.name])
+      // Add unassigned passes section
+      const unassignedPasses = passesData?.filter((p: any) => !p.table_id) || []
+      if (unassignedPasses.length > 0) {
+        excelData.push(['', '', '', '', '']) // Empty row
+        excelData.push(['SIN ASIGNAR', '', unassignedPasses.length, '', ''])
+        unassignedPasses.forEach((pass: any) => {
+          excelData.push(['', '', '', pass.attendee_name, pass.guests?.name || ''])
         })
       }
 
@@ -150,7 +150,8 @@ export default function TablesPage() {
         { wch: 20 }, // Mesa
         { wch: 12 }, // Capacidad
         { wch: 12 }, // Ocupación
-        { wch: 35 }  // Invitado
+        { wch: 30 }, // Persona
+        { wch: 30 }  // Invitación
       ]
 
       // Add worksheet to workbook
@@ -179,7 +180,7 @@ export default function TablesPage() {
             </p>
             <h1 className="text-[32px] leading-tight font-serif font-bold text-[#131514] mb-1">Distribución de Mesas</h1>
             <p className="text-xs text-[#6b7566] font-medium">
-              Recepción Boda • {totalConfirmed} Invitados
+              Recepción Boda • {totalConfirmed} Personas confirmadas
             </p>
           </div>
           <button
