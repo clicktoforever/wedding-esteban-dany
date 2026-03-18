@@ -170,8 +170,10 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         .from('guests')
         .select(`
           *,
-          passes (*),
-          tables (name)
+          passes (
+            *,
+            tables (name)
+          )
         `)
         .order('name', { ascending: true })
 
@@ -199,7 +201,6 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         const status = getGuestStatus(guest)
         const statusLabel = getStatusBadge(status).label
         const totalPasses = guest.passes?.length || 0
-        const tableName = guest.tables?.name || 'Sin asignar'
         const inviteSent = guest.notified_whatsapp ? 'Sí' : 'No'
 
         if (!guest.passes || guest.passes.length === 0) {
@@ -208,7 +209,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             guest.name,
             guest.email || '',
             guest.phone || '',
-            tableName,
+            'Sin asignar',
             statusLabel,
             totalPasses,
             '',
@@ -221,6 +222,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
           guest.passes.forEach((pass: any, index: number) => {
             const passStatusLabel = pass.confirmation_status === 'confirmed' ? 'Confirmado' :
               pass.confirmation_status === 'declined' ? 'Declinado' : 'Pendiente'
+            const tableName = pass.tables?.name || 'Sin asignar'
 
             excelData.push([
               guest.name,
