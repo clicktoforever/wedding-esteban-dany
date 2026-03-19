@@ -157,7 +157,7 @@ export default async function AdminPage() {
 
               {/* Invitados sin Enviar */}
               <Link
-                href="/admin/guests"
+                href="/admin/guests?filter=not-sent"
                 className="block w-full bg-surface-light p-4 rounded-xl shadow-sm border border-stone-100 flex items-center justify-between transition-colors duration-300 group active:scale-[0.99] transform"
               >
                 <div className="flex items-center space-x-4">
