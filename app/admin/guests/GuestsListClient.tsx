@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useMemo, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/browser'
 import * as XLSX from 'xlsx'
 import type { Database } from '@/lib/database.types'
@@ -32,11 +32,38 @@ interface GuestsListClientProps {
   initialGuests: Guest[]
 }
 
-export default function GuestsListClient({ initialGuests }: GuestsListClientProps) {
+type FilterType = 'all' | 'confirmed' | 'pending' | 'declined' | 'sent' | 'not-sent'
+
+function GuestsListContent({ initialGuests }: GuestsListClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const initialFilterParam = searchParams.get('filter') as FilterType | null
+
   const [guests, setGuests] = useState<Guest[]>(initialGuests)
   const [searchQuery, setSearchQuery] = useState('')
-  const [filter, setFilter] = useState<'all' | 'confirmed' | 'pending' | 'declined' | 'sent' | 'not-sent'>('all')
+  const [filter, setFilter] = useState<FilterType>(initialFilterParam && ['all', 'confirmed', 'pending', 'declined', 'sent', 'not-sent'].includes(initialFilterParam) ? initialFilterParam : 'all')
+
+  // Update filter if URL changes
+  useEffect(() => {
+    const filterParam = searchParams.get('filter') as FilterType | null
+    if (filterParam && ['all', 'confirmed', 'pending', 'declined', 'sent', 'not-sent'].includes(filterParam)) {
+      setFilter(filterParam)
+    }
+  }, [searchParams])
+
+  const handleFilterChange = (newFilter: FilterType) => {
+    setFilter(newFilter)
+    // Update URL without full reload
+    const currentParams = new URLSearchParams(Array.from(searchParams.entries()))
+    if (newFilter === 'all') {
+      currentParams.delete('filter')
+    } else {
+      currentParams.set('filter', newFilter)
+    }
+    const search = currentParams.toString()
+    const query = search ? `?${search}` : ''
+    router.replace(`/admin/guests${query}`, { scroll: false })
+  }
 
   // Modals state
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null)
@@ -106,6 +133,8 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
       filtered = filtered.filter(guest => guest.notified_whatsapp === true)
     } else if (filter === 'not-sent') {
       filtered = filtered.filter(guest => guest.notified_whatsapp === false)
+    } else if (filter === 'declined') {
+      filtered = filtered.filter(guest => guest.passes.length > 0 && guest.passes.every(pass => pass.confirmation_status === 'declined'))
     } else if (filter !== 'all') {
       filtered = filtered.filter(guest =>
         guest.passes.some(pass => pass.confirmation_status === filter)
@@ -119,15 +148,16 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
   const counts = useMemo(() => {
     const confirmed = guests.filter(g => g.passes.some(p => p.confirmation_status === 'confirmed')).length
     const pending = guests.filter(g => g.passes.every(p => p.confirmation_status === 'pending')).length
+    const declined = guests.filter(g => g.passes.length > 0 && g.passes.every(p => p.confirmation_status === 'declined')).length
     const sent = guests.filter(g => g.notified_whatsapp === true).length
     const notSent = guests.filter(g => g.notified_whatsapp === false).length
 
-    return { confirmed, pending, sent, notSent }
+    return { confirmed, pending, declined, sent, notSent }
   }, [guests])
 
   const getGuestStatus = (guest: Guest) => {
     const hasConfirmed = guest.passes.some(p => p.confirmation_status === 'confirmed')
-    const allDeclined = guest.passes.every(p => p.confirmation_status === 'declined')
+    const allDeclined = guest.passes.length > 0 && guest.passes.every(p => p.confirmation_status === 'declined')
 
     if (allDeclined) return 'declined'
     if (hasConfirmed) return 'confirmed'
@@ -357,7 +387,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         {/* Filter Tabs */}
         <div className="flex space-x-2 mb-6 overflow-x-auto no-scrollbar pb-1">
           <button
-            onClick={() => setFilter('all')}
+            onClick={() => handleFilterChange('all')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'all'
               ? 'bg-primary text-white'
               : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
@@ -366,7 +396,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             Todos ({guests.length})
           </button>
           <button
-            onClick={() => setFilter('pending')}
+            onClick={() => handleFilterChange('pending')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'pending'
               ? 'bg-primary text-white'
               : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
@@ -375,7 +405,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             Pendientes ({counts.pending})
           </button>
           <button
-            onClick={() => setFilter('confirmed')}
+            onClick={() => handleFilterChange('confirmed')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'confirmed'
               ? 'bg-primary text-white'
               : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
@@ -384,7 +414,16 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             Confirmados ({counts.confirmed})
           </button>
           <button
-            onClick={() => setFilter('sent')}
+            onClick={() => handleFilterChange('declined')}
+            className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'declined'
+              ? 'bg-primary text-white'
+              : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
+              }`}
+          >
+            Declinados ({counts.declined})
+          </button>
+          <button
+            onClick={() => handleFilterChange('sent')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'sent'
               ? 'bg-primary text-white'
               : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
@@ -393,7 +432,7 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
             Enviados ({counts.sent})
           </button>
           <button
-            onClick={() => setFilter('not-sent')}
+            onClick={() => handleFilterChange('not-sent')}
             className={`px-5 py-2 rounded-full text-sm font-medium shadow-md transition-transform active:scale-95 whitespace-nowrap ${filter === 'not-sent'
               ? 'bg-primary text-white'
               : 'bg-white text-stone-600 border border-stone-100 hover:bg-stone-50'
@@ -473,5 +512,13 @@ export default function GuestsListClient({ initialGuests }: GuestsListClientProp
         onSend={handleConfirmSendWhatsApp}
       />
     </div>
+  )
+}
+
+export default function GuestsListClient(props: GuestsListClientProps) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F9F7F2] flex items-center justify-center">Cargando...</div>}>
+      <GuestsListContent {...props} />
+    </Suspense>
   )
 }
