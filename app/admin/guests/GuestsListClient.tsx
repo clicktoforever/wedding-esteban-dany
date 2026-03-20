@@ -16,6 +16,7 @@ interface Pass {
   id: string
   attendee_name: string
   confirmation_status: 'pending' | 'confirmed' | 'declined'
+  updated_at?: string
 }
 
 interface Guest {
@@ -25,6 +26,7 @@ interface Guest {
   phone?: string | null
   access_token: string
   notified_whatsapp: boolean
+  updated_at?: string
   passes: Pass[]
 }
 
@@ -42,6 +44,7 @@ function GuestsListContent({ initialGuests }: GuestsListClientProps) {
   const [guests, setGuests] = useState<Guest[]>(initialGuests)
   const [searchQuery, setSearchQuery] = useState('')
   const [filter, setFilter] = useState<FilterType>(initialFilterParam && ['all', 'confirmed', 'pending', 'declined', 'sent', 'not-sent'].includes(initialFilterParam) ? initialFilterParam : 'all')
+  const [sortType, setSortType] = useState<'name_asc' | 'latest_desc' | 'latest_asc'>('name_asc')
 
   // Update filter if URL changes
   useEffect(() => {
@@ -141,8 +144,29 @@ function GuestsListContent({ initialGuests }: GuestsListClientProps) {
       )
     }
 
+    // Apply sort
+    if (sortType !== 'name_asc') {
+      filtered = [...filtered].sort((a, b) => {
+        const getLatestUpdate = (g: Guest) => {
+          let latest = new Date(g.updated_at || 0).getTime()
+          g.passes.forEach(p => {
+            const passTime = new Date(p.updated_at || 0).getTime()
+            if (passTime > latest) latest = passTime
+          })
+          return latest
+        }
+
+        const timeA = getLatestUpdate(a)
+        const timeB = getLatestUpdate(b)
+
+        return sortType === 'latest_desc' ? timeB - timeA : timeA - timeB
+      })
+    } else {
+      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name))
+    }
+
     return filtered
-  }, [guests, searchQuery, filter])
+  }, [guests, searchQuery, filter, sortType])
 
   // Count by status
   const counts = useMemo(() => {
@@ -370,18 +394,50 @@ function GuestsListContent({ initialGuests }: GuestsListClientProps) {
 
       {/* Main Content */}
       <main className="pt-24 px-6 pb-32 max-w-md mx-auto md:max-w-4xl">
-        {/* Search Bar */}
-        <div className="relative mb-6">
-          <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <span className="material-icons-round text-stone-400">search</span>
-          </span>
-          <input
-            className="block w-full pl-11 pr-4 py-3.5 rounded-2xl border-none bg-white text-text-main-light placeholder-stone-400 shadow-sm focus:ring-2 focus:ring-primary transition-all"
-            placeholder="Buscar invitado..."
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
+        {/* Search Bar & Sort */}
+        <div className="flex space-x-2 mb-6">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <span className="material-icons-round text-stone-400">search</span>
+            </span>
+            <input
+              className={`block w-full pl-11 py-3.5 rounded-2xl border-none bg-white text-text-main-light placeholder-stone-400 shadow-sm focus:ring-2 focus:ring-primary transition-all ${searchQuery ? 'pr-12' : 'pr-4'}`}
+              placeholder="Buscar invitado..."
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-4 flex items-center focus:outline-none group"
+                title="Limpiar búsqueda"
+              >
+                <span className="material-icons-round text-stone-300 group-hover:text-stone-500 transition-colors text-[20px]">cancel</span>
+              </button>
+            )}
+          </div>
+          <button
+            onClick={() => {
+              if (sortType === 'name_asc') setSortType('latest_desc')
+              else if (sortType === 'latest_desc') setSortType('latest_asc')
+              else setSortType('name_asc')
+            }}
+            className={`flex items-center justify-center w-14 rounded-2xl border-none shadow-sm transition-all focus:outline-none focus:ring-2 focus:ring-primary ${
+              sortType !== 'name_asc' ? 'bg-[#495a51] text-white' : 'bg-white text-stone-500 hover:bg-stone-50'
+            }`}
+            title={
+              sortType === 'name_asc' 
+                ? 'Ordenado por nombre' 
+                : sortType === 'latest_desc' 
+                  ? 'Más recientes primero' 
+                  : 'Más antiguos primero'
+            }
+          >
+            <span className="material-icons-round text-[22px]">
+              {sortType === 'name_asc' ? 'sort_by_alpha' : sortType === 'latest_desc' ? 'arrow_downward' : 'arrow_upward'}
+            </span>
+          </button>
         </div>
 
         {/* Filter Tabs */}

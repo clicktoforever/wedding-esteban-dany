@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/browser'
 import type { Database } from '@/lib/database.types'
-import AdminStats from '@/components/admin/AdminStats'
 import GiftProgressCard from '@/components/admin/GiftProgressCard'
 type Guest = Database['public']['Tables']['guests']['Row']
 type Pass = Database['public']['Tables']['passes']['Row']
@@ -372,16 +371,6 @@ ${confirmationUrl}
         <span className="bg-amber-400"></span>
         <span className="bg-gray-400"></span>
       </div>
-      {/* Admin Stats Panel */}
-      <div className="bg-white border border-gray-200 p-5 md:p-8">
-        <AdminStats
-          totalGuests={stats.total_guests}
-          confirmedPasses={stats.confirmed_passes}
-          totalPasses={stats.total_passes}
-          gifts={gifts.map(g => ({ collected_amount: g.collected_amount }))}
-        />
-      </div>
-      {/* Guests List */}
       <div className="bg-white border border-gray-200 overflow-hidden flex flex-col">
         <div className="sticky top-0 z-20 bg-white/85 backdrop-blur border-b border-gray-200">
           <div className="p-6 pb-4 flex flex-wrap items-center justify-between gap-4">
