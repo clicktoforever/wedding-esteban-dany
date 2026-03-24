@@ -7,12 +7,35 @@ import InstructionsButton from '@/components/gifts/InstructionsButton'
 export const revalidate = 0
 export const dynamic = 'force-dynamic'
 
-export default async function GiftsPage() {
-  const cookieStore = await cookies()
-  const source = cookieStore.get('wedding_source')?.value
-  const homeUrl = source === 'party' ? '/party' : '/'
+interface GiftsPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
+
+export default async function GiftsPage({ searchParams }: GiftsPageProps) {
+  const resolvedSearchParams = await searchParams
+  const token = resolvedSearchParams.token as string | undefined
 
   const supabase = await createClient()
+
+  let homeUrl = '/'
+
+  // 1. Try to get the homeUrl based on the token in the URL
+  if (token) {
+    const { data: guest } = await supabase
+      .from('guests')
+      .select('guest_type')
+      .eq('access_token', token)
+      .single()
+    
+    if (guest?.guest_type === 'party') {
+      homeUrl = '/party'
+    }
+  } else {
+    // 2. Fallback to cookie if no token in URL
+    const cookieStore = await cookies()
+    const source = cookieStore.get('wedding_source')?.value
+    homeUrl = source === 'party' ? '/party' : '/'
+  }
 
   const { data: gifts, error } = await supabase
     .from('gifts')

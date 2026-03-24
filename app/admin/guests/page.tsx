@@ -34,11 +34,28 @@ export default async function GuestsPage() {
     `)
     .order('name', { ascending: true })
 
+  // Fetch wedding date from configurations
+  const { data: weddingDateConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'wedding_date')
+    .single()
+
+  // Fetch confirmation deadline from configurations
+  const { data: deadlineConfig } = await supabase
+    .from('configurations')
+    .select('value')
+    .eq('key', 'confirmation_deadline')
+    .single()
+
+  const weddingDateStr = weddingDateConfig?.value || '2026-04-11T18:00:00'
+  const deadlineStr = deadlineConfig?.value || '2026-03-25T23:59:59'
+
   if (error) {
     console.error('Error fetching guests:', error)
   }
 
-  return <GuestsListClient initialGuests={guests || []} />
+  return <GuestsListClient initialGuests={guests || []} weddingDate={weddingDateStr} confirmationDeadline={deadlineStr} />
 }
 
 export async function generateMetadata() {

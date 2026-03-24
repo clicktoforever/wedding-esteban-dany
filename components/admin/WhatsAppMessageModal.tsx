@@ -15,13 +15,15 @@ interface WhatsAppMessageModalProps {
     onClose: () => void
     guest: Guest | null
     onSend: (message: string) => void
+    confirmationDeadline?: string // Formato: YYYY-MM-DDTHH:mm:ss
 }
 
 export default function WhatsAppMessageModal({
     isOpen,
     onClose,
     guest,
-    onSend
+    onSend,
+    confirmationDeadline = '2026-03-25T23:59:59' // Fallback
 }: WhatsAppMessageModalProps) {
     const contentRef = useRef<HTMLDivElement>(null)
     const [startY, setStartY] = useState(0)
@@ -47,6 +49,20 @@ export default function WhatsAppMessageModal({
 
     if (!isOpen || !guest) return null
 
+    const formatEventDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString)
+            return date.toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'long' 
+            })
+        } catch (e) {
+            return 'ese día' // Fallback fallback
+        }
+    }
+
+    const formattedDeadline = formatEventDate(confirmationDeadline)
+
     const getMessageOption1 = () => {
         return `¡Hola *${guest.name}*! \n\n` +
             `Con mucha alegría les compartimos que nos casamos. ${String.fromCodePoint(0x1F48D)}\n\n` +
@@ -65,12 +81,21 @@ export default function WhatsAppMessageModal({
             `${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/party?token=${guest.access_token}`
     }
 
-    const getReminderMessage = () => {
-        return `¡Hola ${guest.name}! ${String.fromCodePoint(0x1F48C)}\n\n` +
-            `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. ${String.fromCodePoint(0x1F4C5)}\n\n` +
+    const getReminderMessageOption1 = () => {
+        return `¡Hola *${guest.name}*! ${String.fromCodePoint(0x1F48C)}\n\n` +
+            `Te recordamos que la fecha límite para confirmar tu asistencia es el ${formattedDeadline}. ${String.fromCodePoint(0x1F4C5)}\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Tu presencia es muy importante para nosotros! ${String.fromCodePoint(0x1F495)}${String.fromCodePoint(0x2728)}`
+    }
+
+    const getReminderMessageOption2 = () => {
+        return `¡Hola *${guest.name}*! Ya falta muy poco para vernos ${String.fromCodePoint(0x1F973)}${String.fromCodePoint(0x1F48D)}\n\n` +
+            `*SPOILER ALERT* ${String.fromCodePoint(0x1F440)}\n` +
+            `Cada detalle en nuestra mesa de regalos desbloquea monedas para usar en la tienda de la boda. ¡Que no te ganen tus premios!\n\n` +
+            `Checa las opciones aquí\n` +
+            `${String.fromCodePoint(0x1F449)} https://carlosydany.clicktoforever.com/gifts?token=${guest.access_token}\n\n` +
+            `¡Estamos contando los días! ${String.fromCodePoint(0x2728)}`
     }
 
     const getClosingMessage = () => {
@@ -78,7 +103,7 @@ export default function WhatsAppMessageModal({
             `Hoy debemos cerrar la lista final de nuestra boda. Al no recibir tu confirmación, *entendemos que en esta ocasión no podrás acompañarnos*.\n\n` +
             `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. ${String.fromCodePoint(0x1F942)}\n\n` +
             `Un abrazo,\n` +
-            `*Carlos y Dany*`
+            `*Carlos y Dany* ${String.fromCodePoint(0x1F48D)}${String.fromCodePoint(0x1F90D)}`
     }
 
     const getCurrentMessage = () => {
@@ -89,7 +114,7 @@ export default function WhatsAppMessageModal({
                 if (isPartyGuest) return getPartyInviteMessage()
                 return selectedOption === 1 ? getMessageOption1() : getMessageOption2()
             case 'remind':
-                return getReminderMessage()
+                return selectedOption === 1 ? getReminderMessageOption1() : getReminderMessageOption2()
             case 'close':
                 return getClosingMessage()
         }
@@ -197,7 +222,7 @@ export default function WhatsAppMessageModal({
                     >
                         {/* Options */}
                         <h3 className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4">
-                            {selectedCategory === 'invite' ? 'Selecciona un mensaje' : 'Mensaje a enviar'}
+                            {['invite', 'remind'].includes(selectedCategory) ? 'Selecciona un mensaje' : 'Mensaje a enviar'}
                         </h3>
 
                         {selectedCategory === 'invite' && guest.guest_type === 'party' && (
@@ -264,6 +289,58 @@ export default function WhatsAppMessageModal({
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
                                             ¡Hola {guest.name}! {String.fromCodePoint(0x1F389)} ¡Se viene la boda Ecumex y queremos que estés ahí!...
+                                        </p>
+                                    </div>
+                                </button>
+                            </div>
+                        )}
+
+                        {selectedCategory === 'remind' && (
+                            <div className="flex flex-col gap-4 mb-8">
+                                <button
+                                    onClick={() => setSelectedOption(1)}
+                                    className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${selectedOption === 1
+                                        ? 'border-primary bg-primary/5 shadow-md'
+                                        : 'border-stone-200 bg-white hover:border-stone-300'
+                                        }`}
+                                >
+                                    <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${selectedOption === 1 ? 'border-primary' : 'border-stone-300'
+                                        }`}>
+                                        {selectedOption === 1 && (
+                                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold text-base ${selectedOption === 1 ? 'text-primary' : 'text-stone-700'
+                                            }`}>
+                                            Opción 1: Confirmación
+                                        </h4>
+                                        <p className="text-sm text-stone-500 mt-1 line-clamp-2">
+                                            ¡Hola {guest.name}! {String.fromCodePoint(0x1F48C)} Te recordamos que la fecha límite para confirmar tu asistencia es el {formattedDeadline}...
+                                        </p>
+                                    </div>
+                                </button>
+
+                                <button
+                                    onClick={() => setSelectedOption(2)}
+                                    className={`flex items-start gap-4 p-4 rounded-xl border-2 transition-all text-left ${selectedOption === 2
+                                        ? 'border-primary bg-primary/5 shadow-md'
+                                        : 'border-stone-200 bg-white hover:border-stone-300'
+                                        }`}
+                                >
+                                    <div className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 ${selectedOption === 2 ? 'border-primary' : 'border-stone-300'
+                                        }`}>
+                                        {selectedOption === 2 && (
+                                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                                        )}
+                                    </div>
+                                    <div>
+                                        <h4 className={`font-bold text-base ${selectedOption === 2 ? 'text-primary' : 'text-stone-700'
+                                            }`}>
+                                            Opción 2: Mesa de regalos
+                                        </h4>
+                                        <p className="text-sm text-stone-500 mt-1 line-clamp-2">
+                                            ¡Hola *{guest.name}*! Ya falta muy poco para vernos {String.fromCodePoint(0x1F973)}{String.fromCodePoint(0x1F48D)} SPOILER ALERT {String.fromCodePoint(0x1F440)} Cada detalle en nuestra mesa...
                                         </p>
                                     </div>
                                 </button>
