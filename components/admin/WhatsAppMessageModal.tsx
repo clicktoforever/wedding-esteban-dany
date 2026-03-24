@@ -15,13 +15,15 @@ interface WhatsAppMessageModalProps {
     onClose: () => void
     guest: Guest | null
     onSend: (message: string) => void
+    confirmationDeadline?: string // Formato: YYYY-MM-DDTHH:mm:ss
 }
 
 export default function WhatsAppMessageModal({
     isOpen,
     onClose,
     guest,
-    onSend
+    onSend,
+    confirmationDeadline = '2026-03-25T23:59:59' // Fallback
 }: WhatsAppMessageModalProps) {
     const contentRef = useRef<HTMLDivElement>(null)
     const [startY, setStartY] = useState(0)
@@ -47,6 +49,20 @@ export default function WhatsAppMessageModal({
 
     if (!isOpen || !guest) return null
 
+    const formatEventDate = (dateString: string) => {
+        try {
+            const date = new Date(dateString)
+            return date.toLocaleDateString('es-ES', { 
+                day: 'numeric', 
+                month: 'long' 
+            })
+        } catch (e) {
+            return 'ese día' // Fallback fallback
+        }
+    }
+
+    const formattedDeadline = formatEventDate(confirmationDeadline)
+
     const getMessageOption1 = () => {
         return `¡Hola *${guest.name}*! \n\n` +
             `Con mucha alegría les compartimos que nos casamos. ${String.fromCodePoint(0x1F48D)}\n\n` +
@@ -67,7 +83,7 @@ export default function WhatsAppMessageModal({
 
     const getReminderMessageOption1 = () => {
         return `¡Hola *${guest.name}*! ${String.fromCodePoint(0x1F48C)}\n\n` +
-            `Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo. ${String.fromCodePoint(0x1F4C5)}\n\n` +
+            `Te recordamos que la fecha límite para confirmar tu asistencia es el ${formattedDeadline}. ${String.fromCodePoint(0x1F4C5)}\n\n` +
             `Si aún no lo has hecho, por favor confirma tu pase a través de este enlace:\n\n` +
             `https://carlosydany.clicktoforever.com/?token=${guest.access_token}\n\n` +
             `¡Tu presencia es muy importante para nosotros! ${String.fromCodePoint(0x1F495)}${String.fromCodePoint(0x2728)}`
@@ -87,7 +103,7 @@ export default function WhatsAppMessageModal({
             `Hoy debemos cerrar la lista final de nuestra boda. Al no recibir tu confirmación, *entendemos que en esta ocasión no podrás acompañarnos*.\n\n` +
             `Sentiremos mucho tu ausencia, pero te tendremos muy presente en nuestro brindis a la distancia. ${String.fromCodePoint(0x1F942)}\n\n` +
             `Un abrazo,\n` +
-            `*Carlos y Dany*`
+            `*Carlos y Dany* ${String.fromCodePoint(0x1F48D)}${String.fromCodePoint(0x1F90D)}`
     }
 
     const getCurrentMessage = () => {
@@ -300,7 +316,7 @@ export default function WhatsAppMessageModal({
                                             Opción 1: Confirmación
                                         </h4>
                                         <p className="text-sm text-stone-500 mt-1 line-clamp-2">
-                                            ¡Hola {guest.name}! {String.fromCodePoint(0x1F48C)} Te recordamos que la fecha límite para confirmar tu asistencia es el 25 de marzo...
+                                            ¡Hola {guest.name}! {String.fromCodePoint(0x1F48C)} Te recordamos que la fecha límite para confirmar tu asistencia es el {formattedDeadline}...
                                         </p>
                                     </div>
                                 </button>

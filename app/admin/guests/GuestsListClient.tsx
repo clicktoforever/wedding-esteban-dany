@@ -31,12 +31,15 @@ interface Guest {
 }
 
 interface GuestsListClientProps {
+  confirmationDeadline?: string
+  weddingDate?: string
+
   initialGuests: Guest[]
 }
 
 type FilterType = 'all' | 'confirmed' | 'pending' | 'declined' | 'sent' | 'not-sent'
 
-function GuestsListContent({ initialGuests }: GuestsListClientProps) {
+function GuestsListContent({ initialGuests, confirmationDeadline }: GuestsListClientProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const initialFilterParam = searchParams.get('filter') as FilterType | null
@@ -566,6 +569,7 @@ function GuestsListContent({ initialGuests }: GuestsListClientProps) {
         onClose={() => setShowWhatsAppModal(false)}
         guest={selectedGuest}
         onSend={handleConfirmSendWhatsApp}
+        confirmationDeadline={confirmationDeadline}
       />
     </div>
   )
