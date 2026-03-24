@@ -266,7 +266,7 @@ export default async function AdminPage() {
                 {statsData.confirmed_passes} confirmados de {statsData.total_passes}
               </span>
               <span className="text-xs text-text-muted-light block">
-                Total invitados principales: {statsData.total_guests}
+                Total invitaciones: {statsData.total_guests}
               </span>
             </div>
           </div>

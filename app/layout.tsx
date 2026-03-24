@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Playfair_Display, Cormorant_Garamond, Montserrat, Great_Vibes } from 'next/font/google'
+import { Suspense } from 'react'
+import TokenTracker from '@/components/TokenTracker'
 import './globals.css'
 
 const inter = Inter({
@@ -88,7 +90,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round&display=block" rel="stylesheet" />
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block" rel="stylesheet" />
       </head>
-      <body className="font-sans antialiased">{children}</body>
+      <body className="font-sans antialiased">
+        <Suspense fallback={null}>
+          <TokenTracker />
+        </Suspense>
+        {children}
+      </body>
     </html>
   )
 }
