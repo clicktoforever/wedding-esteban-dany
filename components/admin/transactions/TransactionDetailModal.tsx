@@ -150,36 +150,10 @@ export default function TransactionDetailModal({
     setProcessing(true)
 
     try {
-      // If approved, we need to subtract from gift collected_amount
-      if (transaction.status === 'APPROVED') {
-        const { data: giftData, error: giftFetchError } = await supabase
-          .from('gifts')
-          .select('collected_amount, total_amount')
-          .eq('id', transaction.gift_id)
-          .single() as { data: { collected_amount: number; total_amount: number } | null; error: any }
-
-        if (giftFetchError) throw giftFetchError
-        if (!giftData) throw new Error('Gift not found')
-
-        const newCollected = Math.max(0, (giftData.collected_amount || 0) - transaction.amount)
-        const newStatus = newCollected >= giftData.total_amount ? 'COMPLETED' : 'AVAILABLE'
-
-        const { error: giftUpdateError } = await supabase
-          .from('gifts')
-          .update({
-            collected_amount: newCollected,
-            status: newStatus,
-          })
-          .eq('id', transaction.gift_id)
-
-        if (giftUpdateError) throw giftUpdateError
-      }
-
-      // Delete transaction
-      const { error } = await supabase
-        .from('gift_transactions')
-        .delete()
-        .eq('id', transaction.id)
+      // Usar la función RPC para eliminar la transacción y hacer el cleanup (wallet_transactions, gifts, store_users)
+      const { error } = await supabase.rpc('delete_gift_transaction', {
+        p_transaction_id: transaction.id
+      })
 
       if (error) throw error
 

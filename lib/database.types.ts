@@ -246,34 +246,34 @@ export type Database = {
           access_token: string
           created_at: string
           email: string | null
+          guest_type: string | null
           id: string
           name: string
           notified_whatsapp: boolean
           phone: string | null
           updated_at: string
-          guest_type: string | null
         }
         Insert: {
           access_token?: string
           created_at?: string
           email?: string | null
+          guest_type?: string | null
           id?: string
           name: string
           notified_whatsapp?: boolean
           phone?: string | null
           updated_at?: string
-          guest_type?: string | null
         }
         Update: {
           access_token?: string
           created_at?: string
           email?: string | null
+          guest_type?: string | null
           id?: string
           name?: string
           notified_whatsapp?: boolean
           phone?: string | null
           updated_at?: string
-          guest_type?: string | null
         }
         Relationships: []
       }
@@ -525,6 +525,10 @@ export type Database = {
       approve_gift_transaction: {
         Args: { transaction_id: string }
         Returns: Json
+      }
+      delete_gift_transaction: {
+        Args: { p_transaction_id: string }
+        Returns: undefined
       }
       get_wedding_stats: {
         Args: never
