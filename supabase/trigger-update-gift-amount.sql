@@ -12,30 +12,28 @@ AS $$
 DECLARE
   v_new_collected NUMERIC(10,2);
   v_gift RECORD;
+  v_gift_id UUID;
 BEGIN
-  -- Solo procesar cuando:
-  -- 1. Una transacción cambia de otro estado a APPROVED
-  -- 2. O cuando se crea una nueva transacción con estado APPROVED
-  IF (TG_OP = 'UPDATE' AND OLD.status <> 'APPROVED' AND NEW.status = 'APPROVED')
-     OR (TG_OP = 'INSERT' AND NEW.status = 'APPROVED')
-  THEN
-    -- Obtener información del regalo con bloqueo
-    SELECT * INTO v_gift
-    FROM gifts
-    WHERE id = NEW.gift_id
-    FOR UPDATE;
-    
-    IF NOT FOUND THEN
-      RAISE EXCEPTION 'Gift not found: %', NEW.gift_id;
-    END IF;
-    
-    -- Calcular el nuevo monto acumulado sumando todas las transacciones APPROVED
-    SELECT COALESCE(SUM(amount), 0) INTO v_new_collected
-    FROM gift_transactions
-    WHERE gift_id = NEW.gift_id
-      AND status = 'APPROVED';
-    
-    -- Actualizar el regalo
+  -- Determinar el ID del regalo dependiendo de la operación
+  IF TG_OP = 'DELETE' THEN
+    v_gift_id := OLD.gift_id;
+  ELSE
+    v_gift_id := NEW.gift_id;
+  END IF;
+
+  -- Calcular el nuevo monto acumulado sumando todas las transacciones APPROVED
+  SELECT COALESCE(SUM(amount), 0) INTO v_new_collected
+  FROM gift_transactions
+  WHERE gift_id = v_gift_id
+    AND status = 'APPROVED';
+
+  -- Construir el update sobre el regalo
+  SELECT * INTO v_gift
+  FROM gifts
+  WHERE id = v_gift_id
+  FOR UPDATE;
+
+  IF FOUND THEN
     UPDATE gifts
     SET 
       collected_amount = v_new_collected,
@@ -43,14 +41,13 @@ BEGIN
         WHEN v_new_collected >= total_amount THEN 'COMPLETED'
         ELSE 'AVAILABLE'
       END,
-      is_crowdfunding = true, -- Marcar como crowdfunding si recibe transacciones
+      is_crowdfunding = true,
       updated_at = NOW()
-    WHERE id = NEW.gift_id;
-    
-    RAISE NOTICE 'Gift % updated: collected_amount = %, status = %', 
-      NEW.gift_id, 
-      v_new_collected,
-      CASE WHEN v_new_collected >= v_gift.total_amount THEN 'COMPLETED' ELSE 'AVAILABLE' END;
+    WHERE id = v_gift_id;
+  END IF;
+
+  IF TG_OP = 'DELETE' THEN
+    RETURN OLD;
   END IF;
   
   RETURN NEW;
@@ -60,9 +57,9 @@ $$;
 -- Eliminar trigger existente si existe
 DROP TRIGGER IF EXISTS trigger_update_gift_collected_amount ON gift_transactions;
 
--- Crear el trigger en gift_transactions
+-- Crear el trigger en gift_transactions para recalcular siempre en insert/update/delete
 CREATE TRIGGER trigger_update_gift_collected_amount
-  AFTER INSERT OR UPDATE OF status
+  AFTER INSERT OR UPDATE OR DELETE
   ON gift_transactions
   FOR EACH ROW
   EXECUTE FUNCTION update_gift_collected_amount();

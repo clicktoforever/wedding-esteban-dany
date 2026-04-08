@@ -54,7 +54,7 @@ export default function TransactionDetailModal({
         return
       }
 
-      // Update transaction status and amount
+      // Update transaction status and amount (the database trigger `update_gift_collected_amount` handles the gift sum automatically)
       const { error: updateError } = await supabase
         .from('gift_transactions')
         .update({
@@ -65,29 +65,6 @@ export default function TransactionDetailModal({
         .eq('id', transaction.id)
 
       if (updateError) throw updateError
-
-      // Update gift collected_amount
-      const { data: giftData, error: giftFetchError } = await supabase
-        .from('gifts')
-        .select('collected_amount, total_amount')
-        .eq('id', transaction.gift_id)
-        .single() as { data: { collected_amount: number; total_amount: number } | null; error: any }
-
-      if (giftFetchError) throw giftFetchError
-      if (!giftData) throw new Error('Gift not found')
-
-      const newCollected = (giftData.collected_amount || 0) + amount
-      const newStatus = newCollected >= giftData.total_amount ? 'COMPLETED' : 'AVAILABLE'
-
-      const { error: giftUpdateError } = await supabase
-        .from('gifts')
-        .update({
-          collected_amount: newCollected,
-          status: newStatus,
-        })
-        .eq('id', transaction.gift_id)
-
-      if (giftUpdateError) throw giftUpdateError
 
       // Enviar email de aprobación
       try {

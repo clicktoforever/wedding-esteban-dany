@@ -35,29 +35,8 @@ BEGIN
     DELETE FROM public.wallet_transactions
     WHERE source_gift_id = p_transaction_id;
 
-    -- Update gifts collected_amount if necessary
-    IF v_tx.status = 'APPROVED' THEN
-        SELECT * INTO v_gift
-        FROM public.gifts
-        WHERE id = v_tx.gift_id
-        FOR UPDATE;
-
-        IF FOUND THEN
-            v_new_collected := GREATEST(0, COALESCE(v_gift.collected_amount, 0) - v_tx.amount);
-            
-            UPDATE public.gifts
-            SET 
-                collected_amount = v_new_collected,
-                status = CASE 
-                    WHEN v_new_collected >= total_amount THEN 'COMPLETED'
-                    ELSE 'AVAILABLE'
-                END,
-                updated_at = NOW()
-            WHERE id = v_tx.gift_id;
-        END IF;
-    END IF;
-
     -- Remove the main transaction
+    -- The DB trigger 'trigger_update_gift_collected_amount' will automatically recalculate 'gifts.collected_amount' upon DELETE
     DELETE FROM public.gift_transactions
     WHERE id = p_transaction_id;
 
