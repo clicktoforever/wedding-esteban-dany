@@ -2,7 +2,7 @@
 
 import { Wine, Shirt, Heart } from 'lucide-react'
 
-export default function LiveEventDetails() {
+export default function LiveEventDetails({ youtubeStreamUrl = "#" }: { youtubeStreamUrl?: string }) {
     return (
         <section className="px-6 py-16 bg-secondary/10 rounded-t-[40px] border-t border-secondary/20 relative">
             <div className="text-center mb-12 max-w-lg mx-auto">
@@ -50,9 +50,9 @@ export default function LiveEventDetails() {
                     <p className="text-gray-700 mb-8 leading-relaxed">
                         Acompaña a nuestro host especial en entrevistas exclusivas antes de la ceremonia. No te pierdas ni un detalle de la llegada de los invitados.
                     </p>
-                    <button className="w-full bg-white text-black font-bold py-4 px-6 rounded-xl shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors uppercase tracking-wide flex items-center justify-center space-x-2">
+                    <a href={youtubeStreamUrl} target="_blank" rel="noopener noreferrer" className="w-full bg-white text-black font-bold py-4 px-6 rounded-xl shadow-sm border border-gray-200 hover:bg-gray-50 transition-colors uppercase tracking-wide flex items-center justify-center space-x-2">
                         <span>VER TRANSMISIÓN EN YOUTUBE</span>
-                    </button>
+                    </a>
                 </div>
 
                 {/* Logística / Horario */}
@@ -63,10 +63,10 @@ export default function LiveEventDetails() {
                         <div className="relative flex items-start gap-4">
                             <div className="absolute left-[7px] -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#c8b488] ring-4 ring-[#f9f8f4]"></div>
                             <div className="pl-6">
-                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">15:00 - EST</div>
-                                <h4 className="font-display text-xl text-gray-900 mb-1">Alfombra Roja y Pre-Show</h4>
+                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">12:00 PM - Hora Ecuador</div>
+                                <h4 className="font-display text-xl text-gray-900 mb-1">Llegada y Primeros Saludos</h4>
                                 <p className="text-gray-600 text-sm leading-relaxed">
-                                    Entrevistas con la familia y amigos cercanos mientras llegan al recinto.
+                                    Iniciamos la velada con la bienvenida de nuestros seres queridos y entrevistas especiales para compartir la emoción del momento.
                                 </p>
                             </div>
                         </div>
@@ -75,10 +75,10 @@ export default function LiveEventDetails() {
                         <div className="relative flex items-start gap-4">
                             <div className="absolute left-[7px] -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-[2.5px] border-[#c8b488] ring-4 ring-[#f9f8f4]"></div>
                             <div className="pl-6">
-                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">16:00 - EST</div>
-                                <h4 className="font-display text-xl text-gray-900 mb-1">La Ceremonia</h4>
+                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">1:30 PM - Hora Ecuador</div>
+                                <h4 className="font-display text-xl text-gray-900 mb-1">El Corazón al Descubierto</h4>
                                 <p className="text-gray-600 text-sm leading-relaxed">
-                                    El momento más esperado. Intercambio de votos y anillos.
+                                    Una íntima sesión de preguntas a los novios, donde compartiremos nuestra historia, nervios y alegría antes de dar el gran paso.
                                 </p>
                             </div>
                         </div>
@@ -87,10 +87,10 @@ export default function LiveEventDetails() {
                         <div className="relative flex items-start gap-4">
                             <div className="absolute left-[7px] -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-[2.5px] border-[#c8b488] ring-4 ring-[#f9f8f4]"></div>
                             <div className="pl-6">
-                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">17:00 - EST</div>
-                                <h4 className="font-display text-xl text-gray-900 mb-1">El Gran Brindis</h4>
+                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">2:00 PM - Hora Ecuador</div>
+                                <h4 className="font-display text-xl text-gray-900 mb-1">El Sí, Acepto</h4>
                                 <p className="text-gray-600 text-sm leading-relaxed">
-                                    Levantemos nuestras copas a la distancia. Palabras de los padrinos.
+                                    Acompáñanos a presenciar nuestra ceremonia civil, el instante donde uniremos nuestras vidas para siempre.
                                 </p>
                             </div>
                         </div>
@@ -99,10 +99,22 @@ export default function LiveEventDetails() {
                         <div className="relative flex items-start gap-4">
                             <div className="absolute left-[7px] -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-[2.5px] border-[#c8b488] ring-4 ring-[#f9f8f4]"></div>
                             <div className="pl-6">
-                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">17:30 - EST</div>
-                                <h4 className="font-display text-xl text-gray-900 mb-1">Primer Baile</h4>
+                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">2:30 PM - Hora Ecuador</div>
+                                <h4 className="font-display text-xl text-gray-900 mb-1">Nuestro Primer Paseo</h4>
                                 <p className="text-gray-600 text-sm leading-relaxed">
-                                    Acompaña a los novios en su primera pieza como esposos.
+                                    El triunfal ingreso de los novios al salón. Celebremos juntos este primer recorrido como esposos.
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Event 5 */}
+                        <div className="relative flex items-start gap-4">
+                            <div className="absolute left-[7px] -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white border-[2.5px] border-[#c8b488] ring-4 ring-[#f9f8f4]"></div>
+                            <div className="pl-6">
+                                <div className="text-xs font-bold text-[#b59a68] tracking-wider mb-1">2:45 PM - Hora Ecuador</div>
+                                <h4 className="font-display text-xl text-gray-900 mb-1">Un Brindis por el Amor</h4>
+                                <p className="text-gray-600 text-sm leading-relaxed">
+                                    Levantemos nuestras copas a la distancia. Un momento lleno de emociones, palabras de los padrinos y protocolo especial.
                                 </p>
                             </div>
                         </div>

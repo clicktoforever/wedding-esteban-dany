@@ -20,13 +20,16 @@ export default async function Page() {
   const supabase = await createClient()
 
   // Fetch wedding date from configurations
-  const { data: weddingDateConfig } = await supabase
+  const { data: configs } = await supabase
     .from('configurations')
-    .select('value')
-    .eq('key', 'wedding_date')
-    .single()
+    .select('key, value')
+    .in('key', ['wedding_date', 'youtube_stream_url'])
+
+  const weddingDateConfig = configs?.find((c: any) => c.key === 'wedding_date')
+  const youtubeStreamConfig = configs?.find((c: any) => c.key === 'youtube_stream_url')
 
   const weddingDate = weddingDateConfig?.value || '2026-04-11T18:00:00'
+  const youtubeStreamUrl = youtubeStreamConfig?.value || '#'
   const weddingDateObj = new Date(weddingDate)
 
   // Format date for display
@@ -116,38 +119,7 @@ export default async function Page() {
           </section>
 
           {/* Event Details Section - Live Version */}
-          <LiveEventDetails />
-
-          {/* Gift Registry Section */}
-          <section className="px-6 lg:px-16 xl:px-24 py-12 lg:py-20 xl:py-24 pb-20 lg:pb-32">
-            <div className="relative bg-[#eaf0eb] rounded-2xl lg:rounded-3xl p-8 lg:p-12 xl:p-16 text-center border border-accent-light/20 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
-
-              {/* Badge */}
-              <div className="absolute top-0 right-0 p-4">
-                <span className="inline-block bg-white/80 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] lg:text-xs uppercase tracking-widest font-bold text-primary shadow-sm border border-primary/10">
-                  Con Recompensas
-                </span>
-              </div>
-
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/80 backdrop-blur-sm mb-6 mt-4 shadow-sm">
-                <svg className="w-8 h-8 lg:w-9 lg:h-9 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                </svg>
-              </div>
-
-              <h3 className="font-display text-3xl lg:text-4xl xl:text-5xl text-gray-800 mb-3 lg:mb-4 transition-all duration-300">Mesa de Regalos</h3>
-              <p className="text-sm lg:text-base xl:text-lg text-gray-600 mb-8 lg:mb-10 px-4 lg:px-8 xl:px-12 leading-relaxed">
-                Ayúdanos a escribir este nuevo capítulo. Tu generosidad suma a nuestra vida y desbloquea recompensas para tu diversión hoy.
-              </p>
-
-              <Link
-                href="/gifts"
-                className="inline-block bg-primary text-white font-medium py-3 lg:py-4 xl:py-5 px-8 lg:px-10 xl:px-12 rounded-full shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all text-sm lg:text-base xl:text-lg hover:-translate-y-1 active:translate-y-0"
-              >
-                Visitar Mesa de Regalos
-              </Link>
-            </div>
-          </section>
+          <LiveEventDetails youtubeStreamUrl={youtubeStreamUrl} />
 
           {/* Footer */}
           <footer className="relative h-96 lg:h-[28rem] xl:h-[32rem] w-full flex items-end justify-center">
