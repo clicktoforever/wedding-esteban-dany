@@ -1,184 +1,97 @@
-# 💍 Wedding Invitation Platform - Carlos & Dany
+# Boda Carlos & Dany
 
-Aplicación web full-stack serverless para gestionar invitaciones de boda con sistema de confirmaciones personalizado y mesa de regalos. Construida con Next.js 14, Supabase, Builder.io y deployada en Vercel.
+Sitio web para la boda de Carlos y Dany. Gestiona invitaciones, RSVP, mesa de regalos con crowdfunding, y el sistema de Machi Coins (gamificación).
 
-## ✨ Características
-
-- **Landing Page Editable**: Interfaz visual drag-and-drop con Builder.io para que usuarios no técnicos puedan editar contenido
-- **Sistema de Confirmación con Tokens**: URLs únicas por invitado sin necesidad de login
-- **Mesa de Regalos**: Catálogo interactivo con sistema de apartado en tiempo real
-- **Dashboard Admin**: Métricas en vivo de confirmaciones y regalos
-- **100% Gratuito**: Usa free tiers de Builder.io, Vercel y Supabase
-
-## 🛠 Tech Stack
-
-- **Frontend**: Next.js 14 (App Router), React 18, TypeScript
-- **Styling**: Tailwind CSS 3+ con fuentes custom (Inter + Playfair Display)
-- **Backend**: Supabase (PostgreSQL + Row Level Security)
-- **CMS**: Builder.io para visual editing
-- **Hosting**: Vercel con deploy automático
-- **State Management**: React hooks (useState, useTransition)
-
-## 📁 Arquitectura del Proyecto
-
-```
-wedding-Carlos-dany/
-├── app/
-│   ├── layout.tsx              # Layout principal con fuentes
-│   ├── globals.css             # Estilos globales de Tailwind
-│   ├── builder-registry.tsx    # Registro de componentes Builder.io
-│   ├── page.tsx                # Landing page (Builder.io)
-│   ├── confirm/[token]/        # Sistema de confirmación
-│   ├── gifts/                  # Mesa de regalos
-│   └── admin/                  # Dashboard administrativo
-├── components/
-│   ├── builder/                # Componentes custom de Builder.io
-│   │   ├── WeddingCountdown.tsx
-│   │   ├── GalleryGrid.tsx
-│   │   ├── ConfirmationCTA.tsx
-│   │   └── RenderBuilderContent.tsx
-│   ├── confirmation/           # Componentes de confirmación
-│   │   ├── GuestConfirmation.tsx
-│   │   └── PassCard.tsx
-│   ├── gifts/                  # Componentes de regalos
-│   │   ├── GiftRegistry.tsx
-│   │   └── GiftCard.tsx
-│   └── admin/                  # Componentes de admin
-│       └── AdminDashboard.tsx
-├── lib/
-│   ├── database.types.ts       # Tipos generados de Supabase
-│   └── supabase/
-│       ├── server.ts           # Cliente Supabase para Server Components
-│       └── browser.ts          # Cliente Supabase para Client Components
-├── scripts/
-│   └── generate-invites.ts     # Script CLI para generar invitaciones
-├── supabase/
-│   └── schema.sql              # Schema completo con RLS policies
-└── package.json
-
-```
-
-## 🚀 Comandos
-
-### Desarrollo
-
-```bash
-# Instalar dependencias
-npm install
-
-# Iniciar servidor de desarrollo
-npm run dev
-
-# Build para producción
-npm run build
-
-# Iniciar servidor de producción
-npm start
-```
-
-### Scripts Adicionales
-
-```bash
-# Generar tipos TypeScript desde Supabase
-npm run generate-types
-
-# Generar invitaciones (batch insert)
-npx tsx scripts/generate-invites.ts
-```
-
-## 📊 Diagrama de Arquitectura
-
-```mermaid
-graph TB
-    A[Usuario] -->|Accede| B[Vercel CDN]
-    B --> C[Next.js App Router]
-    C --> D[Builder.io SDK]
-    C --> E[Supabase Client]
-    D -->|Fetch Content| F[Builder.io API]
-    E -->|Queries/Mutations| G[Supabase PostgreSQL]
-    G -->|RLS Policies| H[Row Level Security]
-    C -->|ISR Revalidate| I[Static Generation]
-    
-    style C fill:#0070f3
-    style G fill:#3ecf8e
-    style F fill:#000000
-```
-
-## 🔐 Seguridad
-
-- **Row Level Security**: Políticas RLS en Supabase restringen acceso por token
-- **Token-based Auth**: Tokens UUID generados con `gen_random_bytes(16)`
-- **No Public Search**: Sin búsqueda pública de invitados
-- **Parameterized Queries**: Prevención de SQL injection via Supabase client
-
-## 📈 Performance
-
-- **TTFB**: < 200ms (Builder.io CDN + Vercel Edge)
-- **LCP**: < 2.5s (Next.js Image optimization)
-- **ISR**: Landing revalida cada 60s, Admin cada 10s
-- **Lighthouse Score**: > 90
-
-## 🌐 Rutas
-
-| Ruta | Descripción | Tipo |
-|------|-------------|------|
-| `/` | Landing page editable | SSG + ISR (60s) |
-| `/confirm/[token]` | Confirmación de invitado | SSR |
-| `/gifts` | Mesa de regalos | SSR + ISR (10s) |
-| `/admin` | Dashboard administrativo | SSR + ISR (10s) |
-
-## 📝 Variables de Entorno
-
-Ver [ENV_VARS.md](docs/ENV_VARS.md) para documentación completa.
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
-NEXT_PUBLIC_BUILDER_API_KEY=your_builder_api_key
-```
-
-## 📖 Documentación Adicional
-
-- [SETUP.md](docs/SETUP.md) - Guía de configuración paso a paso
-- [ENV_VARS.md](docs/ENV_VARS.md) - Documentación de variables de entorno
-- [EMAIL_NOTIFICATIONS.md](docs/EMAIL_NOTIFICATIONS.md) - Sistema de notificaciones por email
-- [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) - Solución de problemas comunes
-
-## 👰🤵 Para la Novia: Editar Landing Page
-
-1. Accede a [builder.io/content](https://builder.io/content)
-2. Selecciona la página "/"
-3. Usa el editor visual para:
-   - Arrastrar componentes
-   - Subir imágenes
-   - Editar textos
-   - Cambiar colores
-4. Click en "Publish"
-5. Los cambios se reflejan en < 60 segundos
-
-## 📊 Monitoreo
-
-- **Vercel Analytics**: Métricas de performance y errores
-- **Supabase Dashboard**: Monitoreo de queries y uso de DB
-- **Builder.io Analytics**: Tracking de visitas y ediciones
-
-## 🎯 Limitaciones Free Tier
-
-| Servicio | Límite | Uso Estimado |
-|----------|--------|--------------|
-| Builder.io | 25K requests/mes | ~2.5K requests |
-| Supabase | 500MB DB + 2GB bandwidth | ~1.5MB DB, ~35MB bandwidth |
-| Vercel | 100GB bandwidth | ~200MB bandwidth |
-
-## 🤝 Contribución
-
-Este es un proyecto personal para una boda. No se aceptan contribuciones externas.
-
-## 📄 Licencia
-
-MIT License - Uso libre para proyectos personales
+> Documentación completa: [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md)  
+> Schema de base de datos: [supabase/schema.sql](supabase/schema.sql)
 
 ---
 
-**Hecho con ❤️ para Carlos & Dany**
+## Stack
+
+| Capa | Tecnología |
+|---|---|
+| Frontend | Next.js 16, React 19, TypeScript, Tailwind CSS |
+| Backend | Supabase (PostgreSQL, Auth, RLS, Edge Functions, Storage) |
+| Pagos | PayPhone (Ecuador) |
+| Imágenes | Cloudinary CDN |
+| IA | Google Gemini AI (validación de comprobantes) |
+| Email | Nodemailer + SMTP |
+| Deploy | Vercel |
+
+---
+
+## Inicio rápido
+
+### Requisitos
+- Node.js 18+
+- Cuenta en [Supabase](https://supabase.com)
+- Cuenta en [Vercel](https://vercel.com)
+
+### Instalación
+
+```bash
+git clone <repo>
+cd wedding-esteban-dany
+npm install
+cp .env.local.example .env.local  # completar variables
+npm run dev
+```
+
+### Variables de entorno principales
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_PAYPHONE_APP_ID=
+PAYPHONE_TOKEN=
+CLOUDINARY_CLOUD_NAME=
+GEMINI_API_KEY=
+SMTP_HOST=
+SMTP_USER=
+SMTP_PASS=
+```
+
+Ver [docs/DOCUMENTATION.md](docs/DOCUMENTATION.md) para la lista completa.
+
+### Base de datos
+
+```bash
+# En Supabase SQL Editor, ejecutar:
+supabase/schema.sql
+```
+
+---
+
+## Estructura
+
+```
+app/              → Rutas Next.js (App Router)
+  admin/          → Panel de administración (/admin)
+  api/            → Route handlers (pagos, email, regalos, store)
+  gifts/          → Mesa de regalos pública
+  confirm/        → Confirmación de asistencia por token
+  confirm-payment/→ Confirmación pago PayPhone (webhook)
+  live/           → Vista del evento en vivo
+  party/          → Sección de fiesta / Machi Store
+components/       → Componentes React reutilizables
+lib/              → Supabase client, currency, email, Gemini, PayPhone
+supabase/
+  schema.sql      → Schema completo de la BD (ejecutar para setup)
+  functions/      → Edge Functions (Deno/TypeScript)
+docs/
+  DOCUMENTATION.md → Documentación técnica completa
+```
+
+---
+
+## Funcionalidades principales
+
+- **RSVP por token**: Cada invitado recibe una URL única sin login
+- **Mesa de regalos con crowdfunding**: Regalos individuales y aportaciones parciales
+- **Pagos**: PayPhone (Ecuador) y transferencias bancarias (Ecuador + México)
+- **Validación con IA**: Gemini AI verifica comprobantes de transferencia
+- **Machi Coins**: Gamificación — cada dólar donado = 10 monedas canjeables en la tienda
+- **Panel admin**: Dashboard con estadísticas, gestión de invitados, mesas y transacciones
+- **Vista en vivo**: Reproducción del evento en streaming
