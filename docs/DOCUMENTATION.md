@@ -164,18 +164,23 @@ wedding-esteban-dany/
 │   │   ├── guests/               # Gestión de invitados + pases
 │   │   ├── gifts/                # Gestión de regalos
 │   │   ├── transactions/         # Revisión de comprobantes
-│   │   ├── tables/               # Asignación de mesas
-│   │   └── settings/             # Configuraciones del sistema
+│   │   └── tables/               # Asignación de mesas
+│   │       └── [id]/             # Detalle de mesa (asignar invitados)
 │   ├── api/
 │   │   ├── guests/               # CRUD invitados
+│   │   │   └── [id]/             # GET/PUT invitado por ID
 │   │   └── gifts/
 │   │       ├── contribute/       # Iniciar contribución (crea transacción + PayPhone config)
 │   │       ├── confirm-payment/  # Callback PayPhone (redirect)
 │   │       ├── transaction-status/ # Polling de estado de transacción
 │   │       ├── bank-accounts/    # Datos bancarios EC/MX
-│   │       ├── validate-receipt/ # Validación Gemini AI
+│   │       ├── transfer/         # Procesa transferencia bancaria + validación Gemini AI
 │   │       └── send-approval-email/ # Envío de email de confirmación
-│   ├── confirm/                  # Página RSVP (confirmar/rechazar asistencia)
+│   ├── confirm/
+│   │   ├── closed/               # RSVP cerrado (fecha límite vencida)
+│   │   └── [token]/              # RSVP por invitado (confirmar/rechazar asistencia)
+│   │       ├── success/          # Confirmación exitosa
+│   │       └── declined/         # Confirmación rechazada
 │   ├── confirm-payment/          # Resultado del pago (confetti, Machi Coins)
 │   ├── gifts/                    # Mesa de regalos pública
 │   ├── live/                     # Stream en vivo del evento
@@ -183,8 +188,31 @@ wedding-esteban-dany/
 │
 ├── components/
 │   ├── admin/                    # Componentes del panel admin
+│   │   ├── AdminDashboard.tsx
+│   │   ├── AdminHeader.tsx
+│   │   ├── BottomNav.tsx
+│   │   ├── WeddingCountdown.tsx
+│   │   ├── MoneyDisplay.tsx
+│   │   ├── GuestDetailModal.tsx
+│   │   ├── GuestSwipeActionCard.tsx
+│   │   ├── EditGuestModal.tsx
+│   │   ├── NewGuestModal.tsx
+│   │   ├── WhatsAppMessageModal.tsx
+│   │   ├── SwipeableListItem.tsx
+│   │   ├── DeleteConfirmationModal.tsx
+│   │   ├── GiftProgressCard.tsx
+│   │   ├── gifts/                # Modales de gestión de regalos
+│   │   ├── tables/               # Modales de gestión de mesas
+│   │   └── transactions/         # Modal de detalle de transacción
 │   ├── confirmation/             # Componentes de confirmación RSVP
+│   │   └── GuestConfirmation.tsx
 │   ├── gifts/                    # Componentes mesa de regalos
+│   │   ├── GiftCard.tsx
+│   │   ├── GiftRegistry.tsx
+│   │   ├── InstructionsButton.tsx
+│   │   ├── InstructionsModal.tsx
+│   │   ├── UnifiedContributionModal.tsx
+│   │   └── WelcomeModal.tsx
 │   ├── providers/                # Context providers (UIProvider)
 │   ├── AddToCalendarButton.tsx   # Agregar al calendario
 │   ├── CloudinaryImage.tsx       # Wrapper de imagen Cloudinary
@@ -192,11 +220,11 @@ wedding-esteban-dany/
 │   ├── EventDetails.tsx          # Detalles del evento (lugar, hora)
 │   ├── GalleryLightbox.tsx       # Galería con lightbox
 │   ├── HomeTracker.tsx           # Tracking de visitas (token de invitado)
-│   ├── LiveEventDetails.tsx      # Detalles streaming en vivo
+│   ├── LiveEventDetails.tsx      # Detalles del evento en vivo/streaming
 │   ├── RSVPButton.tsx            # Botón flotante de confirmación
-│   ├── SeasonsGallery.tsx        # Galería "Nuestra Historia"
+│   ├── SeasonsGallery.tsx        # Carrusel de fotos de la pareja
 │   ├── TokenTracker.tsx          # Lee token de URL y almacena cookie
-│   └── VerTrailerButton.tsx      # Botón para ver trailer
+│   └── VerTrailerButton.tsx      # Botón para ver el tráiler
 │
 ├── lib/
 │   ├── supabase/
@@ -244,9 +272,11 @@ wedding-esteban-dany/
 - **Token**: Acepta `?token=` para personalizar experiencia según tipo de invitado (wedding/party).
 - **Componentes**: `GiftRegistry`, `GiftCard`, `UnifiedContributionModal`, `WelcomeModal`.
 
-#### `/confirm` — Confirmación de Asistencia (RSVP)
+#### `/confirm/[token]` — Confirmación de Asistencia (RSVP)
 - **Tipo**: Mixto (Server + Client)
-- **Funcionalidad**: El invitado confirma o declina su asistencia y la de sus acompañantes. Requiere token de invitado en URL.
+- **Funcionalidad**: El invitado confirma o declina su asistencia y la de sus acompañantes. El token forma parte de la URL.
+- **Sub-rutas**: `/confirm/[token]/success` (confirmación exitosa), `/confirm/[token]/declined` (declinado).
+- **Cerrado**: `/confirm/closed` — página estática cuando la fecha límite ha vencido.
 
 #### `/confirm-payment` — Resultado de Pago
 - **Tipo**: Client Component
@@ -271,11 +301,10 @@ Todas las rutas bajo `/admin/` verifican:
 | `/admin` | Dashboard con estadísticas generales, cuenta regresiva, acciones urgentes |
 | `/admin/login` | Login con email/password via Supabase Auth |
 | `/admin/guests` | Lista de invitados, pases, estado de confirmación, notificación WhatsApp |
-| `/admin/guests/[id]` | Detalle de invitado, editar pases, asignar mesa |
 | `/admin/gifts` | Lista de regalos, progreso de crowdfunding |
 | `/admin/transactions` | Comprobantes pendientes de revisión manual (`MANUAL_REVIEW`) |
-| `/admin/tables` | Asignación de invitados a mesas |
-| `/admin/settings` | Configuraciones: fecha boda, fecha límite RSVP, link DeUna |
+| `/admin/tables` | Lista de mesas del evento |
+| `/admin/tables/[id]` | Detalle de mesa: asignar y gestionar invitados por mesa |
 
 ---
 
@@ -303,10 +332,11 @@ Consulta el estado actual de una transacción. Usado para polling en el frontend
 Devuelve los datos bancarios para transferencia.
 - **Response**: `{ success, account: { bankName, accountName, accountNumber, ... } }`
 
-### `POST /api/gifts/validate-receipt`
-Valida un comprobante de transferencia usando Gemini AI.
-- **Body**: FormData con `receipt` (imagen), `country`, `expectedAmount`, `transactionId`
-- **Lógica**: Llama a `GeminiReceiptValidator`. Si pasa → `APPROVED`. Si imagen inválida → `REJECTED`. Si timeout/error técnico → `MANUAL_REVIEW`.
+### `POST /api/gifts/transfer`
+Procesa una transferencia bancaria con comprobante adjunto. Combina la creación de la transacción y la validación del comprobante.
+- **Body**: FormData con `giftId`, `donorName`, `donorEmail`, `amount` (USD), `displayAmount`, `displayCurrency`, `country`, `message?`, `receipt` (imagen del comprobante)
+- **Lógica**: Crea `gift_transaction` → llama a `GeminiReceiptValidator`. Si pasa → `APPROVED` inmediato + acuña coins + envía email. Si imagen inválida → `REJECTED`. Si timeout/error técnico → `MANUAL_REVIEW` para revisión manual.
+- **Timeout**: 60 segundos (configurado en `vercel.json`).
 
 ### `POST /api/gifts/send-approval-email`
 Envía email de confirmación al donante. Llamado por la Edge Function de forma asíncrona.
@@ -338,14 +368,29 @@ amount (selección)
 
 | Componente | Descripción |
 |---|---|
-| `AdminHeader` | Header con logo y botón de configuración |
+| `AdminDashboard` | Dashboard con métricas, cuenta regresiva y acciones urgentes |
+| `AdminHeader` | Header del panel admin |
 | `BottomNav` | Navegación inferior mobile-first |
-| `WeddingCountdown` | Cuenta regresiva en el dashboard admin |
-| `GuestTable` | Tabla de invitados con filtros y acciones |
-| `TransactionCard` | Tarjeta de transacción con acciones de aprobar/rechazar |
+| `WeddingCountdown` | Cuenta regresiva en el dashboard |
+| `MoneyDisplay` | Formatea y muestra montos en USD o MXN |
+| `GuestDetailModal` | Modal con detalle completo de un invitado |
+| `GuestSwipeActionCard` | Tarjeta de invitado con acciones deslizables (mobile) |
+| `EditGuestModal` | Editar datos de un invitado |
+| `NewGuestModal` | Crear nuevo invitado con pases |
+| `WhatsAppMessageModal` | Generar y enviar mensaje de WhatsApp con token |
+| `SwipeableListItem` | Componente base para listas deslizables |
+| `DeleteConfirmationModal` | Confirmación de borrado genérica |
+| `GiftProgressCard` | Tarjeta con barra de progreso de regalo |
+| `gifts/EditGiftModal` | Editar datos de un regalo |
+| `gifts/NewGiftModal` | Crear nuevo regalo |
+| `gifts/DeleteConfirmationModal` | Confirmar borrado de regalo |
+| `tables/AssignGuestModal` | Asignar invitado a una mesa |
+| `tables/EditTableModal` | Editar nombre/capacidad de mesa |
+| `tables/NewTableModal` | Crear nueva mesa |
+| `transactions/TransactionDetailModal` | Ver detalle de comprobante, aprobar/rechazar manualmente |
 
 ### Componentes de Confirmación (`components/confirmation/`)
-Gestión del flujo RSVP: formulario de confirmación por pase, manejo de acompañantes.
+- `GuestConfirmation` — formulario de confirmación/rechazo por pase, manejo de acompañantes.
 
 ### Componentes Principales
 
@@ -355,10 +400,13 @@ Gestión del flujo RSVP: formulario de confirmación por pase, manejo de acompa�
 | `CountdownTimer` | Cuenta regresiva (`useState`/`useEffect`), Client Component |
 | `TokenTracker` | Lee `?token=` de URL y lo almacena en cookie `wedding_token` para acceso personalizado |
 | `HomeTracker` | Registra visita del invitado asociando su token con la vista |
-| `RSVPButton` | Botón flotante que navega a `/confirm?token=...` con el token del invitado |
+| `RSVPButton` | Botón flotante que navega a `/confirm/[token]` con el token del invitado |
 | `AddToCalendarButton` | Genera ICS/Google Calendar link |
 | `SeasonsGallery` | Carrusel de fotos de la pareja organizadas por temporadas |
 | `EventDetails` | Sección con mapa, horarios y detalles de la boda civil |
+| `GalleryLightbox` | Galería de fotos con lightbox (zoom y navegación) |
+| `LiveEventDetails` | Detalles del evento en vivo (horario, link de transmisión) |
+| `VerTrailerButton` | Botón para abrir el tráiler de la boda |
 
 ---
 
@@ -429,7 +477,7 @@ Clase `GeminiReceiptValidator`:
 - **Env**: `PAYPHONE_TOKEN`, `PAYPHONE_STORE_ID`, `PAYPHONE_API_URL`.
 
 ### Cloudinary
-- Todas las imágenes se sirven desde `res.cloudinary.com/machiboda/`.
+- Todas las imágenes se sirven desde `res.cloudinary.com/[cloud-name]/`.
 - Transformaciones automáticas: `f_auto,q_auto` para formato y calidad óptimos.
 - `CloudinaryImage` wrapper construye URLs con parámetros de transformación.
 - Videos: loading animation, icons.
@@ -616,7 +664,7 @@ PAYPHONE_API_URL=https://pay.payphonetodoesposible.com
 GEMINI_API_KEY=...
 
 # App URL
-NEXT_PUBLIC_APP_URL=https://www.clicktoforever.com
+NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 # Cuentas bancarias (para validación Gemini)
 BANK_ACCOUNT_EC_NAME=...
@@ -640,7 +688,7 @@ SMTP_FROM_NAME=...
 PAYPHONE_TOKEN=...
 SUPABASE_URL=...              # Auto-provisto por Supabase
 SUPABASE_SERVICE_ROLE_KEY=...
-NEXT_APP_URL=https://www.clicktoforever.com
+NEXT_APP_URL=https://your-domain.com
 ```
 
 ---
@@ -653,10 +701,10 @@ El proyecto se despliega en Vercel con configuración en `vercel.json`.
 
 **Comandos**:
 ```bash
-npm run dev      # Desarrollo local (Turbopack)
-npm run build    # Build de producción
-npm run start    # Iniciar servidor de producción
-npm run lint     # ESLint
+npm run dev             # Desarrollo local
+npm run build           # Build de producción
+npm run start           # Iniciar servidor de producción
+npm run lint            # ESLint
 npm run generate-types  # Regenerar database.types.ts desde Supabase
 ```
 
@@ -666,6 +714,7 @@ npm run generate-types  # Regenerar database.types.ts desde Supabase
 2. **ISR**: Las páginas usan `revalidate` para equilibrar frescura y rendimiento.
 3. **Supabase Connection Pooling**: El cliente de servidor tiene `keepalive: true` y `AbortSignal.timeout(8000)`.
 4. **Cloudinary CDN**: Todas las imágenes se sirven desde CDN con transformaciones automáticas (`f_auto,q_auto`).
+5. **Dominios de imágenes permitidos** (`next.config.js`): `res.cloudinary.com` y `[project-ref].supabase.co` (Supabase Storage para fotos de invitados).
 
 ### Regenerar Tipos de Base de Datos
 ```bash
@@ -706,9 +755,11 @@ Invitado elige regalo → Modal contribución → ingresa monto y email
 Invitado elige regalo → Modal → selecciona "Transferencia"
   → Carga datos bancarios del país (EC/MX)
   → Invitado sube comprobante (imagen)
-  → POST /api/gifts/validate-receipt
-  → Gemini AI analiza imagen
+  → POST /api/gifts/transfer (FormData con comprobante)
+  → Crea gift_transactions (PENDING)
+  → Gemini AI analiza comprobante
     → Alto confidence + datos correctos → APPROVED automático
+        → mint_coins_from_gift() + send-approval-email
     → Imagen inválida → REJECTED
     → Timeout/Error → MANUAL_REVIEW (admin revisa manualmente)
 ```
